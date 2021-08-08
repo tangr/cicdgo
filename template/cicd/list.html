@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>List - CICD</title>
+
+    {{include "base_head.html" .}}
+    <script src="/plugin/semantic-2.4.2/tablesort.js"></script>
+</head>
+<body>
+
+<div class="ui container maincontainer">
+    
+    {{include "base_menu.html" .}}
+
+<div class="ui breadcrumb">
+  <a class="section" href="{{.url}}">Home</a>
+  <div class="divider"> / </div>
+  <div class="active section">CICDs</div>
+</div>
+
+<table class="ui sortable celled selectable striped table">
+  <thead>
+    <tr>
+        <th colspan="1">
+          CICDs
+        </th>
+    </tr>
+  </thead>
+  <tbody>
+    {{range .pipelines}}
+    <tr>
+      <td class="collapsing selectable" colspan="4">
+        <a href="{{$.url}}{{.Id}}"><i class="cogs icon"></i>{{.Pipeline_name|shortName}}</a>
+      </td>
+    </tr>
+    {{end}}
+  </tbody>
+</table>
+
+</div>
+
+{{include "base_foot.html" .}}
+
+<script type="text/javascript">
+  $('.ui.dropdown').dropdown();
+  $('table').tablesort();
+</script>
+
+</body>
+</html>

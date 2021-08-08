@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{.script_name}} - CICD</title>
+
+    {{include "base_head.html" .}}
+
+</head>
+<body>
+
+<div class="ui container maincontainer">
+    
+  {{include "base_menu.html" .}}
+
+<div class="ui breadcrumb">
+  <a class="section" href="{{.url|urlParentPath}}">Home</a>
+  <div class="divider"> / </div>
+  <a class="section" href="{{.url}}">Scripts</a>
+  <div class="divider"> / </div>
+  <div class="active section">{{.script_name}}</div>
+</div>
+
+<div class="ui divider"></div>
+
+<form class="ui form" id="script_id" method="POST" action="{{ .apiurl }}">
+
+  {{include "scripts/include/main.html" .}}
+
+  <button class="ui button" type="submit" id="script_save">Submit</button>
+</form>
+
+</div>
+
+<script type="text/javascript">
+    $('.ui.dropdown').dropdown();
+    $.ajax({
+        url: "{{ .apiurl }}",
+        type: 'GET',
+        dataType: 'json',
+        success: function(res) {
+            $('#script_name').val(res.script_name);
+            $('#script_body').val(res.script_body);
+        }
+    });
+</script>
+
+
+</body>
+</html>

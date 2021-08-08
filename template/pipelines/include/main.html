@@ -1,0 +1,30 @@
+  <div class="field">
+    <label>Name</label>
+    <input type="text" name="pipeline_name" id="pipeline_name" placeholder="Name" required="required" autocomplete="off">
+  </div>
+  <div class="field">
+    <label>Group</label>
+    <div class="ui selection dropdown" id="group_id">
+        <input type="hidden" name="group_id">
+        <i class="dropdown icon"></i>
+        <div class="default text">Group</div>
+        <div class="menu">
+          {{range $val := .groups}}<div class="item" data-value="{{$val.id}}">{{$val.group_name}}</div>{{end}}
+        </div>
+    </div>
+  </div>
+  <div class="field">
+      <label>CIAgent</label>
+      <div class="ui selection dropdown" id="agent_id">
+          <input type="hidden" name="agent_id">
+          <i class="dropdown icon"></i>
+          <div class="default text">CIAgent</div>
+          <div class="menu">
+            {{range $val := .agents}}<div class="item" data-value="{{$val.id}}">{{$val.agent_name}}</div>{{end}}
+          </div>
+      </div>
+  </div>
+  <div class="field">
+    <label>Pipeline Body</label>
+    <textarea rows="12" name="pipeline_body" id="pipeline_body" placeholder="Pipeline Content" required="required"></textarea>
+  </div>

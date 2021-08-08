@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{.pipeline_name|shortName}} - CICD</title>
+
+    {{include "base_head.html" .}}
+
+</head>
+<body>
+
+<div class="ui container maincontainer">
+
+    {{include "base_menu.html" .}}
+
+    <div class="ui breadcrumb">
+      <a class="section" href="{{.url|urlParentPath}}">Home</a>
+      <div class="divider"> / </div>
+      <a class="section" href="{{.url|urlParentPath}}">CICD</a>
+      <div class="divider"> / </div>
+      <a class="section" href="{{.url}}">{{.pipeline_name|shortName}}</a>
+      <div class="divider"> / </div>
+      <div class="active section">{{.job_id}}</div>
+    </div>
+
+
+    {{if eq .job_type "BUILD"}}
+
+    {{range .tasks}}
+
+    <div class="ui icon message">
+      <div class="content">
+        <div class="header taskstatus1"></div>
+        <hr>
+        <p class="taskoutput" style="white-space: pre;"></p>
+        <hr>
+        <div class="taskstatus2" id="taskstatusbuttom"></div>
+
+        <i style="color: red;" class="times circle outline icon" id="abort_btn"></i>
+        <i class="arrow alternate circle up outline icon" id="up_btn"></i>
+      </div>
+        <hr>
+    </div>
+
+    <div id="jobtypeid" data-jobtype="BUILD" data-taskurl="{{$.taskurl}}{{.Id}}/log" data-aborturl="{{$.taskurl}}{{.Id}}/abort"></div>
+
+    {{else}}
+
+    <i class="ui active large loader"></i>
+
+    {{end}}
+
+    {{else}}
+    <div id="jobtypeid" data-jobtype="{{.job_type}}"></div>
+
+    <table class="ui selectable striped table">
+      <thead>
+        <tr>
+            <th class="selectable two wide" colspan="1">
+              CICDs
+            </th>
+            <th></th>
+            <th class="right aligned two wide"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td colspan="3">
+            <div class="ui active green progress" id="example1" style="margin-top: auto; margin-bottom: auto;">
+                <div class="bar">
+                  <div class="progress"></div>
+                </div>
+              </div>
+          </td>
+        </tr>
+        {{range .tasks}}
+        <tr>
+          {{ if eq  .Job_status "pending"}}
+          <td class="selectable" style="color: gray;">
+            <a href="{{$.taskurl}}{{.Id}}/log" class="info-modal-link"><i class="paper plane outline icon"></i>{{.Job_status}}</a>
+          </td>
+          {{ else if eq  .Job_status "running"}}
+          <td class="selectable" style="color: teal;">
+            <a href="{{$.taskurl}}{{.Id}}/log" class="info-modal-link"><i class="sync alternate loading icon"></i>{{.Job_status}}</a>
+          </td>
+          {{ else if eq  .Job_status "aborted"}}
+          <td class="selectable" style="color: purple;">
+            <a href="{{$.taskurl}}{{.Id}}/log" class="info-modal-link"><i class="crosshairs loading icon"></i>{{.Job_status}}</a>
+          </td>
+          {{ else if eq  .Job_status "success"}}
+          <td class="selectable" style="color: green;">
+            <a href="{{$.taskurl}}{{.Id}}/log" class="info-modal-link"><i class="check circle outline icon"></i>{{.Job_status}}</a>
+          </td>
+          {{ else if eq  .Job_status "failed"}}
+          <td class="selectable" style="color: red;">
+            <a href="{{$.taskurl}}{{.Id}}/log" class="info-modal-link"><i class="times circle outline icon"></i>{{.Job_status}}</a>
+          </td>
+          {{ end }}
+          <td>{{.Ipaddr}}</td>
+          <td data-tooltip="{{.Updated_at|timeToStr}}">{{.Updated_at|timeDiffNow}}</td>
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
+
+    <div class="ui large info modal">
+      <div class="scrolling content message"></div>
+    </div>
+
+    {{end}}
+
+</div>
+
+
+
+{{include "base_foot.html" .}}
+
+
+<script type="text/javascript">
+    $('.ui.dropdown').dropdown();
+
+    $('#example1').progress({
+      percent: 100
+    });
+
+    $(document).ready(function() {
+      var jobtype = $("#jobtypeid").data("jobtype");
+      console.log(jobtype);
+      if (jobtype == "BUILD") {
+        var taskurl = $("#jobtypeid").data("taskurl");
+        console.log(taskurl);
+        $.ajax({
+          url: taskurl,
+          type: 'GET',
+          dataType: 'json',
+          success: function(res) {
+            var taskstatus = res.status;
+            $('.taskstatus1').text(taskstatus);
+            $('.taskoutput').text(res.output);
+            $('.taskstatus2').text(taskstatus);
+
+            if (taskstatus == 'running') {
+                // var focusposition = document.getElementById("taskstatusbuttom").scrollHeight;
+                var focusposition = document.getElementById("taskstatusbuttom").offsetTop;
+                window.scrollTo(0, focusposition);
+              // window.scrollTo(0, document.body.scrollHeight);
+            }
+
+            if (taskstatus != "success" && taskstatus != "failed") {
+              var timer = setInterval(function () {
+                  $.ajax({
+                    url: taskurl,
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(res) {
+                      var taskstatus = res.status;
+                      $('.taskstatus1').text(taskstatus);
+                      $('.taskoutput').text(res.output);
+                      // $('.taskstatus2').html(taskstatus + ' <i class="spinner loading icon"></i>');
+                      $('#taskstatusbuttom').html(taskstatus + ' <i class="ui active inline tiny loader"></i>');
+
+                      console.log(taskstatus);
+                      if(taskstatus == "success" || taskstatus == "failed"){
+                          $('#taskstatusbuttom').html(taskstatus);
+                          $("#abort_btn").remove();
+                          clearInterval(timer);
+                      }
+                    }
+                  });
+              }, 1000);
+            } else {
+              $("#abort_btn").remove();
+            }
+          }
+        });
+      }
+      if (jobtype === undefined) {
+        console.log("jobtype undefined");
+        setTimeout(function() {
+            console.log("refresh");
+            $.ajax({
+              url: "",
+              context: document.body,
+              success: function(s,x) {
+                  $(this).html(s);
+              }
+            });
+        }, 1000);
+      }
+    });
+
+    $(function () {
+        $('.info-modal-link').each(function () {
+            $(this).on('click', function (e) {
+                e.preventDefault();
+                var url = $(this).attr('href');
+                $.get(url, function (data) {
+                    $('.info.modal .content').attr('style', 'white-space: pre;');
+                    $('.info.modal .content').html(data.output);
+                    $(".info.modal").modal({closable:true,observeChanges:true}).modal('show');
+                }, 'json');
+            });
+        });
+    });
+
+    $("#abort_btn").click(function() {
+      var aborturl = $("#jobtypeid").data("aborturl");
+      $.post(aborturl, function (data) {
+                    $('.info.modal .content').attr('style', 'white-space: pre;');
+                    $('.info.modal .content').html(data.output);
+                    $(".info.modal").modal({closable:true,observeChanges:true}).modal('show');
+                }, 'json');
+
+    });
+
+    $("#up_btn").click(function() {
+      window.scrollTo(0, 0);
+    });
+
+    window.onscroll = function() {
+        if(window.scrollY > 500){
+          document.getElementById('up_btn').style.display = 'block';
+        }
+        else{
+          document.getElementById('up_btn').style.display = none;
+        }
+    }
+
+</script>
+
+</body>
+</html>

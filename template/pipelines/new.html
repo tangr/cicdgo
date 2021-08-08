@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>New Pipeline - CICD</title>
+
+    {{include "base_head.html" .}}
+
+</head>
+<body>
+
+<div class="ui container maincontainer">
+
+    {{include "base_menu.html" .}}
+
+    <div class="ui breadcrumb">
+      <a class="section" href="{{.url|urlParentPath}}">Home</a>
+      <div class="divider"> / </div>
+      <a class="section" href="{{.url}}">Pipelines</a>
+      <div class="divider"> / </div>
+      <div class="active section">New</div>
+    </div>
+
+    <div class="ui divider"></div>
+
+<form class="ui form" method="POST" action="{{.apiurl}}">
+{{ include "pipelines/include/main.html" .}}
+  <button class="ui button" type="submit" id="pipeline_save">Add</button>
+</form>
+
+</div>
+
+{{include "base_foot.html" .}}
+
+<script type="text/javascript">
+    $('.ui.dropdown').dropdown();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Show User - CICD</title>
+
+    {{include "base_head.html" .}}
+
+</head>
+<body>
+
+<div class="ui container">
+    
+  {{include "base_menu.html" .}}
+
+<div class="ui breadcrumb">
+  <a class="section" href="{{.url|urlParentPath}}">Home</a>
+  <div class="divider"> / </div>
+  <a class="section" href="{{.url}}">Users</a>
+  <div class="divider"> / </div>
+  <div class="active section">{{.user_name}}</div>
+</div>
+
+<div class="ui divider"></div>
+
+<form class="ui form" id="form_id" method="POST" action="{{.apiurl}}">
+  <div class="field">
+    <label>Username</label>
+    <input type="text" name="username" id="username" placeholder="Username" autocomplete="off">
+  </div>
+
+  <div class="field">
+    <label>Group</label>
+    <select name="groups" multiple="" class="ui fluid dropdown" id="group_id">
+      {{range $val := .groups}}<option value="{{$val.Id}}">{{$val.Group_name}}</div>{{end}}
+    </select>
+  </div>
+
+  <div class="field">
+    <label>Password</label>
+    <input type="password" name="password" id="password" placeholder="Password" autocomplete="off">
+  </div>
+
+  <button class="ui button" type="submit" id="form_save">Submit</button>
+</form>
+
+</div>
+
+<script type="text/javascript">
+    $('.ui.dropdown').dropdown();
+    $.ajax({
+        url: "{{ .apiurl }}",
+        type: 'GET',
+        dataType: 'json',
+        success: function(res) {
+            $('#username').val(res.username);
+            var groups = res.groups;
+            groups=JSON.parse(groups);
+            $('#group_id').dropdown('set selected', groups);
+        }
+    });
+</script>
+
+
+</body>
+</html>

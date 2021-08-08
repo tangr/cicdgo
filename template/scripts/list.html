@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Scripts - CICD</title>
+
+    {{include "base_head.html" .}}
+
+</head>
+<body>
+
+<div class="ui container maincontainer">
+
+    {{include "base_menu.html" .}}
+
+    <div class="ui breadcrumb">
+      <a class="section">Home</a>
+      <div class="divider"> / </div>
+      <div class="active section">Scripts</div>
+    </div>
+
+<table class="ui selectable striped table">
+    <thead>
+      <tr>
+          <th class="four wide">
+            Scripts
+          </th>
+          <th class="collapsing ten wide">
+          </th>
+          <th class="right aligned collapsing two wide">
+              <i class="plus square outline icon" onclick="click_new_script()"></i>
+          </th>
+      </tr>
+    </thead>
+    <tbody>
+      {{range .scripts}}
+      <tr>
+        <td class="collapsing selectable">
+          <a href="{{$.url}}{{.Id}}"><i class="file code icon"></i>{{.Script_name}}</a>
+        </td>
+        <td class="right aligned collapsing">tangshoubin{{.Author}}</td>
+        <td class="right aligned collapsing" colspan="1" data-tooltip="{{.Updated_at|timeToStr}}">{{.Updated_at|timeDiffNow}}</td>
+      </tr>
+      {{end}}
+    </tbody>
+  </table>
+
+</div>
+
+{{include "base_foot.html" .}}
+
+<script type="text/javascript">
+    $('.ui.dropdown').dropdown();
+
+	function click_new_script(){
+      window.location.href = "{{.newScriptUrl}}";
+	}
+
+</script>
+
+
+</body>
+</html>

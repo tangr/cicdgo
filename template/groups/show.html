@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Groups - CICD</title>
+
+    {{include "base_head.html" .}}
+
+</head>
+<body>
+
+<div class="ui container maincontainer">
+    
+  {{include "base_menu.html" .}}
+
+<div class="ui breadcrumb">
+  <a class="section" href="{{.url|urlParentPath}}">Home</a>
+  <div class="divider"> / </div>
+  <a class="section" href="{{.url}}">Groups</a>
+  <div class="divider"> / </div>
+  <div class="active section">{{.group_name}}</div>
+</div>
+
+<div class="ui divider"></div>
+
+<form class="ui form" id="form_id" method="POST" action="{{.apiurl}}">
+  <div class="field">
+    <label>Groupname</label>
+    <input type="text" name="groupname" id="groupname" placeholder="Groupname" autocomplete="off">
+  </div>
+
+  <button class="ui button" type="submit" id="form_save">Submit</button>
+</form>
+
+</div>
+
+{{include "base_foot.html" .}}
+
+<script type="text/javascript">
+    $('.ui.dropdown').dropdown();
+    $.ajax({
+        url: "{{ .apiurl }}",
+        type: 'GET',
+        dataType: 'json',
+        success: function(res) {
+            $('#groupname').val(res.groupname);
+        }
+    });
+
+</script>
+
+
+</body>
+</html>

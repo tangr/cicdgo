@@ -1,0 +1,30 @@
+<div class="ui divider"></div>
+
+<div class="ui inverted menu">
+    <a class="item" href="/">
+      Home
+    </a>
+    <a class="item" href="/console/">CICD</a>
+    <div class="right menu">
+      {{if or (eq .Config.server.console.AuthorEnable false) (eq .Session.SessionKeyUser.IsAdmin true)}}
+      <div class="ui right dropdown item">
+        Admin
+        <i class="dropdown icon"></i>
+        <div class="menu">
+          <a class="item" href="/console/pipelines">Pipelines</a>
+          <a class="item" href="/console/scripts">Scripts</a>
+          <a class="item" href="/console/agents">Agents</a>
+          <a class="item" href="/console/users">Users</a>
+          <a class="item" href="/console/groups">Groups</a>
+        </div>
+      </div>
+      {{end}}
+      <div class="ui right dropdown item">
+        {{.Session.SessionKeyUser.email|emailPrefix}}
+        <i class="dropdown icon"></i>
+        <div class="menu">
+          <a class="item" href="/console/logout">Logout</a>
+        </div>
+      </div>
+    </div>
+</div>

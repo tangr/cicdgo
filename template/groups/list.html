@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Groups - CICD</title>
+
+    {{include "base_head.html" .}}
+
+</head>
+<body>
+<div class="ui container maincontainer">
+
+    {{include "base_menu.html" .}}
+
+    <div class="ui breadcrumb">
+      <a class="section" href="/">Home</a>
+      <div class="divider"> / </div>
+      <div class="active section">Groups</div>
+    </div>
+
+<table class="ui selectable striped table">
+    <thead>
+      <tr>
+          <th colspan="1" class="fourteen wide">
+            Groups
+          </th>
+          <th class="right aligned collapsing two wide">
+            <i class="plus square outline icon" onclick="click_new_user()"></i>
+          </th>
+      </tr>
+    </thead>
+    <tbody>
+      {{range .groups}}
+      <tr>
+        <td colspan="2" class="collapsing selectable">
+          <a href="{{$.url}}{{.Id}}"><i class="users code icon"></i>{{.Group_name}}</a>
+        </td>
+      </tr>
+      {{end}}
+    </tbody>
+  </table>
+
+</div>
+
+{{include "base_foot.html" .}}
+
+<script type="text/javascript">
+    $('.ui.dropdown').dropdown();
+
+	function click_new_user(){
+      window.location.href = "{{.newGroupUrl}}";
+	}
+
+</script>
+
+
+</body>
+</html>

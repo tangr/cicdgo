@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>New Agent - CICD</title>
+
+    {{include "base_head.html" .}}
+
+</head>
+<body>
+
+<div class="ui container maincontainer">
+
+  {{include "base_menu.html" .}}
+
+  <div class="ui breadcrumb">
+    <a class="section" href="{{.url|urlParentPath}}">Home</a>
+    <div class="divider"> / </div>
+    <a class="section" href="{{.url}}">Agents</a>
+    <div class="divider"> / </div>
+    <div class="active section">New</div>
+  </div>
+
+<div class="ui divider"></div>
+
+<form class="ui form" method="post" action="{{.newAgentUrl}}">
+  {{ include "agents/include/main.html" }}
+
+  <button class="ui button" type="submit">Add</button>
+</form>
+</div>
+
+<script type="text/javascript">
+    $('.ui.dropdown').dropdown();
+</script>
+
+</body>
+</html>

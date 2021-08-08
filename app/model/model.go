@@ -33,7 +33,6 @@ type CicdScript struct {
 	Id         int    `orm:"id,primary"         json:"id"`         //
 	ScriptName string `orm:"script_name,unique" json:"scriptName"` //
 	ScriptBody string `orm:"script_body"        json:"scriptBody"` //
-	IsActive   int    `orm:"is_active"          json:"isActive"`   //
 	Author     string `orm:"author"             json:"author"`     //
 	UpdatedAt  int64  `orm:"updated_at"         json:"updatedAt"`  //
 }

@@ -23,7 +23,6 @@ type cicdScriptColumns struct {
 	Id         string //
 	ScriptName string //
 	ScriptBody string //
-	IsActive   string //
 	Author     string //
 	UpdatedAt  string //
 }
@@ -34,7 +33,6 @@ func NewCicdScriptDao() *CicdScriptDao {
 		Id:         "id",
 		ScriptName: "script_name",
 		ScriptBody: "script_body",
-		IsActive:   "is_active",
 		Author:     "author",
 		UpdatedAt:  "updated_at",
 	}

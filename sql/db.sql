@@ -1,3 +1,5 @@
+-- Create DATABASE cicd CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS `cicd_pipeline` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   `pipeline_name` varchar(255) NOT NULL,

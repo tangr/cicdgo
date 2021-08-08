@@ -191,7 +191,6 @@ type PipelineBody struct {
 type ListScripts struct {
 	Id          int    `json:"script_id"`
 	Script_name string `json:"script_name"`
-	Is_active   int    `json:"is_active"`
 	Author      string `json:"author"`
 	Updated_at  int    `json:"updated_at"`
 }

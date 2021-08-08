@@ -14,7 +14,7 @@ type scriptService struct{}
 
 func (s *scriptService) ListScripts() []model.ListScripts {
 	scripts := ([]model.ListScripts)(nil)
-	err := dao.CicdScript.Fields("id,script_name,is_active,author,updated_at").Structs(&scripts)
+	err := dao.CicdScript.Fields("id,script_name,author,updated_at").Structs(&scripts)
 	if err != nil {
 		glog.Error(err)
 	}

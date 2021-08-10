@@ -81,7 +81,7 @@ func (s *wsServer) HandleCIJob(ciJob *model.WsAgentSendMap, clientip string) *mo
 				glog.Error(err)
 			}
 		}
-		return s.GetCIJob(ciJob.AgentId)
+		return s.GetCIJob(ciJob.AgentId, clientip)
 	}
 	if jobStatus == "running" {
 		jobOutput := ciJob.JobOutput
@@ -93,7 +93,7 @@ func (s *wsServer) HandleCIJob(ciJob *model.WsAgentSendMap, clientip string) *mo
 		}
 		return &jobCiData
 	}
-	return s.GetCIJob(ciJob.AgentId)
+	return s.GetCIJob(ciJob.AgentId, clientip)
 }
 
 func (s *wsServer) HandleCDJob(cdJob *model.WsAgentSendMap, clientip string) *model.WsServerSendMap {
@@ -127,7 +127,7 @@ func (s *wsServer) HandleCDJob(cdJob *model.WsAgentSendMap, clientip string) *mo
 				glog.Error(err)
 			}
 		}
-		return s.GetCDJob(cdJob.AgentId)
+		return s.GetCDJob(cdJob.AgentId, clientip)
 	}
 	if jobStatus == "running" {
 		jobOutput := cdJob.JobOutput
@@ -139,7 +139,7 @@ func (s *wsServer) HandleCDJob(cdJob *model.WsAgentSendMap, clientip string) *mo
 		}
 		return &jobCdData
 	}
-	return s.GetCDJob(cdJob.AgentId)
+	return s.GetCDJob(cdJob.AgentId, clientip)
 }
 
 func (s *wsServer) GetPipelineId(job_id int) int {
@@ -150,7 +150,7 @@ func (s *wsServer) GetPipelineId(job_id int) int {
 	return pipeline_id.Int()
 }
 
-func (s *wsServer) GetCIJob(id int) *model.WsServerSendMap {
+func (s *wsServer) GetCIJob(id int, clientip string) *model.WsServerSendMap {
 	var newJobScriptP = new(model.JobScript)
 	var newJobCiDataP = new(model.WsServerSendMap)
 	if err := dao.CicdJob.Fields("id,job_status,script").Where("job_type", "BUILD").Where("agent_id", id).Where("job_status", "pending").Limit(1).Order("id asc").Struct(newJobScriptP); err != nil {
@@ -169,6 +169,7 @@ func (s *wsServer) GetCIJob(id int) *model.WsServerSendMap {
 	if len(newJobScript.Script.Envs) != 0 {
 		package_name := fmt.Sprint(jobId) + "_" + newJobScript.Script.Envs["PKGRDM"]
 		newJobCiDataP.Envs["PKGRDM"] = package_name
+		newJobCiDataP.Envs["IPADDR"] = clientip
 		pipeline_id := s.GetPipelineId(jobId)
 		if _, err := dao.CicdPackage.Data(g.Map{"pipeline_id": pipeline_id, "job_id": jobId, "job_status": jobStatus, "package_name": package_name, "created_at": gtime.Now().Timestamp()}).Save(); err != nil {
 			glog.Error(err)
@@ -177,7 +178,7 @@ func (s *wsServer) GetCIJob(id int) *model.WsServerSendMap {
 	return newJobCiDataP
 }
 
-func (s *wsServer) GetCDJob(id int) *model.WsServerSendMap {
+func (s *wsServer) GetCDJob(id int, clientip string) *model.WsServerSendMap {
 	var newJobScriptP = new(model.JobScript)
 	var newJobCdDataP = new(model.WsServerSendMap)
 	if err := dao.CicdJob.Fields("id,job_status,script").Where("job_type", "DEPLOY").Where("pipeline_id", id).Where("job_status", "pending").Limit(1).Order("id desc").Struct(newJobScriptP); err != nil {

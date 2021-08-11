@@ -151,8 +151,24 @@ func (s *agentCICD) WriteFile(path string, content string) error {
 	return nil
 }
 
+func FileExists(name string) bool {
+	if _, err := os.Stat(name); err != nil {
+		if os.IsNotExist(err) {
+			return false
+		}
+	}
+	return true
+}
+
 func (s *agentCICD) ReadFile(path string) string {
 	glog.Debug("Read file: ", path)
+	if !FileExists(path) {
+		glog.Debug("file not exist: ", path)
+		return ""
+	}
+	// if _, err := os.Stat(path); os.IsNotExist(err) {
+	// 	return ""
+	// }
 	content := gfile.GetContents(path)
 	return content
 }
@@ -224,6 +240,8 @@ func (s *agentCICD) KillJob(jobId int) {
 
 func (s *agentCICD) RunCommand(jobId int, runCommand string, scriptEnvs []string) {
 	// defer delete(runningJobs, jobId)
+	glog.Debugf("recvScriptEnvs: %+v", scriptEnvs)
+	glog.Debugf("recvScriptEnvs: %#v", scriptEnvs)
 	newprocess := gproc.NewProcessCmd(runCommand, scriptEnvs)
 	newpid, err := newprocess.Start()
 	if err != nil {
@@ -337,6 +355,8 @@ func (s *agentCICD) HandleRecvJson(recvJson *model.WsServerSend) {
 		if jobv.JobID == 0 || jobv.JobStatus == "" {
 			continue
 		}
+		glog.Debugf("recvjson: %+v", jobv)
+		glog.Debugf("recvjson: %#v", jobv)
 		var sendMap = s.HandleJob(&jobv)
 		sendJson = append(sendJson, *sendMap)
 	}
@@ -394,10 +414,10 @@ func (s *agentCICD) AgentRun() {
 					glog.Error("read:", err)
 					return
 				}
-				// glog.Debugf("recv+v: %+v", recvJson)
+				// glog.Infof("recv+v: %+v", recvJson)
 
 				newjobs, _ := json.Marshal(recvJson)
-				glog.Debugf("recvjson: %s", string(newjobs))
+				glog.Infof("recvjson: %s", string(newjobs))
 				s.HandleRecvJson(recvJson)
 
 			}
@@ -413,23 +433,23 @@ func (s *agentCICD) AgentRun() {
 			case <-done:
 				break L
 			case <-ticker.C:
-				// glog.Debug("*********************************")
+				// glog.Info("*********************************")
 				sendJson := s.SendJson()
 				err := conn.WriteJSON(sendJson)
 				if err != nil {
 					glog.Error("write:", err)
 					return
 				}
-				// glog.Debugf("send+v: %+v", sendJson)
-				// glog.Debugf("send#v: %#v", sendJson)
+				// glog.Infof("send+v: %+v", sendJson)
+				// glog.Infof("send#v: %#v", sendJson)
 				newjobs, _ := json.Marshal(sendJson)
-				glog.Debugf("sendjson: %s", string(newjobs))
-				// glog.Debug("###################################")
+				glog.Infof("sendjson: %s", string(newjobs))
+				// glog.Info("###################################")
 			case <-interrupt:
 				glog.Info("interrupt1")
 				err := conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
 				if err != nil {
-					glog.Debugf("write close:", err)
+					glog.Warningf("write close:", err)
 					return
 				}
 				select {

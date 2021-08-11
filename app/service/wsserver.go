@@ -170,6 +170,7 @@ func (s *wsServer) GetCIJob(id int, clientip string) *model.WsServerSendMap {
 		package_name := fmt.Sprint(jobId) + "_" + newJobScript.Script.Envs["PKGRDM"]
 		newJobCiDataP.Envs["PKGRDM"] = package_name
 		newJobCiDataP.Envs["IPADDR"] = clientip
+		newJobCiDataP.Envs["JOBID"] = fmt.Sprint(jobId)
 		pipeline_id := s.GetPipelineId(jobId)
 		if _, err := dao.CicdPackage.Data(g.Map{"pipeline_id": pipeline_id, "job_id": jobId, "job_status": jobStatus, "package_name": package_name, "created_at": gtime.Now().Timestamp()}).Save(); err != nil {
 			glog.Error(err)
@@ -185,13 +186,17 @@ func (s *wsServer) GetCDJob(id int, clientip string) *model.WsServerSendMap {
 		glog.Debug(err)
 	}
 	newJobScript := *newJobScriptP
+	jobId := newJobScript.ID
+	jobStatus := newJobScript.JobStatus
 	newJobCdDataP.AgentId = id
 	newJobCdDataP.AgentName = CdAgents[id]
-	newJobCdDataP.JobID = newJobScript.ID
-	newJobCdDataP.JobStatus = newJobScript.JobStatus
+	newJobCdDataP.JobID = jobId
+	newJobCdDataP.JobStatus = jobStatus
 	newJobCdDataP.Body = newJobScript.Script.Body
 	newJobCdDataP.Args = newJobScript.Script.Args
 	newJobCdDataP.Envs = newJobScript.Script.Envs
+	newJobCdDataP.Envs["IPADDR"] = clientip
+	newJobCdDataP.Envs["JOBID"] = fmt.Sprint(jobId)
 	return newJobCdDataP
 }
 

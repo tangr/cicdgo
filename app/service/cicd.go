@@ -115,7 +115,7 @@ func (s *cicdService) New(pipeline_id int, envs map[string]interface{}, username
 	var comment string = job_envs["comment"]
 	var job_type string = job_envs["job_type"]
 
-	agent_id, pipeline_body := Pipeline.GetPipelineBody(pipeline_id)
+	pipeline_name, agent_id, pipeline_body := Pipeline.GetPipelineBody(pipeline_id)
 	if job_type == "BUILD" {
 		jobtype = job_type
 		script_name = pipeline_body.StageCI.Script
@@ -128,6 +128,9 @@ func (s *cicdService) New(pipeline_id int, envs map[string]interface{}, username
 	} else {
 		glog.Errorf("unsupported job_type: %s", job_type)
 	}
+	job_envs["PIPELINEID"] = fmt.Sprint(pipeline_id)
+	job_envs["PIPELINENAME"] = pipeline_name
+	job_envs["USERNAME"] = username
 	script_body := Script.GetScriptBody(script_name)
 	new_jobscript := new(model.JobScriptValue)
 	new_jobscript.Envs = job_envs

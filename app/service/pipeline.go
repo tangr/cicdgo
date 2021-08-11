@@ -45,19 +45,21 @@ func (s *pipelineService) GetPipelineBodyString(pipeline_id int) string {
 	return pipeline_body.String()
 }
 
-func (s *pipelineService) GetPipelineBody(pipeline_id int) (int, model.PipelineBody) {
+func (s *pipelineService) GetPipelineBody(pipeline_id int) (string, int, model.PipelineBody) {
 	type Pipeline struct {
-		Agent_id int                `json:"agent_int"`
-		Body     model.PipelineBody `json:"pipeline_body"`
+		Pipeline_Name string             `json:"pipeline_name"`
+		Agent_id      int                `json:"agent_int"`
+		Body          model.PipelineBody `json:"pipeline_body"`
 	}
 	var pipeline Pipeline
-	err := dao.CicdPipeline.Fields("agent_id, body").Where("id=", pipeline_id).Struct(&pipeline)
+	err := dao.CicdPipeline.Fields("pipeline_name,agent_id,body").Where("id=", pipeline_id).Struct(&pipeline)
 	if err != nil {
 		glog.Error(err)
 	}
+	pipeline_name := pipeline.Pipeline_Name
 	agent_id := pipeline.Agent_id
 	pipeline_body := pipeline.Body
-	return agent_id, pipeline_body
+	return pipeline_name, agent_id, pipeline_body
 }
 
 func (s *pipelineService) New(pipeline_name string, group_id int, agent_id int, pipeline_body string) int {

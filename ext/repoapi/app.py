@@ -6,12 +6,12 @@ from functools import wraps
 from operator import itemgetter, attrgetter
 import time,os
 
-from flask_cors import CORS, cross_origin
+# from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
 
-cors = CORS(app)
-app.config['CORS_HEADERS'] = 'Content-Type'
+# cors = CORS(app)
+# app.config['CORS_HEADERS'] = 'Content-Type'
 
 TOKEN = {'bearer_token': '', 'expired_time': 0}
 
@@ -54,7 +54,7 @@ def index():
     return 'ok'
 
 @app.route('/console/v1/repoinfo')
-@cross_origin()
+# @cross_origin()
 def get_gitinfos():
     repoinfo = request.args.get('key')
     if repoinfo is None:

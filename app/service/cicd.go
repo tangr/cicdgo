@@ -3,6 +3,7 @@ package service
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/gogf/gf/frame/g"
@@ -129,7 +130,7 @@ func (s *cicdService) New(pipeline_id int, envs map[string]interface{}, username
 		glog.Errorf("unsupported job_type: %s", job_type)
 	}
 	job_envs["PIPELINEID"] = fmt.Sprint(pipeline_id)
-	job_envs["PIPELINENAME"] = pipeline_name
+	job_envs["PIPELINENAME"] = strings.Split(pipeline_name, ":")[0]
 	job_envs["USERNAME"] = username
 	script_body := Script.GetScriptBody(script_name)
 	new_jobscript := new(model.JobScriptValue)

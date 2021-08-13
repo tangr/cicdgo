@@ -260,7 +260,7 @@ func (s *cicdService) GetJobTasks(pipeline_id int, job_id int) []model.ListTasks
 func (s *cicdService) GetJobProgress(pipeline_id int, job_id int) (string, string, bool) {
 	tasks := ([]model.ListTasks)(nil)
 	if !s.CheckJobid(pipeline_id, job_id) {
-		return "", "", true
+		return "", "", false
 	}
 	job_map := g.Map{"job_id": job_id}
 	err := dao.CicdLog.Fields("id,job_id,job_status,ipaddr,updated_at").Where(job_map).Structs(&tasks)

@@ -23,36 +23,7 @@
     </div>
 
 
-    {{if eq .job_type "BUILD"}}
-
-    {{range .tasks}}
-
-    <div class="ui icon message">
-      <div class="content">
-        <div class="header taskstatus1"></div>
-        <hr>
-        <p class="taskoutput" style="white-space: pre;"></p>
-        <hr>
-        <div class="taskstatus2" id="taskstatusbuttom"></div>
-
-        <i style="color: red;" class="times circle outline icon" id="abort_btn"></i>
-        <i class="arrow alternate circle up outline icon" id="up_btn"></i>
-      </div>
-        <hr>
-    </div>
-
-    <div id="jobtypeid" data-jobtype="BUILD" data-taskurl="{{$.taskurl}}{{.Id}}/log" data-aborturl="{{$.taskurl}}{{.Id}}/abort"></div>
-
-    {{else}}
-
-    <i class="ui active large loader"></i>
-
-    {{end}}
-
-    {{else}}
-    <div id="jobtypeid" data-jobtype="{{.job_type}}"></div>
-
-    <table class="ui selectable striped table">
+    <table class="ui selectable sortable basic table">
       <thead>
         <tr>
             <th class="selectable two wide" colspan="1">
@@ -61,17 +32,31 @@
             <th></th>
             <th class="right aligned two wide"></th>
         </tr>
-      </thead>
-      <tbody>
         <tr>
           <td colspan="3">
-            <div class="ui active green progress" id="example1" style="margin-top: auto; margin-bottom: auto;">
-                <div class="bar">
+            <div class="ui active multiple progress" id="progress_bar" style="margin-top: auto; margin-bottom: auto;">
+                <div class="green bar">
                   <div class="progress"></div>
                 </div>
-              </div>
+                <div class="red bar">
+                  <div class="progress"></div>
+                </div>
+                <div class="teal bar">
+                  <div class="progress"></div>
+                </div>
+                <div class="gray bar">
+                  <div class="progress"></div>
+                </div>
+            </div>
           </td>
         </tr>
+        <tr>
+          <th>Status</th>
+          <th>Ipaddr</th>
+          <th>Time</th>
+        </tr>
+      </thead>
+      <tbody>
         {{range .tasks}}
         <tr>
           {{ if eq  .Job_status "pending"}}
@@ -98,6 +83,8 @@
           <td>{{.Ipaddr}}</td>
           <td data-tooltip="{{.Updated_at|timeToStr}}">{{.Updated_at|timeDiffNow}}</td>
         </tr>
+        {{else}}
+        <i class="ui active large loader"></i>
         {{end}}
       </tbody>
     </table>
@@ -106,86 +93,51 @@
       <div class="scrolling content message"></div>
     </div>
 
-    {{end}}
-
 </div>
 
-
-
 {{include "base_foot.html" .}}
-
 
 <script type="text/javascript">
     $('.ui.dropdown').dropdown();
 
-    $('#example1').progress({
-      percent: 100
+    $('#progress_bar').progress({
+      label: 'ratio',
+      // value: "40,10,10,30",
+      // total: 100,
+      text: {
+        ratio: '{bar} {value} / {total}',
+        bars: ['Success', 'Failed', 'Running', 'Pending']
+      }
     });
 
     $(document).ready(function() {
-      var jobtype = $("#jobtypeid").data("jobtype");
-      console.log(jobtype);
-      if (jobtype == "BUILD") {
-        var taskurl = $("#jobtypeid").data("taskurl");
-        console.log(taskurl);
+        var progressurl = "{{.progressurl}}";
         $.ajax({
-          url: taskurl,
+          url: progressurl,
           type: 'GET',
           dataType: 'json',
           success: function(res) {
-            var taskstatus = res.status;
-            $('.taskstatus1').text(taskstatus);
-            $('.taskoutput').text(res.output);
-            $('.taskstatus2').text(taskstatus);
-
-            if (taskstatus == 'running') {
-                // var focusposition = document.getElementById("taskstatusbuttom").scrollHeight;
-                var focusposition = document.getElementById("taskstatusbuttom").offsetTop;
-                window.scrollTo(0, focusposition);
-              // window.scrollTo(0, document.body.scrollHeight);
-            }
-
-            if (taskstatus != "success" && taskstatus != "failed") {
+            $('#progress_bar').progress('set total', res.total);
+            $('#progress_bar').progress('set progress', res.value);
+            var finished = res.finished;
+            if (!finished) {
               var timer = setInterval(function () {
                   $.ajax({
-                    url: taskurl,
+                    url: progressurl,
                     type: 'GET',
                     dataType: 'json',
                     success: function(res) {
-                      var taskstatus = res.status;
-                      $('.taskstatus1').text(taskstatus);
-                      $('.taskoutput').text(res.output);
-                      // $('.taskstatus2').html(taskstatus + ' <i class="spinner loading icon"></i>');
-                      $('#taskstatusbuttom').html(taskstatus + ' <i class="ui active inline tiny loader"></i>');
-
-                      console.log(taskstatus);
-                      if(taskstatus == "success" || taskstatus == "failed"){
-                          $('#taskstatusbuttom').html(taskstatus);
-                          $("#abort_btn").remove();
+                      $('#progress_bar').progress('set total', res.total);
+                      $('#progress_bar').progress('set progress', res.value);
+                      if(finished){
                           clearInterval(timer);
                       }
                     }
                   });
               }, 1000);
-            } else {
-              $("#abort_btn").remove();
             }
           }
         });
-      }
-      if (jobtype === undefined) {
-        console.log("jobtype undefined");
-        setTimeout(function() {
-            console.log("refresh");
-            $.ajax({
-              url: "",
-              context: document.body,
-              success: function(s,x) {
-                  $(this).html(s);
-              }
-            });
-        }, 1000);
-      }
     });
 
     $(function () {
@@ -202,28 +154,16 @@
         });
     });
 
-    $("#abort_btn").click(function() {
-      var aborturl = $("#jobtypeid").data("aborturl");
-      $.post(aborturl, function (data) {
-                    $('.info.modal .content').attr('style', 'white-space: pre;');
-                    $('.info.modal .content').html(data.output);
-                    $(".info.modal").modal({closable:true,observeChanges:true}).modal('show');
-                }, 'json');
+    // $("#abort_btn").click(function() {
+    //   var aborturl = $("#jobtypeid").data("aborturl");
+    //   $.post(aborturl, function (data) {
+    //       $('.info.modal .content').attr('style', 'white-space: pre;');
+    //       $('.info.modal .content').html(data.output);
+    //       $(".info.modal").modal({closable:true,observeChanges:true}).modal('show');
+    //   }, 'json');
 
-    });
+    // });
 
-    $("#up_btn").click(function() {
-      window.scrollTo(0, 0);
-    });
-
-    window.onscroll = function() {
-        if(window.scrollY > 500){
-          document.getElementById('up_btn').style.display = 'block';
-        }
-        else{
-          document.getElementById('up_btn').style.display = none;
-        }
-    }
 
 </script>
 

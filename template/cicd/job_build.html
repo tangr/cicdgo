@@ -22,9 +22,6 @@
       <div class="active section">{{.job_id}}</div>
     </div>
 
-
-    {{if eq .job_type "BUILD"}}
-
     {{range .tasks}}
 
     <div class="ui icon message">
@@ -49,68 +46,7 @@
 
     {{end}}
 
-    {{else}}
-    <div id="jobtypeid" data-jobtype="{{.job_type}}"></div>
-
-
-    <div class="ui active green progress" id="example1" style="margin-top: 2.5em; margin-bottom: auto;">
-      <div class="bar">
-        <div class="progress"></div>
-      </div>
-    </div>
-
-    <table class="ui selectable striped table">
-      <thead>
-        <tr>
-            <th class="selectable two wide" colspan="1">
-              CICDs
-            </th>
-            <th></th>
-            <th class="right aligned two wide"></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          
-        </tr>
-        {{range .tasks}}
-        <tr>
-          {{ if eq  .Job_status "pending"}}
-          <td class="selectable" style="color: gray;">
-            <a href="{{$.taskurl}}{{.Id}}/log" class="info-modal-link"><i class="paper plane outline icon"></i>{{.Job_status}}</a>
-          </td>
-          {{ else if eq  .Job_status "running"}}
-          <td class="selectable" style="color: teal;">
-            <a href="{{$.taskurl}}{{.Id}}/log" class="info-modal-link"><i class="sync alternate loading icon"></i>{{.Job_status}}</a>
-          </td>
-          {{ else if eq  .Job_status "aborted"}}
-          <td class="selectable" style="color: purple;">
-            <a href="{{$.taskurl}}{{.Id}}/log" class="info-modal-link"><i class="crosshairs loading icon"></i>{{.Job_status}}</a>
-          </td>
-          {{ else if eq  .Job_status "success"}}
-          <td class="selectable" style="color: green;">
-            <a href="{{$.taskurl}}{{.Id}}/log" class="info-modal-link"><i class="check circle outline icon"></i>{{.Job_status}}</a>
-          </td>
-          {{ else if eq  .Job_status "failed"}}
-          <td class="selectable" style="color: red;">
-            <a href="{{$.taskurl}}{{.Id}}/log" class="info-modal-link"><i class="times circle outline icon"></i>{{.Job_status}}</a>
-          </td>
-          {{ end }}
-          <td>{{.Ipaddr}}</td>
-          <td data-tooltip="{{.Updated_at|timeToStr}}">{{.Updated_at|timeDiffNow}}</td>
-        </tr>
-        {{end}}
-      </tbody>
-    </table>
-
-    <div class="ui large info modal">
-      <div class="scrolling content message"></div>
-    </div>
-
-    {{end}}
-
 </div>
-
 
 
 {{include "base_foot.html" .}}
@@ -119,16 +55,10 @@
 <script type="text/javascript">
     $('.ui.dropdown').dropdown();
 
-    $('#example1').progress({
-      percent: 55
-    });
-
     $(document).ready(function() {
       var jobtype = $("#jobtypeid").data("jobtype");
-      console.log(jobtype);
       if (jobtype == "BUILD") {
         var taskurl = $("#jobtypeid").data("taskurl");
-        console.log(taskurl);
         $.ajax({
           url: taskurl,
           type: 'GET',
@@ -159,7 +89,7 @@
                       // $('.taskstatus2').html(taskstatus + ' <i class="spinner loading icon"></i>');
                       $('#taskstatusbuttom').html(taskstatus + ' <i class="ui active inline tiny loader"></i>');
 
-                      console.log(taskstatus);
+                      // console.log(taskstatus);
                       if(taskstatus == "success" || taskstatus == "failed"){
                           $('#taskstatusbuttom').html(taskstatus);
                           $("#abort_btn").remove();
@@ -175,9 +105,7 @@
         });
       }
       if (jobtype === undefined) {
-        console.log("jobtype undefined");
         setTimeout(function() {
-            console.log("refresh");
             $.ajax({
               url: "",
               context: document.body,
@@ -187,20 +115,6 @@
             });
         }, 1000);
       }
-    });
-
-    $(function () {
-        $('.info-modal-link').each(function () {
-            $(this).on('click', function (e) {
-                e.preventDefault();
-                var url = $(this).attr('href');
-                $.get(url, function (data) {
-                    $('.info.modal .content').attr('style', 'white-space: pre;');
-                    $('.info.modal .content').html(data.output);
-                    $(".info.modal").modal({closable:true,observeChanges:true}).modal('show');
-                }, 'json');
-            });
-        });
     });
 
     $("#abort_btn").click(function() {

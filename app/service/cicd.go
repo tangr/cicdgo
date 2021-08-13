@@ -257,35 +257,38 @@ func (s *cicdService) GetJobTasks(pipeline_id int, job_id int) []model.ListTasks
 	return tasks
 }
 
-func (s *cicdService) GetJobProgress(pipeline_id int, job_id int) []model.ListTasks {
+func (s *cicdService) GetJobProgress(pipeline_id int, job_id int) (string, string, bool) {
 	tasks := ([]model.ListTasks)(nil)
 	if !s.CheckJobid(pipeline_id, job_id) {
-		return tasks
+		return "", "", true
 	}
 	job_map := g.Map{"job_id": job_id}
 	err := dao.CicdLog.Fields("id,job_id,job_status,ipaddr,updated_at").Where(job_map).Structs(&tasks)
 	if err != nil {
 		glog.Error(err)
 	}
-	return tasks
-}
-
-func (s *cicdService) GetJobProgress2(pipeline_id int, job_id int) string {
-	if !s.CheckJobid(pipeline_id, job_id) {
-		return ""
+	task_count := len(tasks)
+	task_count_pending, task_count_running, task_count_success, task_count_failed := 0, 0, 0, 0
+	for _, task := range tasks {
+		if task.Job_status == "pending" {
+			task_count_pending = task_count_pending + 1
+		} else if task.Job_status == "running" {
+			task_count_running = task_count_running + 1
+		} else if task.Job_status == "success" {
+			task_count_success = task_count_success + 1
+		} else if task.Job_status == "failed" {
+			task_count_failed = task_count_failed + 1
+		}
 	}
-	tasks := ([]model.ListTasks)(nil)
-	job_map := g.Map{"job_id": job_id}
-	err := dao.CicdLog.Fields("id,job_id,job_status,ipaddr,updated_at").Where(job_map).Structs(&tasks)
-	if err != nil {
-		glog.Error(err)
+	var job_finished bool
+	if task_count_success+task_count_failed == task_count {
+		job_finished = true
+	} else {
+		job_finished = false
 	}
-	tasks_byte, err := json.Marshal(tasks)
-	if err != nil {
-		glog.Error(err)
-	}
-	tasks_json := string(tasks_byte)
-	return tasks_json
+	task_total := fmt.Sprint(task_count)
+	task_value := fmt.Sprint(task_count_success, ",", task_count_failed, ",", task_count_running, ",", task_count_pending)
+	return task_total, task_value, job_finished
 }
 
 func (s *cicdService) GetOutput(pipeline_id int, log_id int) *model.GetOutput {

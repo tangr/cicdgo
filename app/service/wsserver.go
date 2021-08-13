@@ -74,9 +74,9 @@ func (s *wsServer) HandleCIJob(ciJob *model.WsAgentSendMap, clientip string) *mo
 		}
 		jobOutput := ciJob.JobOutput
 		if jobOutput != "" {
-			if _, err := dao.CicdJob.Data(g.Map{"job_status": jobStatus}).Where("id", jobId).Update(); err != nil {
-				glog.Error(err)
-			}
+			// if _, err := dao.CicdJob.Data(g.Map{"job_status": jobStatus}).Where("id", jobId).Update(); err != nil {
+			// 	glog.Error(err)
+			// }
 			if _, err := dao.CicdLog.Data(g.Map{"job_id": jobId, "ipaddr": clientip, "job_status": jobStatus, "output": jobOutput, "updated_at": gtime.Now().Timestamp()}).Save(); err != nil {
 				glog.Error(err)
 			}
@@ -120,9 +120,9 @@ func (s *wsServer) HandleCDJob(cdJob *model.WsAgentSendMap, clientip string) *mo
 		}
 		jobOutput := cdJob.JobOutput
 		if jobOutput != "" {
-			if _, err := dao.CicdJob.Data(g.Map{"job_status": jobStatus}).Where("id", jobId).Update(); err != nil {
-				glog.Error(err)
-			}
+			// if _, err := dao.CicdJob.Data(g.Map{"job_status": jobStatus}).Where("id", jobId).Update(); err != nil {
+			// 	glog.Error(err)
+			// }
 			if _, err := dao.CicdLog.Data(g.Map{"job_id": jobId, "ipaddr": clientip, "job_status": jobStatus, "output": jobOutput, "updated_at": gtime.Now().Timestamp()}).Save(); err != nil {
 				glog.Error(err)
 			}

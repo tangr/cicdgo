@@ -81,6 +81,7 @@ func (a *cicdApi) ShowJob(r *ghttp.Request) {
 	if job_type == "BUILD" {
 		r.Response.WriteTpl("cicd/job_build.html", params)
 	} else {
+		params["progressurl"] = UrlPrefix + "/v1/" + fmt.Sprint(pipeline_id, "/", job_id) + "/progress"
 		r.Response.WriteTpl("cicd/job_deploy.html", params)
 	}
 }
@@ -111,10 +112,12 @@ func (a *cicdApi) GetJobProgress(r *ghttp.Request) {
 		r.Response.WriteStatus(http.StatusForbidden)
 	}
 	var job_id int = r.GetInt("job_id")
-	tasks := service.Cicd.GetJobTasks(pipeline_id, job_id)
+	// tasks := service.Cicd.GetJobTasks(pipeline_id, job_id)
+	task_total, task_value, job_finished := service.Cicd.GetJobProgress(pipeline_id, job_id)
 	job_progress := g.Map{
-		"percent": 100,
-		"tasks":   tasks,
+		"total":    task_total,
+		"value":    task_value,
+		"finished": job_finished,
 	}
 	r.Response.WriteExit(job_progress)
 	// job_tasks := service.Cicd.GetJobProgress(pipeline_id, job_id)

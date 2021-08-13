@@ -29,8 +29,14 @@
             <th></th>
             <th></th>
             <th></th>
-            <th></th>
             <th class="right aligned two wide"></th>
+        </tr>
+        <tr>
+          <th>ID</th>
+          <th>Status</th>
+          <th>Comment</th>
+          <th>Author</th>
+          <th>Time</th>
         </tr>
       </thead>
       <tbody>
@@ -61,7 +67,7 @@
           <td style="color: red;"><i class="times circle outline icon"></i>{{.Job_status}}</td>
           {{ end }}
           <td onclick="getEnvs($(this), '{{.Id}}')">{{.Comment}}</td>
-          <td>{{.Job_type}}</td>
+          <!-- <td>{{.Job_type}}</td> -->
           <td>{{.Author}}</td>
           <td data-tooltip="{{.Created_at|timeToStr}}">{{.Created_at|timeDiffNow}}</td>
         </tr>
@@ -280,9 +286,11 @@
         .dropdown({
           apiSettings: {
             // this url just returns a list of tags (with API response expected above)
-            url: "{{.pkgurl}}"
-          },
-          filterRemoteData: true
+            url: "{{.pkgurl}}",
+            filterRemoteData: true,
+            cache:false,
+            saveRemoteData: false
+          }
         });
       }
     }

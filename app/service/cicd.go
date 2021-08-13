@@ -281,7 +281,7 @@ func (s *cicdService) GetJobProgress(pipeline_id int, job_id int) (string, strin
 		}
 	}
 	var job_finished bool
-	if task_count_success+task_count_failed == task_count {
+	if task_count_success+task_count_failed == task_count && task_count > 0 {
 		job_finished = true
 	} else {
 		job_finished = false

@@ -129,6 +129,7 @@
                     success: function(res) {
                       $('#progress_bar').progress('set total', res.total);
                       $('#progress_bar').progress('set progress', res.value);
+                      var finished = res.finished;
                       if(finished){
                           clearInterval(timer);
                       }

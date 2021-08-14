@@ -4,7 +4,7 @@
     <title>{{.pipeline_name|shortName}} - CICD</title>
 
     {{include "base_head.html" .}}
-
+    <script src="/plugin/fomantic-ui-2.8.8/tablesort.js"></script>
 </head>
 <body>
 
@@ -99,6 +99,7 @@
 
 <script type="text/javascript">
     $('.ui.dropdown').dropdown();
+    $('table').tablesort();
 
     $('#progress_bar').progress({
       label: 'ratio',

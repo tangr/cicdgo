@@ -287,6 +287,10 @@ func (s *agentCICD) HandleJob(jobv *model.WsServerSendMap) *model.WsAgentSendMap
 	sendMap.JobId = jobId
 	if jobStatus == "success" || jobStatus == "failed" {
 		sendMap.JobStatus = jobStatus
+		jobPath := dataPathDir + strconv.Itoa(jobId)
+		jobPathOutput := jobPath + ".output"
+		output := s.ReadFile(jobPathOutput)
+		sendMap.JobOutput = output
 		return sendMap
 	}
 	if jobStatus == "running" {

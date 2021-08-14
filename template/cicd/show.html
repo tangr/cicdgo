@@ -111,8 +111,8 @@
           <form class="ui form" action="{{.newJobUrl}}" method="POST">
 
             <div class="ui top attached tabular menu" id="new_job_modal">
-              <a class="item active" data-tab="new_build" data-job_type="BUILD">New Build</a>
-              <a class="item" data-tab="new_deploy" data-job_type="DEPLOY">New Reploy</a>
+              <a class="item active" data-tab="new_build" data-jobtype="BUILD">New Build</a>
+              <a class="item" data-tab="new_deploy" data-jobtype="DEPLOY">New Reploy</a>
             </div>
 
             <div class="ui bottom attached tab segment active" id="new_build" data-tab="new_build">
@@ -126,8 +126,8 @@
             <div class="ui divider"></div>
             <div class="field">
               <div class="ui fluid input">
-                <input type="text" placeholder="Comment" name="comment" autocomplete="off">
-                <input type="hidden" name="job_type" value="">
+                <input type="text" placeholder="Comment" name="COMMENT" autocomplete="off">
+                <input type="hidden" name="JOBTYPE" value="">
               </div>
             </div>
             <div class="ui divider"></div>
@@ -156,7 +156,7 @@
             .find('.item')
             .not($(this))
             .removeClass('active');
-    var jobtype = $(this).data("job_type");
+    var jobtype = $(this).data("jobtype");
     console.log(jobtype);
     $("#new_job_main").empty();
     if (jobtype == "BUILD") {
@@ -215,7 +215,7 @@
           if (jobtype == "BUILD") {
             console.log("jobtype: " + jobtype);
             make_newjob_view(pipeline_body.stageCI.envs, form_validation);
-            $('.field.newjob form').form('set value', 'job_type', 'BUILD');
+            $('.field.newjob form').form('set value', 'JOBTYPE', 'BUILD');
           } else if (jobtype == "DEPLOY") {
             console.log("jobtype: " + jobtype);
             job_envs = pipeline_body.stageCI.envs
@@ -228,11 +228,11 @@
             }
             console.log(pipeline_body.stageCD.envs);
             make_newjob_view(pipeline_body.stageCD.envs, form_validation);
-            $('.field.newjob form').form('set value', 'job_type', 'DEPLOY');
+            $('.field.newjob form').form('set value', 'JOBTYPE', 'DEPLOY');
           } else {
             console.log("jobtype: " + "else");
             make_newjob_view(pipeline_body.stageCI.envs, form_validation);
-            $('.field.newjob form').form('set value', 'job_type', 'BUILD');
+            $('.field.newjob form').form('set value', 'JOBTYPE', 'BUILD');
           }
         }
         $('#job_body').val(res.body);

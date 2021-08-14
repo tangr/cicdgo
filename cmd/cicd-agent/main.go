@@ -206,7 +206,7 @@ func (s *agentCICD) GetStatus(jobId int) string {
 	jobJson := s.ReadFile(jobPathscriptJson)
 	fileLock.Unlock()
 	if jobJson == "" {
-		glog.Errorf("fileName %s with content: %s !", jobPathscriptJson, jobJson)
+		glog.Debugf("fileName %s with content empty!", jobPathscriptJson)
 		return ""
 	}
 	var jobMeta = model.JobMeta{}
@@ -327,6 +327,8 @@ func (s *agentCICD) HandleJob(jobv *model.WsServerSendMap) *model.WsAgentSendMap
 		jobPathscriptArgs := jobPath + ".scriptargs"
 		s.WriteFile(jobPathscriptArgs, scriptArgs)
 		var scriptEnvs []string
+		envAgentName := strings.Split(jobv.AgentName, ":")[0]
+		scriptEnvs = append(scriptEnvs, envPrefix+"AGENTNAME"+"="+envAgentName)
 		for k, v := range jobv.Envs {
 			scriptEnvs = append(scriptEnvs, envPrefix+k+"="+v)
 		}

@@ -113,8 +113,8 @@ func (s *cicdService) New(pipeline_id int, envs map[string]interface{}, username
 	var script_name, script_args string
 	var jobtype string
 	var job_envs map[string]string = Cicd.ParseEnvs(envs)
-	var comment string = job_envs["comment"]
-	var job_type string = job_envs["job_type"]
+	var comment string = job_envs["COMMENT"]
+	var job_type string = job_envs["JOBTYPE"]
 
 	pipeline_name, agent_id, pipeline_body := Pipeline.GetPipelineBody(pipeline_id)
 	if job_type == "BUILD" {

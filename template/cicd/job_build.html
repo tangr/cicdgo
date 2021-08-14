@@ -33,7 +33,7 @@
         <div class="taskstatus2" id="taskstatusbuttom"></div>
 
         <i style="color: red;" class="times circle outline icon" id="abort_btn"></i>
-        <i class="arrow alternate circle up outline icon" id="up_btn"></i>
+        <i class="arrow alternate circle up outline icon" id="up_btn" style="visibility: hidden"></i>
       </div>
         <hr>
     </div>
@@ -120,10 +120,10 @@
     $("#abort_btn").click(function() {
       var aborturl = $("#jobtypeid").data("aborturl");
       $.post(aborturl, function (data) {
-                    $('.info.modal .content').attr('style', 'white-space: pre;');
-                    $('.info.modal .content').html(data.output);
-                    $(".info.modal").modal({closable:true,observeChanges:true}).modal('show');
-                }, 'json');
+          $('.info.modal .content').attr('style', 'white-space: pre;');
+          $('.info.modal .content').html(data.output);
+          $(".info.modal").modal({closable:true,observeChanges:true}).modal('show');
+      }, 'json');
 
     });
 
@@ -133,10 +133,11 @@
 
     window.onscroll = function() {
         if(window.scrollY > 500){
-          document.getElementById('up_btn').style.display = 'block';
+          // document.getElementById('up_btn').style.display = 'block';
+          document.getElementById('up_btn').style.visibility='visible';
         }
         else{
-          document.getElementById('up_btn').style.display = none;
+          document.getElementById('up_btn').style.visibility='hidden';
         }
     }
 

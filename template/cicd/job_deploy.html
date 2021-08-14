@@ -132,6 +132,7 @@
                       $('#progress_bar').progress('set progress', res.value);
                       var finished = res.finished;
                       if(finished){
+                          $(".loader").remove();
                           clearInterval(timer);
                       }
                     }

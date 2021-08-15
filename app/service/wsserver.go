@@ -195,8 +195,10 @@ func (s *wsServer) GetCDJob(id int, clientip string) *model.WsServerSendMap {
 	newJobCdDataP.Body = newJobScript.Script.Body
 	newJobCdDataP.Args = newJobScript.Script.Args
 	newJobCdDataP.Envs = newJobScript.Script.Envs
-	newJobCdDataP.Envs["IPADDR"] = clientip
-	newJobCdDataP.Envs["JOBID"] = fmt.Sprint(jobId)
+	if len(newJobCdDataP.Envs) != 0 {
+		newJobCdDataP.Envs["IPADDR"] = clientip
+		newJobCdDataP.Envs["JOBID"] = fmt.Sprint(jobId)
+	}
 	return newJobCdDataP
 }
 

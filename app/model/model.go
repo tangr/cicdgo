@@ -10,6 +10,7 @@ type CicdPipeline struct {
 	PipelineName string `orm:"pipeline_name,unique" json:"pipelineName"` //
 	GroupId      int    `orm:"group_id"             json:"groupId"`      //
 	AgentId      int    `orm:"agent_id"             json:"agentId"`      //
+	Concurrency  int    `orm:"concurrency"          json:"concurrency"`  //
 	Body         string `orm:"body"                 json:"body"`         //
 	Author       string `orm:"author"               json:"author"`       //
 	UpdatedAt    int64  `orm:"updated_at"           json:"updatedAt"`    //
@@ -17,15 +18,16 @@ type CicdPipeline struct {
 
 // CicdJob is the golang structure for table cicd_job.
 type CicdJob struct {
-	Id         int64  `orm:"id,primary"  json:"id"`         //
-	PipelineId int    `orm:"pipeline_id" json:"pipelineId"` //
-	AgentId    int    `orm:"agent_id"    json:"agentId"`    //
-	JobType    string `orm:"job_type"    json:"jobType"`    //
-	JobStatus  string `orm:"job_status"  json:"jobStatus"`  //
-	Script     string `orm:"script"      json:"script"`     //
-	Comment    string `orm:"comment"     json:"comment"`    //
-	Author     string `orm:"author"      json:"author"`     //
-	CreatedAt  int64  `orm:"created_at"  json:"createdAt"`  //
+	Id          int64  `orm:"id,primary"  json:"id"`          //
+	PipelineId  int    `orm:"pipeline_id" json:"pipelineId"`  //
+	AgentId     int    `orm:"agent_id"    json:"agentId"`     //
+	Concurrency int    `orm:"concurrency" json:"concurrency"` //
+	JobType     string `orm:"job_type"    json:"jobType"`     //
+	JobStatus   string `orm:"job_status"  json:"jobStatus"`   //
+	Script      string `orm:"script"      json:"script"`      //
+	Comment     string `orm:"comment"     json:"comment"`     //
+	Author      string `orm:"author"      json:"author"`      //
+	CreatedAt   int64  `orm:"created_at"  json:"createdAt"`   //
 }
 
 // CicdScript is the golang structure for table cicd_script.

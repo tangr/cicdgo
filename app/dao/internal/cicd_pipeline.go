@@ -24,6 +24,7 @@ type cicdPipelineColumns struct {
 	PipelineName string //
 	GroupId      string //
 	AgentId      string //
+	Concurrency  string //
 	Body         string //
 	Author       string //
 	UpdatedAt    string //
@@ -36,6 +37,7 @@ func NewCicdPipelineDao() *CicdPipelineDao {
 		PipelineName: "pipeline_name",
 		GroupId:      "group_id",
 		AgentId:      "agent_id",
+		Concurrency:  "concurrency",
 		Body:         "body",
 		Author:       "author",
 		UpdatedAt:    "updated_at",

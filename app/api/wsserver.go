@@ -25,7 +25,7 @@ func (a *wsServer) Wsci(r *ghttp.Request) {
 		// defer close(done)
 		for {
 			time.Sleep(time.Second)
-			g.Log().Warningf("in Wsci")
+			// g.Log().Warningf("in Wsci")
 			service.WsServer.SyncNewCIJob()
 		}
 	}()
@@ -72,7 +72,7 @@ func (a *wsServer) Wscd(r *ghttp.Request) {
 		// defer close(done)
 		for {
 			time.Sleep(time.Second)
-			g.Log().Warningf("in Wscd")
+			// g.Log().Warningf("in Wscd")
 			service.WsServer.SyncNewCDJob()
 		}
 	}()

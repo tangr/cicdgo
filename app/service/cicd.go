@@ -291,7 +291,6 @@ func (s *cicdService) GetJobProgress(pipeline_id int, job_id int) (string, strin
 	if err != nil {
 		glog.Error(err)
 	}
-	task_count := len(tasks)
 	task_count_pending, task_count_running, task_count_success, task_count_failed := 0, 0, 0, 0
 	for _, task := range tasks {
 		if task.Job_status == "pending" {
@@ -304,7 +303,20 @@ func (s *cicdService) GetJobProgress(pipeline_id int, job_id int) (string, strin
 			task_count_failed = task_count_failed + 1
 		}
 	}
+
+	status_url := fmt.Sprint(WsServerAPI, pipeline_id, "/", job_id, "/status")
+	r, err := g.Client().Get(status_url)
+	if err != nil {
+		glog.Error(err)
+	} else {
+		defer r.Close()
+	}
+	agentStatus := r.ReadAllString()
+	var agentStatusMap map[string]int
+	json.Unmarshal([]byte(agentStatus), &agentStatusMap)
+
 	var job_finished bool
+	task_count := len(agentStatusMap)
 	if task_count_success+task_count_failed == task_count && task_count > 0 {
 		job_finished = true
 	} else {

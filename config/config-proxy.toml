@@ -1,0 +1,74 @@
+# HTTP Server
+[server]
+    [server.console]
+        Address       = ":8199"
+        ServerRoot    = "public"
+        ServerAgent   = "gf-app"
+        LogPath       = "/tmp/log/gf-app/server"
+        UrlPrefix     = "/console"
+        SessionPath   = "/tmp/cicd/sessions"
+        AuthorEnable  = false
+        AdminGroup    = "ops"
+        Stdout        = true
+        LogStdout     = false
+        ErrorStack    = true
+        AccessLogEnabled = true
+        # RepoAPI     = "https://api.semantic-ui.com/tags/"
+        # RepoAPI     = "/console/v1/repoinfo"
+        RepoAPI     = "http://127.0.0.1:5000/console/v1/repoinfo?key="
+        # PkgsAPI     = "https://api.semantic-ui.com/tags/"
+
+    [server.wscicd]
+        Address     = ":8070"
+	    # ServerRoot  = "public"
+        LogStdout   = false
+
+# Logger.
+[logger]
+    Path        = "/tmp/log/gf-app"
+    Level       = "all"
+    Stdout      = true
+
+# Template.
+[viewer]
+    Path        = "template"
+    DefaultFile = "index.html"
+    Delimiters  =  ["{{", "}}"]
+
+# Database.
+[database]
+    link    = "mysql:root:@tcp(127.0.0.1:3306)/test"
+    debug   = true
+    prefix  = "cicd_"
+    timeMaintainDisabled = true
+    # Database logger.
+    [database.logger]
+        Path   = "/tmp/log/gf-app/sql"
+        Level  = "all"
+        Stdout = true
+
+# GF-CLI工具配置
+[gfcli]
+    # 自定义DAO生成配置(默认是读取database配置)
+    [[gfcli.gen.dao]]
+        link   = "mysql:root:@tcp(127.0.0.1:3306)/test"
+        prefix  = "cicd_"
+        tables = "cicd_pipeline,cicd_job,cicd_script,cicd_agent,cicd_log,cicd_package,cicd_group,cicd_user"
+
+# AgentCI.
+[agent]
+    # WsUrl         = "ws://127.0.0.1:8070/wsv1/wsci"
+    WsUrl         = "ws://127.0.0.1:80/wsv1/wsci"
+    # SyncInterval in second
+    SyncInterval    = 1
+    # Options: DEBUG, INFO, WARNING, ERROR, CRITICAL
+    LogLevel        = "all"
+    EnvPrefix       = "CICD_"
+    MaxRunningJobs  = 10
+    DataPathDir     = "/tmp/cidata/"
+    JobFlash        = "jobflash"
+    Include         = "config/conf.d/*.toml"
+[[agents]]
+    id          = 1000
+    name        = "agent-test-1"
+    # name        = "pipeline-test-1"

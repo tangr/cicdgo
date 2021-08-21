@@ -1,0 +1,23 @@
+# Logger.
+[logger]
+    Path        = "/tmp/log/gf-app"
+    Level       = "all"
+    Stdout      = true
+
+# AgentCI.
+[agent]
+    # WsUrl         = "ws://127.0.0.1:8070/wsv1/wsci"
+    WsUrl         = "ws://127.0.0.1:8080/wsv1/wsci"
+    # SyncInterval in second
+    SyncInterval    = 1
+    # Options: DEBUG, INFO, WARNING, ERROR, CRITICAL
+    LogLevel        = "all"
+    EnvPrefix       = "CICD_"
+    MaxRunningJobs  = 10
+    DataPathDir     = "/tmp/cidata/"
+    JobFlash        = "jobflash"
+    Include         = "config/conf.d/*.toml"
+[[agents]]
+    id          = 1000
+    name        = "agent-test-1"
+    # name        = "pipeline-test-1"

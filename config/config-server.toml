@@ -1,0 +1,23 @@
+# HTTP Server
+[server]
+    [server.wscicd]
+        Address     = ":8070"
+        LogStdout   = false
+
+# Logger.
+[logger]
+    Path        = "/tmp/log/gf-app"
+    Level       = "all"
+    Stdout      = true
+
+# Database.
+[database]
+    link    = "mysql:root:@tcp(127.0.0.1:3306)/test"
+    debug   = true
+    prefix  = "cicd_"
+    timeMaintainDisabled = true
+    # Database logger.
+    [database.logger]
+        Path   = "/tmp/log/gf-app/sql"
+        Level  = "all"
+        Stdout = true

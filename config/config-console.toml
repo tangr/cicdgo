@@ -1,0 +1,44 @@
+# HTTP Server
+[server]
+    [server.console]
+        Address       = ":8199"
+        ServerRoot    = "public"
+        ServerAgent   = "gf-app"
+        LogPath       = "/tmp/log/gf-app/server"
+        UrlPrefix     = "/console"
+        SessionPath   = "/tmp/cicd/sessions"
+        AuthorEnable  = false
+        AdminGroup    = "ops"
+        Stdout        = true
+        LogStdout     = false
+        ErrorStack    = true
+        AccessLogEnabled = true
+        WsServerAPI   = "http://127.0.0.1:8070/wsv1/"
+        # RepoAPI     = "https://api.semantic-ui.com/tags/"
+        # RepoAPI     = "/console/v1/repoinfo"
+        RepoAPI     = "http://127.0.0.1:5000/console/v1/repoinfo?key="
+        # PkgsAPI     = "https://api.semantic-ui.com/tags/"
+
+# Logger.
+[logger]
+    Path        = "/tmp/log/gf-app"
+    Level       = "all"
+    Stdout      = true
+
+# Template.
+[viewer]
+    Path        = "template"
+    DefaultFile = "index.html"
+    Delimiters  =  ["{{", "}}"]
+
+# Database.
+[database]
+    link    = "mysql:root:@tcp(127.0.0.1:3306)/test"
+    debug   = true
+    prefix  = "cicd_"
+    timeMaintainDisabled = true
+    # Database logger.
+    [database.logger]
+        Path   = "/tmp/log/gf-app/sql"
+        Level  = "all"
+        Stdout = true

@@ -346,18 +346,20 @@ func (s *wsServer) SyncNewCDJob() {
 		}
 
 		// clear run finished jobs
-		if AgentJobRunning, ok := CdAgentMapPipelineRunning[pipelineId]; ok {
-			for k_clientip := range AgentJobRunning {
-				if CdAgentMapPipelineActivity[pipelineId][k_clientip].Status != "pending" {
-					delete(CdAgentMapPipelineRunning[pipelineId], k_clientip)
-				}
-			}
-		}
+		// if AgentJobRunning, ok := CdAgentMapPipelineRunning[pipelineId]; ok {
+		// 	for k_clientip := range AgentJobRunning {
+		// 		if CdAgentMapPipelineActivity[pipelineId][k_clientip].Status != "pending" {
+		// 			delete(CdAgentMapPipelineRunning[pipelineId], k_clientip)
+		// 		}
+		// 	}
+		// }
 
 		// fill up new running jobs
 		newJobRunningCapacity := 1 - len(CdAgentMapPipelineRunning[pipelineId])
+		glog.Error("newJobRunningCapacity: ", newJobRunningCapacity)
 		if newJobRunningCapacity > 0 {
 			for i := 0; i < newJobRunningCapacity; i++ {
+				glog.Infof("i: %s", i)
 				if AgentActivity, ok := CdAgentMapPipelineActivity[pipelineId]; ok {
 					for k_clientip := range AgentActivity {
 						if jobId > CdAgentMapPipelineActivity[pipelineId][k_clientip].JobId {

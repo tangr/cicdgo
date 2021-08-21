@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/gogf/gf/frame/g"
 	"github.com/gogf/gf/net/ghttp"
-	"github.com/gogf/gf/os/glog"
 
 	"github.com/tangr/cicdgo/app/model"
 	"github.com/tangr/cicdgo/app/service"
@@ -25,14 +25,14 @@ func (a *wsServer) Wsci(r *ghttp.Request) {
 		// defer close(done)
 		for {
 			time.Sleep(time.Second)
-			glog.Warningf("in Wsci")
+			g.Log().Warningf("in Wsci")
 			service.WsServer.SyncNewCIJob()
 		}
 	}()
 
 	ws, err := r.WebSocket()
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 		r.Exit()
 	}
 
@@ -42,22 +42,22 @@ func (a *wsServer) Wsci(r *ghttp.Request) {
 			time.Sleep(time.Second)
 			continue
 		}
-		glog.Debug("CI************************")
+		g.Log().Debug("CI************************")
 		clientip := r.GetClientIp()
 		recvJson, _ := json.Marshal(*recvMsg)
-		glog.Debugf("recvJson: %s", recvJson)
+		g.Log().Debugf("recvJson: %s", recvJson)
 		if err != nil {
-			glog.Error(err)
+			g.Log().Error(err)
 			return
 		}
 
 		sendMsg = service.WsServer.DoAgentCi(recvMsg, clientip)
 
 		if err = ws.WriteJSON(sendMsg); err != nil {
-			glog.Error(err)
+			g.Log().Error(err)
 		}
 		sendJson, _ := json.Marshal(sendMsg)
-		glog.Debugf("sendJson: %s", string(sendJson))
+		g.Log().Debugf("sendJson: %s", string(sendJson))
 	}
 }
 
@@ -72,40 +72,40 @@ func (a *wsServer) Wscd(r *ghttp.Request) {
 		// defer close(done)
 		for {
 			time.Sleep(time.Second)
-			glog.Warningf("in Wscd")
+			g.Log().Warningf("in Wscd")
 			service.WsServer.SyncNewCDJob()
 		}
 	}()
 
 	ws, err := r.WebSocket()
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 		r.Exit()
 	}
 	for {
 		err := ws.ReadJSON(&recvMsg)
 		if recvMsg == nil {
-			glog.Error(recvMsg)
+			g.Log().Error(recvMsg)
 			time.Sleep(time.Second)
 			continue
 		}
-		glog.Debug("CD************************")
+		g.Log().Debug("CD************************")
 		// log.Printf("GetClientIp: %s", r.GetClientIp())
 		clientip := r.GetClientIp()
-		// recvJson, _ := json.Marshal(*recvMsg)
-		// glog.Debugf("recvJson: %s", recvJson)
+		recvJson, _ := json.Marshal(*recvMsg)
+		g.Log().Debugf("recvJson: %s", recvJson)
 		if err != nil {
-			glog.Error(err)
+			g.Log().Error(err)
 			return
 		}
 
 		sendMsg = service.WsServer.DoAgentCd(recvMsg, clientip)
 
 		if err = ws.WriteJSON(sendMsg); err != nil {
-			glog.Error(err)
+			g.Log().Error(err)
 		}
 		sendJson, _ := json.Marshal(sendMsg)
-		glog.Debugf("sendJson: %s", string(sendJson))
+		g.Log().Debugf("sendJson: %s", string(sendJson))
 	}
 }
 

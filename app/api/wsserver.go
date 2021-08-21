@@ -21,6 +21,15 @@ func (a *wsServer) Wsci(r *ghttp.Request) {
 		sendMsg *model.WsServerSend
 	)
 
+	go func() {
+		// defer close(done)
+		for {
+			time.Sleep(time.Second)
+			glog.Warningf("in Wsci")
+			service.WsServer.SyncNewCIJob()
+		}
+	}()
+
 	ws, err := r.WebSocket()
 	if err != nil {
 		glog.Error(err)
@@ -58,6 +67,16 @@ func (a *wsServer) Wscd(r *ghttp.Request) {
 		sendMsg *model.WsServerSend
 	)
 
+	// done := make(chan struct{})
+	go func() {
+		// defer close(done)
+		for {
+			time.Sleep(time.Second)
+			glog.Warningf("in Wscd")
+			service.WsServer.SyncNewCDJob()
+		}
+	}()
+
 	ws, err := r.WebSocket()
 	if err != nil {
 		glog.Error(err)
@@ -73,8 +92,8 @@ func (a *wsServer) Wscd(r *ghttp.Request) {
 		glog.Debug("CD************************")
 		// log.Printf("GetClientIp: %s", r.GetClientIp())
 		clientip := r.GetClientIp()
-		recvJson, _ := json.Marshal(*recvMsg)
-		glog.Debugf("recvJson: %s", recvJson)
+		// recvJson, _ := json.Marshal(*recvMsg)
+		// glog.Debugf("recvJson: %s", recvJson)
 		if err != nil {
 			glog.Error(err)
 			return
@@ -88,4 +107,11 @@ func (a *wsServer) Wscd(r *ghttp.Request) {
 		sendJson, _ := json.Marshal(sendMsg)
 		glog.Debugf("sendJson: %s", string(sendJson))
 	}
+}
+
+func (a *wsServer) GetAgentStatus(r *ghttp.Request) {
+	var pipeline_id int = r.GetInt("pipeline_id")
+	var job_id int = r.GetInt("job_id")
+	agent_status := service.WsServer.GetAgentStatus(pipeline_id, job_id)
+	r.Response.WriteExit(agent_status)
 }

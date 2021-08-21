@@ -17,6 +17,15 @@ var Cicd = cicdService{}
 
 type cicdService struct{}
 
+type ListTasks struct {
+	Id         int    `json:"log_id"`
+	Job_id     int    `json:"job_id"`
+	Job_status string `json:"job_status"`
+	Ipaddr     string `json:"ipaddr"`
+	Actived    int    `json:"Actived"`
+	Updated_at int    `json:"updated_at"`
+}
+
 func (s *cicdService) ListCicd(group_ids []string) []model.ListPipelines {
 	pipelines := ([]model.ListPipelines)(nil)
 	err := dao.CicdPipeline.Fields("id,pipeline_name").WhereIn("group_id", group_ids).Structs(&pipelines)
@@ -245,8 +254,9 @@ func (s *cicdService) RetryJob(pipeline_id int, task_id int) error {
 	return nil
 }
 
-func (s *cicdService) GetJobTasks(pipeline_id int, job_id int) []model.ListTasks {
-	tasks := ([]model.ListTasks)(nil)
+func (s *cicdService) GetJobTasks(pipeline_id int, job_id int) []ListTasks {
+	var agentStatusMap map[string]int
+	tasks := ([]ListTasks)(nil)
 	if !s.CheckJobid(pipeline_id, job_id) {
 		return tasks
 	}
@@ -254,11 +264,25 @@ func (s *cicdService) GetJobTasks(pipeline_id int, job_id int) []model.ListTasks
 	if err != nil {
 		glog.Error(err)
 	}
+	// var agentStatus string
+	status_url := fmt.Sprint(WsServerAPI, pipeline_id, "/", job_id, "/status")
+	r, err := g.Client().Get(status_url)
+	if err != nil {
+		glog.Error(err)
+	} else {
+		defer r.Close()
+	}
+	agentStatus := r.ReadAllString()
+	json.Unmarshal([]byte(agentStatus), &agentStatusMap)
+	for idx, v := range tasks {
+		mapk := fmt.Sprint(pipeline_id, "-", v.Ipaddr)
+		tasks[idx].Actived = agentStatusMap[mapk]
+	}
 	return tasks
 }
 
 func (s *cicdService) GetJobProgress(pipeline_id int, job_id int) (string, string, bool) {
-	tasks := ([]model.ListTasks)(nil)
+	tasks := ([]ListTasks)(nil)
 	if !s.CheckJobid(pipeline_id, job_id) {
 		return "", "", false
 	}

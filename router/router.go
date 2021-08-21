@@ -102,6 +102,8 @@ func init() {
 		group.Group("/wsv1", func(group *ghttp.RouterGroup) {
 			group.ALL("/wsci", api.WsServer.Wsci)
 			group.ALL("/wscd", api.WsServer.Wscd)
+			group.GET("/:pipeline_id/:job_id/status", api.WsServer.GetAgentStatus)
+			group.POST("/:pipeline_id/:job_id/concurrency", api.WsServer.GetAgentStatus)
 		})
 	})
 }

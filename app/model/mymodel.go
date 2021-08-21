@@ -28,6 +28,11 @@ type ListJobs struct {
 	Created_at  int    `json:"created_at"`
 }
 
+type AgentStatusMapV struct {
+	Updated int
+	Status  string
+}
+
 type WsAgentSend []WsAgentSendMap
 
 type WsAgentSendMap struct {
@@ -124,48 +129,48 @@ type JobScriptValue struct {
 	Args string            `json:"scriptArgs"`
 }
 
-type AgentCIs struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
-}
+// type AgentCIs struct {
+// 	ID   int    `json:"id"`
+// 	Name string `json:"name"`
+// }
 
-type AgentCDs struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
-}
+// type AgentCDs struct {
+// 	ID   int    `json:"id"`
+// 	Name string `json:"name"`
+// }
 
 type JobMeta struct {
 	ID        int    `json:"jobid"`
 	JobStatus string `json:"status"`
 }
 
-type JobRunning struct {
-	ID        int    `json:"jobid"`
-	JobStatus string `json:"status"`
-	Output    string `json:"output"`
-}
+// type JobRunning struct {
+// 	ID        int    `json:"jobid"`
+// 	JobStatus string `json:"status"`
+// 	Output    string `json:"output"`
+// }
 
-type JobScript struct {
-	ID        int            `json:"jobid"`
-	JobStatus string         `json:"status"`
-	Script    JobScriptValue `json:"jobScript"`
-}
+// type JobScript struct {
+// 	ID        int            `json:"jobid"`
+// 	JobStatus string         `json:"status"`
+// 	Script    JobScriptValue `json:"jobScript"`
+// }
 
-type JobScriptData struct {
-	ID        int               `json:"jobid"`
-	JobStatus string            `json:"status"`
-	Body      string            `json:"scriptBody"`
-	Envs      map[string]string `json:"scriptEnvs"`
-	Args      string            `json:"scriptArgs"`
-}
+// type JobScriptData struct {
+// 	ID        int               `json:"jobid"`
+// 	JobStatus string            `json:"status"`
+// 	Body      string            `json:"scriptBody"`
+// 	Envs      map[string]string `json:"scriptEnvs"`
+// 	Args      string            `json:"scriptArgs"`
+// }
 
-type ListTasks struct {
-	Id         int    `json:"log_id"`
-	Job_id     int    `json:"job_id"`
-	Job_status string `json:"job_status"`
-	Ipaddr     string `json:"ipaddr"`
-	Updated_at int    `json:"updated_at"`
-}
+// type ListTasks struct {
+// 	Id         int    `json:"log_id"`
+// 	Job_id     int    `json:"job_id"`
+// 	Job_status string `json:"job_status"`
+// 	Ipaddr     string `json:"ipaddr"`
+// 	Updated_at int    `json:"updated_at"`
+// }
 
 type GetOutput struct {
 	Job_status string `json:"status"`

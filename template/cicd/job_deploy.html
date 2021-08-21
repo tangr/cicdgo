@@ -31,9 +31,10 @@
             </th>
             <th></th>
             <th class="right aligned two wide"></th>
+            <th class="right aligned two wide"></th>
         </tr>
         <tr>
-          <td colspan="3">
+          <td colspan="4">
             <div class="ui active multiple progress" id="progress_bar" style="margin-top: auto; margin-bottom: auto;">
                 <div class="green bar">
                   <div class="progress"></div>
@@ -53,7 +54,8 @@
         <tr>
           <th>Status</th>
           <th>Ipaddr</th>
-          <th>Time</th>
+          <th>Updated Time</th>
+          <th>Last Actived</th>
         </tr>
       </thead>
       <tbody>
@@ -82,6 +84,7 @@
           {{ end }}
           <td>{{.Ipaddr}}</td>
           <td data-tooltip="{{.Updated_at|timeToStr}}">{{.Updated_at|timeDiffNow}}</td>
+          <td>{{.Actived|timeDiffNow}}</td>
         </tr>
         {{else}}
         <i class="ui active large loader"></i>

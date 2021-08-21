@@ -363,6 +363,7 @@ func (s *wsServer) SyncNewCDJob() {
 						if jobId > CdAgentMapPipelineActivity[pipelineId][k_clientip].JobId {
 							CdAgentMapPipelineActivity[pipelineId][k_clientip].Status = "pending"
 							CdAgentMapPipelineActivity[pipelineId][k_clientip].JobId = jobId
+							CdAgentMapPipelineRunning[pipelineId][k_clientip] = ""
 						}
 					}
 				}

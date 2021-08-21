@@ -428,7 +428,7 @@ func (s *wsServer) GetAgentStatus(pipeline_id int, job_id int) map[string]int {
 			mapk := fmt.Sprint(build_agent_id, "-", clientip)
 			updated := agent_map.Updated
 			newAgentStatus[mapk] = updated
-			return newAgentStatus
+			// return newAgentStatus
 		}
 		return newAgentStatus
 	}
@@ -437,7 +437,7 @@ func (s *wsServer) GetAgentStatus(pipeline_id int, job_id int) map[string]int {
 		mapk := fmt.Sprint(pipeline_id, "-", clientip)
 		updated := pipeline_agent_map.Updated
 		newAgentStatus[mapk] = updated
-		return newAgentStatus
+		// return newAgentStatus
 	}
 	return newAgentStatus
 }

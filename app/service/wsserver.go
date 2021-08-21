@@ -356,10 +356,12 @@ func (s *wsServer) SyncNewCDJob() {
 
 		// fill up new running jobs
 		newJobRunningCapacity := 1 - len(CdAgentMapPipelineRunning[pipelineId])
-		glog.Error("newJobRunningCapacity: ", newJobRunningCapacity)
+		glog.Warning("newJobRunningCapacity: ", newJobRunningCapacity)
+		glog.Warning("CdAgentMapPipelineRunning: ", CdAgentMapPipelineRunning[pipelineId])
+		glog.Warning("CdAgentMapPipelineActivity: ", CdAgentMapPipelineActivity[pipelineId])
 		if newJobRunningCapacity > 0 {
 			for i := 0; i < newJobRunningCapacity; i++ {
-				glog.Infof("i: %s", i)
+				glog.Infof("i: %d", i)
 				if AgentActivity, ok := CdAgentMapPipelineActivity[pipelineId]; ok {
 					for k_clientip := range AgentActivity {
 						if jobId > CdAgentMapPipelineActivity[pipelineId][k_clientip].JobId {

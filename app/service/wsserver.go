@@ -51,7 +51,7 @@ var CdAgentMapPipelineActivity map[int]AgentActivity = make(map[int]AgentActivit
 var CdAgentMapPipelineRunning map[int]AgentJobRunning = make(map[int]AgentJobRunning)
 
 // Current Running Pipeline Max Number
-var CdAgentMapPipelineRunningConcurrent map[int]int = make(map[int]int)
+var CdAgentMapPipelineRunningConcurrency map[int]int = make(map[int]int)
 
 func (s *wsServer) DoAgentCi(agentCiJobs *model.WsAgentSend, clientip string) *model.WsServerSend {
 	var jobCiData model.WsServerSendMap
@@ -312,18 +312,20 @@ func (s *wsServer) SyncNewCIJob() {
 
 func (s *wsServer) SyncNewCDJob() {
 	type NewJobDeploy struct {
-		ID         int `json:"jobid"`
-		PipelineId int `json:"pipelineid"`
+		ID          int `json:"jobid"`
+		PipelineId  int `json:"pipelineid"`
+		Concurrency int `json:"concurrency"`
 	}
 	var newJobs = new([]NewJobDeploy)
 
-	if err := dao.CicdJob.Fields("id,pipeline_id").Where("job_type", "DEPLOY").WhereIn("job_status", g.Slice{"pending", "running"}).Structs(newJobs); err != nil {
+	if err := dao.CicdJob.Fields("id,pipeline_id,concurrency").Where("job_type", "DEPLOY").WhereIn("job_status", g.Slice{"pending", "running"}).Structs(newJobs); err != nil {
 		glog.Debug(err)
 	}
 
 	for _, newJob := range *newJobs {
 		pipelineId := newJob.PipelineId
 		jobId := newJob.ID
+		concurrency := newJob.Concurrency
 
 		finished_jobnum, err := dao.CicdLog.Where("job_id", jobId).WhereIn("job_status", g.Slice{"success", "failed"}).Count()
 		if err != nil {
@@ -355,13 +357,13 @@ func (s *wsServer) SyncNewCDJob() {
 		}
 
 		// fill up new running jobs
-		newJobRunningCapacity := 1 - len(CdAgentMapPipelineRunning[pipelineId])
-		glog.Warning("newJobRunningCapacity: ", newJobRunningCapacity)
-		glog.Warning("CdAgentMapPipelineRunning: ", CdAgentMapPipelineRunning[pipelineId])
-		glog.Warning("CdAgentMapPipelineActivity: ", CdAgentMapPipelineActivity[pipelineId])
+		newJobRunningCapacity := concurrency - len(CdAgentMapPipelineRunning[pipelineId])
+		// glog.Warning("newJobRunningCapacity: ", newJobRunningCapacity)
+		// glog.Warning("CdAgentMapPipelineRunning: ", CdAgentMapPipelineRunning[pipelineId])
+		// glog.Warning("CdAgentMapPipelineActivity: ", CdAgentMapPipelineActivity[pipelineId])
 		if newJobRunningCapacity > 0 {
 			for i := 0; i < newJobRunningCapacity; i++ {
-				glog.Infof("i: %d", i)
+				// glog.Infof("i: %d", i)
 				if AgentActivity, ok := CdAgentMapPipelineActivity[pipelineId]; ok {
 					for k_clientip := range AgentActivity {
 						if jobId > CdAgentMapPipelineActivity[pipelineId][k_clientip].JobId {
@@ -446,4 +448,20 @@ func (s *wsServer) GetAgentStatus(pipeline_id int, job_id int) map[string]int {
 		// return newAgentStatus
 	}
 	return newAgentStatus
+}
+
+func (s *wsServer) GetRunningConcurrency(pipeline_id int, job_id int) int {
+	if concurrencyNum, ok := CdAgentMapPipelineRunningConcurrency[pipeline_id]; ok {
+		return concurrencyNum
+	} else {
+		return 1
+	}
+}
+
+func (s *wsServer) SetRunningConcurrency(pipeline_id int, job_id int) int {
+	if concurrencyNum, ok := CdAgentMapPipelineRunningConcurrency[pipeline_id]; ok {
+		return concurrencyNum
+	} else {
+		return 1
+	}
 }

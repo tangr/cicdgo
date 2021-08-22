@@ -59,8 +59,9 @@ func (a *pipelineApi) New(r *ghttp.Request) {
 	pipeline_name = r.GetFormString("pipeline_name")
 	group_id := r.GetFormInt("group_id")
 	agent_id := r.GetFormInt("agent_id")
+	concurrency := r.GetFormInt("concurrency")
 	pipeline_body = r.GetFormString("pipeline_body")
-	pipeline_id := service.Pipeline.New(pipeline_name, group_id, agent_id, pipeline_body)
+	pipeline_id := service.Pipeline.New(pipeline_name, group_id, agent_id, concurrency, pipeline_body)
 
 	r.Response.RedirectTo(UrlPrefix + "/pipelines/" + fmt.Sprint(pipeline_id))
 }
@@ -75,9 +76,10 @@ func (a *pipelineApi) Update(r *ghttp.Request) {
 	pipeline_id := r.GetInt("id")
 	group_id := r.GetFormInt("group_id")
 	agent_id := r.GetFormInt("agent_id")
+	concurrency := r.GetFormInt("concurrency")
 	pipeline_name := r.GetFormString("pipeline_name")
 	pipeline_body := r.GetFormString("pipeline_body")
-	err := service.Pipeline.Update(pipeline_id, group_id, agent_id, pipeline_name, pipeline_body)
+	err := service.Pipeline.Update(pipeline_id, group_id, agent_id, concurrency, pipeline_name, pipeline_body)
 	if err != nil {
 		glog.Error(err)
 	}

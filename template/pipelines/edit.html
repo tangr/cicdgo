@@ -42,6 +42,7 @@
             $('#pipeline_name').val(res.pipeline_name);
             $('#agent_id').dropdown('set selected', res.agent_id);
             $('#group_id').dropdown('set selected', res.group_id);
+            $('#concurrency').val(res.concurrency);
             var pipeline_jsonbody = res.body;
             var pipeline_jsonpretty = JSON.stringify(JSON.parse(pipeline_jsonbody), null, 4);
             $('#pipeline_body').val(pipeline_jsonpretty);

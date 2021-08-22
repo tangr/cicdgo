@@ -125,13 +125,26 @@ func (s *cicdService) New(pipeline_id int, envs map[string]interface{}, username
 	var comment string = job_envs["COMMENT"]
 	var job_type string = job_envs["JOBTYPE"]
 
-	pipeline_name, agent_id, pipeline_body := Pipeline.GetPipelineBody(pipeline_id)
+	pipeline_name, agent_id, concurrency, pipeline_body := Pipeline.GetPipelineBody(pipeline_id)
 	if job_type == "BUILD" {
 		jobtype = job_type
 		script_name = pipeline_body.StageCI.Script
 		script_args = pipeline_body.StageCI.Args
 		job_envs["PKGRDM"] = Comm.RandSeq(20)
 	} else if job_type == "DEPLOY" {
+		type JobStatus struct {
+			Id        int64  `json:"job_id"`
+			JobStatus string `json:"job_status"`
+		}
+		var last_job_status JobStatus
+		last_job := g.Map{"pipeline_id": pipeline_id, "job_type": "DEPLOY"}
+		err := dao.CicdJob.Fields("id,job_status").Where(last_job).OrderDesc("id").Limit(1).Struct(&last_job_status)
+		if err != nil {
+			glog.Error(err)
+		}
+		if last_job_status.JobStatus != "success" && last_job_status.JobStatus != "failed" {
+			return last_job_status.Id
+		}
 		jobtype = job_type
 		script_name = pipeline_body.StageCI.Script
 		script_args = pipeline_body.StageCI.Args
@@ -150,6 +163,7 @@ func (s *cicdService) New(pipeline_id int, envs map[string]interface{}, username
 	new_job := g.Map{
 		"pipeline_id": pipeline_id,
 		"agent_id":    agent_id,
+		"concurrency": concurrency,
 		"job_type":    jobtype,
 		"job_status":  "pending",
 		"script":      new_jobscript,

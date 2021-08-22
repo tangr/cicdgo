@@ -45,24 +45,26 @@ func (s *pipelineService) GetPipelineBodyString(pipeline_id int) string {
 	return pipeline_body.String()
 }
 
-func (s *pipelineService) GetPipelineBody(pipeline_id int) (string, int, model.PipelineBody) {
+func (s *pipelineService) GetPipelineBody(pipeline_id int) (string, int, int, model.PipelineBody) {
 	type Pipeline struct {
 		Pipeline_Name string             `json:"pipeline_name"`
 		Agent_id      int                `json:"agent_int"`
+		Concurrency   int                `json:"concurrency"`
 		Body          model.PipelineBody `json:"pipeline_body"`
 	}
 	var pipeline Pipeline
-	err := dao.CicdPipeline.Fields("pipeline_name,agent_id,body").Where("id=", pipeline_id).Struct(&pipeline)
+	err := dao.CicdPipeline.Fields("pipeline_name,agent_id,concurrency,body").Where("id=", pipeline_id).Struct(&pipeline)
 	if err != nil {
 		glog.Error(err)
 	}
 	pipeline_name := pipeline.Pipeline_Name
 	agent_id := pipeline.Agent_id
+	concurrency := pipeline.Concurrency
 	pipeline_body := pipeline.Body
-	return pipeline_name, agent_id, pipeline_body
+	return pipeline_name, agent_id, concurrency, pipeline_body
 }
 
-func (s *pipelineService) New(pipeline_name string, group_id int, agent_id int, pipeline_body string) int {
+func (s *pipelineService) New(pipeline_name string, group_id int, agent_id int, concurrency int, pipeline_body string) int {
 	len_orig_pipeline_name := len(pipeline_name)
 	var hash_code string
 	if len_orig_pipeline_name <= 50 {
@@ -72,7 +74,7 @@ func (s *pipelineService) New(pipeline_name string, group_id int, agent_id int, 
 	}
 	pipeline_name = pipeline_name + ":" + hash_code
 
-	new_pipeline := g.Map{"pipeline_name": pipeline_name, "group_id": group_id, "agent_id": agent_id, "body": pipeline_body, "updated_at": gtime.Now().Timestamp()}
+	new_pipeline := g.Map{"pipeline_name": pipeline_name, "group_id": group_id, "agent_id": agent_id, "concurrency": concurrency, "body": pipeline_body, "updated_at": gtime.Now().Timestamp()}
 
 	result, err := dao.CicdPipeline.Data(new_pipeline).Save()
 	if err != nil {
@@ -95,8 +97,8 @@ func (s *pipelineService) Show(pipeline_id int) g.Map {
 	return result.Map()
 }
 
-func (s *pipelineService) Update(pipeline_id int, group_id int, agent_id int, pipeline_name string, pipeline_body string) error {
-	new_pipeline := g.Map{"pipeline_name": pipeline_name, "body": pipeline_body, "agent_id": agent_id, "group_id": group_id}
+func (s *pipelineService) Update(pipeline_id int, group_id int, agent_id int, concurrency int, pipeline_name string, pipeline_body string) error {
+	new_pipeline := g.Map{"pipeline_name": pipeline_name, "group_id": group_id, "agent_id": agent_id, "concurrency": concurrency, "body": pipeline_body, "updated_at": gtime.Now().Timestamp()}
 	_, err := dao.CicdPipeline.Data(new_pipeline).Where(g.Map{"id": pipeline_id}).Update()
 	if err != nil {
 		glog.Error(err)

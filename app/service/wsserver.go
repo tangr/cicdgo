@@ -287,8 +287,10 @@ func (s *wsServer) SyncNewCIJob() {
 			glog.Error(err)
 		}
 		job_status := job_status_v.String()
-		if _, err := dao.CicdJob.Data(g.Map{"job_status": job_status}).Where("id", jobId).Update(); err != nil {
-			glog.Error(err)
+		if job_status != "" {
+			if _, err := dao.CicdJob.Data(g.Map{"job_status": job_status}).Where("id", jobId).Update(); err != nil {
+				glog.Error(err)
+			}
 		}
 
 		// fill up new running jobs

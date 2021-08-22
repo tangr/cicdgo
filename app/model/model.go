@@ -48,12 +48,12 @@ type CicdAgent struct {
 
 // CicdLog is the golang structure for table cicd_log.
 type CicdLog struct {
-	Id        int64  `orm:"id,primary" json:"id"`        //
-	JobId     int    `orm:"job_id"     json:"jobId"`     //
-	JobStatus string `orm:"job_status" json:"jobStatus"` //
-	Ipaddr    string `orm:"ipaddr"     json:"ipaddr"`    //
-	UpdatedAt int64  `orm:"updated_at" json:"updatedAt"` //
-	Output    string `orm:"output"     json:"output"`    //
+	Id         int64  `orm:"id,primary"  json:"id"`         //
+	JobId      int    `orm:"job_id"      json:"jobId"`      //
+	TaskStatus string `orm:"task_status" json:"taskStatus"` //
+	Ipaddr     string `orm:"ipaddr"      json:"ipaddr"`     //
+	UpdatedAt  int64  `orm:"updated_at"  json:"updatedAt"`  //
+	Output     string `orm:"output"      json:"output"`     //
 }
 
 // CicdPackage is the golang structure for table cicd_package.

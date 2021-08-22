@@ -20,23 +20,23 @@ type CicdLogDao struct {
 
 // CicdLogColumns defines and stores column names for table cicd_log.
 type cicdLogColumns struct {
-	Id        string //
-	JobId     string //
-	JobStatus string //
-	Ipaddr    string //
-	UpdatedAt string //
-	Output    string //
+	Id         string //
+	JobId      string //
+	TaskStatus string //
+	Ipaddr     string //
+	UpdatedAt  string //
+	Output     string //
 }
 
 // NewCicdLogDao creates and returns a new DAO object for table data access.
 func NewCicdLogDao() *CicdLogDao {
 	columns := cicdLogColumns{
-		Id:        "id",
-		JobId:     "job_id",
-		JobStatus: "job_status",
-		Ipaddr:    "ipaddr",
-		UpdatedAt: "updated_at",
-		Output:    "output",
+		Id:         "id",
+		JobId:      "job_id",
+		TaskStatus: "task_status",
+		Ipaddr:     "ipaddr",
+		UpdatedAt:  "updated_at",
+		Output:     "output",
 	}
 	return &CicdLogDao{
 		C:     columns,

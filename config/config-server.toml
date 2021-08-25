@@ -2,7 +2,7 @@
 [server]
     [server.wscicd]
         Address     = ":8070"
-        LogStdout   = false
+        LogStdout   = true
 
 # Logger.
 [logger]

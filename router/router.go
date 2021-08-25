@@ -63,10 +63,14 @@ func init() {
 			group.GET("/:pipeline_id/:job_id/progress", api.Cicd.GetJobProgress)
 			group.GET("/:pipeline_id/body", api.Cicd.GetPipelineBody)
 			group.GET("/:pipeline_id/pkgs", api.Cicd.GetPipelinePkgs)
+			group.POST("/:pipeline_id/:job_id/concurrency", api.Cicd.PostJobConcurrency)
+			group.POST("/:pipeline_id/:job_id/jobstatus", api.Cicd.PostJobStatus)
+			group.POST("/:pipeline_id/:task_id/taskstatus", api.Cicd.PostTaskStatus)
+			group.POST("/:pipeline_id/:job_id/:task_id/taskstatus", api.Cicd.PostTaskStatus)
 
 			group.POST("/:pipeline_id/newjob", api.Cicd.NewJob)
-			group.POST("/:pipeline_id/:task_id/abort", api.Cicd.AbortJob)
-			group.POST("/:pipeline_id/:task_id/retry", api.Cicd.RetryJob)
+			// group.POST("/:pipeline_id/:task_id/abort", api.Cicd.AbortJob)
+			// group.POST("/:pipeline_id/:task_id/retry", api.Cicd.RetryJob)
 
 			group.Middleware(
 				service.Middleware.AuthorAdmin,

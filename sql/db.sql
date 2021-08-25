@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS `cicd_log` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   -- `pipeline_id` int(11) DEFAULT NULL,
   `job_id` int(11) NOT NULL,
-  `job_status` varchar(255) NOT NULL,
+  `task_status` varchar(255) NOT NULL,
   `ipaddr` varchar(255) NOT NULL,
   `updated_at` bigint(10) NOT NULL,
   `output` longtext DEFAULT NULL,

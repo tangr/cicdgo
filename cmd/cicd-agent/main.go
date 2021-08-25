@@ -417,7 +417,10 @@ func (s *agentCICD) AgentRun() {
 			for {
 				err := conn.ReadJSON(&recvJson)
 				if err != nil {
+					time.Sleep(time.Second)
 					glog.Error("read:", err)
+					glog.Infof("recv+v: %+v", recvJson)
+					// continue
 					return
 				}
 				// glog.Infof("recv+v: %+v", recvJson)
@@ -443,7 +446,10 @@ func (s *agentCICD) AgentRun() {
 				sendJson := s.SendJson()
 				err := conn.WriteJSON(sendJson)
 				if err != nil {
+					time.Sleep(time.Second)
 					glog.Error("write:", err)
+					glog.Infof("send+v: %+v", sendJson)
+					// continue
 					return
 				}
 				// glog.Infof("send+v: %+v", sendJson)

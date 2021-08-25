@@ -26,14 +26,22 @@
 
     <div class="ui icon message">
       <div class="content">
-        <div class="right aligned">Agent Last Actived {{ .Actived|timeDiffNow }}</div>
-        <div class="header taskstatus1"></div>
-        <hr>
+
+        <div class="ui grid">
+          <div class="left floated left aligned six wide column">
+            <div class="header taskstatus1"></div>
+          </div>
+          <div class="right floated right aligned six wide column">Agent Last Actived: {{ .Actived|timeDiffNow }}</div>
+        </div>
+
+        <div class="ui divider"></div>
         <p class="taskoutput" style="white-space: pre;"></p>
-        <hr>
+        <div class="ui divider"></div>
         <div class="taskstatus2" id="taskstatusbuttom"></div>
 
-        <i style="color: red;" class="times circle outline icon" id="abort_btn"></i>
+        <!-- <i style="color: red;" class="times circle outline icon" id="abort_btn"></i> -->
+        <a class="modalbutton" data-url="{{$.apiurl}}/{{.Id}}/taskstatus" data-status="aborted" data-tooltip="Stop" id="abort_btn"><i class="ui red stop circle outline icon"></i></a>
+
         <i class="arrow alternate circle up outline icon" id="up_btn" style="visibility: hidden"></i>
       </div>
         <hr>
@@ -53,8 +61,48 @@
 {{include "base_foot.html" .}}
 
 
+<div class="ui tiny modal">
+  <i class="close icon"></i>
+  <div class="header">
+    Confirm!
+  </div>
+  <div class="content">
+    <div class="ui container">
+
+      <div class="field" style="min-height:50px;overflow-y:auto">
+        <form class="ui form" action="" method="POST" id="modal_form">
+
+          <div class="description" id="modal_description">
+          </div>
+          <input type="hidden" name="status" value="" id="modal_input_status">
+
+          <div class="ui divider"></div>
+          <button class="ui primary right floated submit button" type="submit">Yes, Submit</button>
+
+        </form>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
 <script type="text/javascript">
     $('.ui.dropdown').dropdown();
+
+    $('.modalbutton').on('click', function() {
+      var form_url = $(this).data("url");
+      var status = $(this).data("status");
+      console.log(form_url);
+      console.log(status);
+      $('#modal_form').attr('action', form_url);
+      $('#modal_description').text("Sure?");
+      $('#modal_input_status').val(status);
+      $('.ui.modal').modal({autofocus: false,}).modal('show');
+
+    });
 
     $(document).ready(function() {
       var jobtype = $("#jobtypeid").data("jobtype");
@@ -77,6 +125,7 @@
               // window.scrollTo(0, document.body.scrollHeight);
             }
 
+            oldtaskstatus = "";
             if (taskstatus != "success" && taskstatus != "failed") {
               var timer = setInterval(function () {
                   $.ajax({
@@ -88,19 +137,25 @@
                       $('.taskstatus1').text(taskstatus);
                       $('.taskoutput').text(res.output);
                       // $('.taskstatus2').html(taskstatus + ' <i class="spinner loading icon"></i>');
-                      $('#taskstatusbuttom').html(taskstatus + ' <i class="ui active inline tiny loader"></i>');
+                      if (oldtaskstatus == "") {
+                        $('#taskstatusbuttom').html(taskstatus + ' <i class="ui active inline tiny loader"></i>');
+                        oldtaskstatus = taskstatus;
+                      }
+                      if (taskstatus != oldtaskstatus) {
+                        $('#taskstatusbuttom').html(taskstatus + ' <i class="ui active inline tiny loader"></i>');
+                      }
 
                       // console.log(taskstatus);
                       if(taskstatus == "success" || taskstatus == "failed"){
                           $('#taskstatusbuttom').html(taskstatus);
-                          $("#abort_btn").remove();
+                          // $("#abort_btn").remove();
                           clearInterval(timer);
                       }
                     }
                   });
               }, 1000);
             } else {
-              $("#abort_btn").remove();
+              // $("#abort_btn").remove();
             }
           }
         });
@@ -116,16 +171,6 @@
             });
         }, 1000);
       }
-    });
-
-    $("#abort_btn").click(function() {
-      var aborturl = $("#jobtypeid").data("aborturl");
-      $.post(aborturl, function (data) {
-          $('.info.modal .content').attr('style', 'white-space: pre;');
-          $('.info.modal .content').html(data.output);
-          $(".info.modal").modal({closable:true,observeChanges:true}).modal('show');
-      }, 'json');
-
     });
 
     $("#up_btn").click(function() {

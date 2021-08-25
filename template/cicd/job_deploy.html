@@ -22,6 +22,39 @@
       <div class="active section">{{.job_id}}</div>
     </div>
 
+    <div class="ui divider"></div>
+    <div class="ui four column centered aligned grid">
+      <div class="center aligned column">
+        <div class="ui content">
+          {{ if eq .job_status "pending"}}
+          <button class="ui blue labeled icon button commonbutton" data-url="{{$.apiurl}}/jobstatus" data-status="running"><i class="play icon"></i>Run</button>
+          {{ else if eq .job_status "running"}}
+          <button class="ui orange labeled icon button commonbutton" data-url="{{$.apiurl}}/jobstatus" data-status="pending"><i class="pause icon"></i>Pause</button>
+          {{ end }}
+        </div>
+      </div>
+      <div class="center aligned column">
+        <div class="ui content">
+          {{ if or (eq .job_status "pending") (eq .job_status "running")}}
+          <button class="ui teal labeled icon button modalbutton" data-url="{{$.apiurl}}/concurrency" data-concurrency="{{.concurrency}}" data-tooltip="Change Concurrency, Current: {{.concurrency}}"><i class="align justify icon"></i>{{.concurrency}}</button>
+          {{ end }}
+        </div>
+      </div>
+      <div class="center aligned column">
+        <div class="ui content">
+          {{ if or (eq .job_status "pending") (eq .job_status "running")}}
+          <button class="ui negative icon button modalbutton" data-url="{{$.apiurl}}/jobstatus" data-status="failed" data-tooltip="Mark Discard(failed)"><i class="times icon"></i></button>
+          {{ end }}
+        </div>
+      </div>
+      <div class="center aligned column">
+        <div class="ui content">
+          {{ if or (eq .job_status "pending") (eq .job_status "running")}}
+          <button class="ui positive icon button modalbutton" data-url="{{$.apiurl}}/jobstatus" data-status="success" data-tooltip="Mark Done(success)"><i class="check icon"></i></button>
+          {{ end }}
+        </div>
+      </div>
+    </div>
 
     <table class="ui selectable sortable basic table">
       <thead>
@@ -32,9 +65,10 @@
             <th></th>
             <th class="right aligned two wide"></th>
             <th class="right aligned two wide"></th>
+            <th class="right aligned one wide">{{.job_status}}</th>
         </tr>
         <tr>
-          <td colspan="4">
+          <td colspan="5">
             <div class="ui active multiple progress" id="progress_bar" style="margin-top: auto; margin-bottom: auto;">
                 <div class="green bar">
                   <div class="progress"></div>
@@ -56,38 +90,46 @@
           <th>Ipaddr</th>
           <th>Updated Time</th>
           <th>Last Actived</th>
+          <th>Action</th>
         </tr>
       </thead>
       <tbody>
         {{range .tasks}}
         <tr>
-          {{ if eq  .Job_status "pending"}}
+          {{ if eq .Task_status "pending"}}
           <td class="selectable" style="color: gray;">
-            <a href="{{$.taskurl}}{{.Id}}/log" class="info-modal-link"><i class="paper plane outline icon"></i>{{.Job_status}}</a>
+            <a href="{{$.taskurl}}{{.Id}}/log" class="info-modal-link"><i class="paper plane outline icon"></i>{{.Task_status}}</a>
           </td>
-          {{ else if eq  .Job_status "running"}}
+          {{ else if eq .Task_status "running"}}
           <td class="selectable" style="color: teal;">
-            <a href="{{$.taskurl}}{{.Id}}/log" class="info-modal-link"><i class="sync alternate loading icon"></i>{{.Job_status}}</a>
+            <a href="{{$.taskurl}}{{.Id}}/log" class="info-modal-link"><i class="sync alternate loading icon"></i>{{.Task_status}}</a>
           </td>
-          {{ else if eq  .Job_status "aborted"}}
+          {{ else if eq .Task_status "aborted"}}
           <td class="selectable" style="color: purple;">
-            <a href="{{$.taskurl}}{{.Id}}/log" class="info-modal-link"><i class="crosshairs loading icon"></i>{{.Job_status}}</a>
+            <a href="{{$.taskurl}}{{.Id}}/log" class="info-modal-link"><i class="crosshairs loading icon"></i>{{.Task_status}}</a>
           </td>
-          {{ else if eq  .Job_status "success"}}
+          {{ else if eq .Task_status "success"}}
           <td class="selectable" style="color: green;">
-            <a href="{{$.taskurl}}{{.Id}}/log" class="info-modal-link"><i class="check circle outline icon"></i>{{.Job_status}}</a>
+            <a href="{{$.taskurl}}{{.Id}}/log" class="info-modal-link"><i class="check circle outline icon"></i>{{.Task_status}}</a>
           </td>
-          {{ else if eq  .Job_status "failed"}}
+          {{ else if eq .Task_status "failed"}}
           <td class="selectable" style="color: red;">
-            <a href="{{$.taskurl}}{{.Id}}/log" class="info-modal-link"><i class="times circle outline icon"></i>{{.Job_status}}</a>
+            <a href="{{$.taskurl}}{{.Id}}/log" class="info-modal-link"><i class="times circle outline icon"></i>{{.Task_status}}</a>
           </td>
           {{ end }}
           <td>{{.Ipaddr}}</td>
           <td data-tooltip="{{.Updated_at|timeToStr}}">{{.Updated_at|timeDiffNow}}</td>
           <td>{{.Actived|timeDiffNow}}</td>
+          <td>
+            {{ if or (eq .Task_status "running") (eq .Task_status "pending") }}
+            <a class="modalbutton" data-url="{{$.taskurl}}{{$.job_id}}/{{.Id}}/taskstatus" data-status="aborted" data-tooltip="Stop"><i class="ui red stop circle outline icon"></i></a>
+            {{ else if or (eq .Task_status "success") (eq .Task_status "failed") }}
+            <a class="modalbutton" data-url="{{$.taskurl}}{{$.job_id}}/{{.Id}}/taskstatus" data-status="pending" data-tooltip="Try Again"><i class="ui purple undo icon"></i></a>
+            {{ end }}
+          </td>
         </tr>
         {{else}}
-        <i class="ui active large loader"></i>
+        <!-- <i class="ui active large loader"></i> -->
         {{end}}
       </tbody>
     </table>
@@ -99,6 +141,44 @@
 </div>
 
 {{include "base_foot.html" .}}
+
+<form class="ui form" action="" method="POST" id="common_form">
+  <input type="hidden" name="status" value="" id="common_input_job_status">
+  <button class="ui button" type="submit">Submit</button>
+</form>
+
+<div class="ui tiny modal">
+  <i class="close icon"></i>
+  <div class="header">
+    Confirm!
+  </div>
+  <div class="content">
+    <div class="ui container">
+
+      <div class="field" style="min-height:50px;overflow-y:auto">
+        <form class="ui form" action="" method="POST" id="modal_form">
+
+          <div class="description" id="modal_description">
+          </div>
+          <input type="hidden" name="status" value="" id="modal_input_status">
+          <div class="ui labeled input" id="modal_concurrency">
+            <div class="ui divider"></div>
+            <div class="ui teal label">Concurrency: </div>
+            <input type="number" name="concurrency" value="3" placeholder="Set new Concurrency! min:1" id="modal_input_concurrency">
+          </div>
+
+          <div class="ui divider"></div>
+          <button class="ui primary right floated submit button" type="submit">Yes, Submit</button>
+
+        </form>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
 
 <script type="text/javascript">
     $('.ui.dropdown').dropdown();
@@ -113,6 +193,37 @@
         bars: ['Success', 'Failed', 'Running']
       }
     });
+
+  $('.commonbutton').on('click', function() {
+    var form_url = $(this).data("url");
+    var job_status = $(this).data("status");
+    console.log(form_url);
+    console.log(job_status);
+    $('#common_form').attr('action', form_url);
+    $('#common_input_job_status').val(job_status);
+    $('#common_form').submit();
+  });
+
+  $('.modalbutton').on('click', function() {
+    var form_url = $(this).data("url");
+    var status = $(this).data("status");
+    console.log(form_url);
+    console.log(status);
+    $('#modal_form').attr('action', form_url);
+    if (status !== undefined) {
+      $('#modal_concurrency').hide();
+      $('#modal_description').text("Sure?");
+      $('#modal_input_status').val(status);
+    } else {
+      var concurrency = $(this).data("concurrency").toString();
+      $('#modal_input_status').hide();
+      $('#modal_concurrency').show();
+      $('#modal_description').text("Current concurrency is: " + concurrency + ". Confirm Change?");
+      $('#modal_input_concurrency').val(concurrency);
+    }
+    $('.ui.modal').modal({autofocus: false,}).modal('show');
+
+  });
 
     $(document).ready(function() {
         var progressurl = "{{.progressurl}}";
@@ -135,7 +246,7 @@
                       $('#progress_bar').progress('set progress', res.value);
                       var finished = res.finished;
                       if(finished){
-                          $(".loader").remove();
+                          // $(".loader").remove();
                           clearInterval(timer);
                       }
                     }
@@ -159,17 +270,6 @@
             });
         });
     });
-
-    // $("#abort_btn").click(function() {
-    //   var aborturl = $("#jobtypeid").data("aborturl");
-    //   $.post(aborturl, function (data) {
-    //       $('.info.modal .content').attr('style', 'white-space: pre;');
-    //       $('.info.modal .content').html(data.output);
-    //       $(".info.modal").modal({closable:true,observeChanges:true}).modal('show');
-    //   }, 'json');
-
-    // });
-
 
 </script>
 

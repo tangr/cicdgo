@@ -67,14 +67,16 @@ func (a *cicdApi) ShowJob(r *ghttp.Request) {
 	var job_id int = r.GetInt("job_id")
 	tasks := service.Cicd.GetJobTasks(pipeline_id, job_id)
 	pipeline_name := service.Pipeline.GetPipelineName(pipeline_id)
-	job_type := service.Cicd.GetJobType(job_id)
+	concurrency, job_type, job_status := service.Cicd.GetJobInfo(job_id)
 	params := g.Map{
 		"url":           UrlPrefix + "/" + fmt.Sprint(pipeline_id) + "/",
-		"apiurl":        UrlPrefix + "/v1/pipelines/" + fmt.Sprint(pipeline_id),
+		"apiurl":        UrlPrefix + "/v1/" + fmt.Sprint(pipeline_id, "/", job_id),
 		"pipeline_name": pipeline_name,
 		"pipeline_id":   pipeline_id,
 		"job_id":        job_id,
+		"concurrency":   concurrency,
 		"job_type":      job_type,
+		"job_status":    job_status,
 		"tasks":         tasks,
 		"taskurl":       UrlPrefix + "/v1/" + fmt.Sprint(pipeline_id) + "/",
 	}
@@ -122,6 +124,40 @@ func (a *cicdApi) GetJobProgress(r *ghttp.Request) {
 	r.Response.WriteExit(job_progress)
 	// job_tasks := service.Cicd.GetJobProgress(pipeline_id, job_id)
 	// r.Response.WriteExit(job_tasks)
+}
+
+func (a *cicdApi) PostJobConcurrency(r *ghttp.Request) {
+	var pipeline_id int = r.GetInt("pipeline_id")
+	if !service.CheckAuthor(r.Context(), pipeline_id) {
+		r.Response.WriteStatus(http.StatusForbidden)
+	}
+	var job_id int = r.GetInt("job_id")
+	var concurrency int = r.GetFormInt("concurrency")
+	service.Cicd.PostJobConcurrency(pipeline_id, job_id, concurrency)
+	r.Response.RedirectTo(UrlPrefix + "/" + fmt.Sprint(pipeline_id, "/", job_id))
+}
+
+func (a *cicdApi) PostJobStatus(r *ghttp.Request) {
+	var pipeline_id int = r.GetInt("pipeline_id")
+	if !service.CheckAuthor(r.Context(), pipeline_id) {
+		r.Response.WriteStatus(http.StatusForbidden)
+	}
+	var job_id int = r.GetInt("job_id")
+	var job_status string = r.GetString("status")
+	service.Cicd.PostJobStatus(pipeline_id, job_id, job_status)
+	r.Response.RedirectTo(UrlPrefix + "/" + fmt.Sprint(pipeline_id, "/", job_id))
+}
+
+func (a *cicdApi) PostTaskStatus(r *ghttp.Request) {
+	var pipeline_id int = r.GetInt("pipeline_id")
+	if !service.CheckAuthor(r.Context(), pipeline_id) {
+		r.Response.WriteStatus(http.StatusForbidden)
+	}
+	var job_id int = r.GetInt("job_id")
+	var task_id int = r.GetInt("task_id")
+	var task_status string = r.GetString("status")
+	service.Cicd.PostTaskStatus(pipeline_id, task_id, task_status)
+	r.Response.RedirectTo(UrlPrefix + "/" + fmt.Sprint(pipeline_id, "/", job_id))
 }
 
 func (a *cicdApi) GetPipelineBody(r *ghttp.Request) {
@@ -174,13 +210,13 @@ func (a *cicdApi) AbortJob(r *ghttp.Request) {
 	r.Response.WriteExit(job_id)
 }
 
-func (a *cicdApi) RetryJob(r *ghttp.Request) {
-	var pipeline_id int = r.GetInt("pipeline_id")
-	if !service.CheckAuthor(r.Context(), pipeline_id) {
-		r.Response.WriteStatus(http.StatusForbidden)
-	}
-	var task_id int = r.GetInt("task_id")
+// func (a *cicdApi) RetryJob(r *ghttp.Request) {
+// 	var pipeline_id int = r.GetInt("pipeline_id")
+// 	if !service.CheckAuthor(r.Context(), pipeline_id) {
+// 		r.Response.WriteStatus(http.StatusForbidden)
+// 	}
+// 	var task_id int = r.GetInt("task_id")
 
-	job_id := service.Cicd.RetryJob(pipeline_id, task_id)
-	r.Response.WriteExit(job_id)
-}
+// 	job_id := service.Cicd.RetryJob(pipeline_id, task_id)
+// 	r.Response.WriteExit(job_id)
+// }

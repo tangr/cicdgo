@@ -172,11 +172,11 @@ type JobMeta struct {
 // 	Updated_at int    `json:"updated_at"`
 // }
 
-type GetOutput struct {
-	Job_status string `json:"status"`
-	Updated_at int    `json:"updated_at"`
-	Output     string `json:"output"`
-}
+// type GetOutput struct {
+// 	Job_status string `json:"status"`
+// 	Updated_at int    `json:"updated_at"`
+// 	Output     string `json:"output"`
+// }
 
 type ListPipelines struct {
 	Id            int    `json:"pipeline_id"`

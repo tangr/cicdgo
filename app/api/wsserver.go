@@ -115,3 +115,17 @@ func (a *wsServer) GetAgentStatus(r *ghttp.Request) {
 	agent_status := service.WsServer.GetAgentStatus(pipeline_id, job_id)
 	r.Response.WriteExit(agent_status)
 }
+
+// func (a *wsServer) GetRunningConcurrency(r *ghttp.Request) {
+// 	var pipeline_id int = r.GetInt("pipeline_id")
+// 	var job_id int = r.GetInt("job_id")
+// 	agent_status := service.WsServer.GetRunningConcurrency(pipeline_id, job_id)
+// 	r.Response.WriteExit(agent_status)
+// }
+
+// func (a *wsServer) SetRunningConcurrency(r *ghttp.Request) {
+// 	var pipeline_id int = r.GetInt("pipeline_id")
+// 	var job_id int = r.GetInt("job_id")
+// 	agent_status := service.WsServer.SetRunningConcurrency(pipeline_id, job_id)
+// 	r.Response.WriteExit(agent_status)
+// }

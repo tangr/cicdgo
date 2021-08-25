@@ -18,12 +18,18 @@ var Cicd = cicdService{}
 type cicdService struct{}
 
 type ListTasks struct {
-	Id         int    `json:"log_id"`
-	Job_id     int    `json:"job_id"`
-	Job_status string `json:"job_status"`
-	Ipaddr     string `json:"ipaddr"`
-	Actived    int    `json:"Actived"`
-	Updated_at int    `json:"updated_at"`
+	Id          int    `json:"log_id"`
+	Job_id      int    `json:"job_id"`
+	Task_status string `json:"task_status"`
+	Ipaddr      string `json:"ipaddr"`
+	Actived     int    `json:"Actived"`
+	Updated_at  int    `json:"updated_at"`
+}
+
+type GetOutput struct {
+	Task_status string `json:"status"`
+	Updated_at  int    `json:"updated_at"`
+	Output      string `json:"output"`
 }
 
 func (s *cicdService) ListCicd(group_ids []string) []model.ListPipelines {
@@ -96,12 +102,21 @@ func (s *cicdService) GetPipelinePkgs(pipeline_id int) string {
 	return string(ret_pipeline_pkgs)
 }
 
-func (s *cicdService) GetJobType(job_id int) string {
-	job_type, err := dao.CicdJob.Fields("job_type").Where("id=", job_id).Value()
+func (s *cicdService) GetJobInfo(job_id int) (int, string, string) {
+	type JobInfo struct {
+		Concurrency int    `json:"concurrency"`
+		JobType     string `json:"job_type"`
+		JobStatus   string `json:"job_status"`
+	}
+	new_jobinfo := &JobInfo{}
+	err := dao.CicdJob.Fields("concurrency,job_type,job_status").Where("id=", job_id).Struct(new_jobinfo)
 	if err != nil {
 		glog.Error(err)
 	}
-	return job_type.String()
+	concurrency := new_jobinfo.Concurrency
+	job_type := new_jobinfo.JobType
+	job_status := new_jobinfo.JobStatus
+	return concurrency, job_type, job_status
 }
 
 func (s *cicdService) GetJobs(pipeline_id int, pageIndex int, pageSize int) ([]model.ListJobs, int) {
@@ -250,23 +265,23 @@ func (s *cicdService) AbortJob(pipeline_id int, task_id int) error {
 	if !s.CheckTaskid(pipeline_id, task_id) {
 		return nil
 	}
-	_, err := dao.CicdLog.Data("job_status='aborted'").Where("id", task_id).Update()
+	_, err := dao.CicdLog.Data("task_status='aborted'").Where("id", task_id).Update()
 	if err != nil {
 		glog.Error(err)
 	}
 	return nil
 }
 
-func (s *cicdService) RetryJob(pipeline_id int, task_id int) error {
-	if !s.CheckTaskid(pipeline_id, task_id) {
-		return nil
-	}
-	_, err := dao.CicdLog.Data("job_status='pending'").Where("id", task_id).Update()
-	if err != nil {
-		glog.Error(err)
-	}
-	return nil
-}
+// func (s *cicdService) RetryJob(pipeline_id int, task_id int) error {
+// 	if !s.CheckTaskid(pipeline_id, task_id) {
+// 		return nil
+// 	}
+// 	_, err := dao.CicdLog.Data("task_status='pending'").Where("id", task_id).Update()
+// 	if err != nil {
+// 		glog.Error(err)
+// 	}
+// 	return nil
+// }
 
 func (s *cicdService) GetJobTasks(pipeline_id int, job_id int) []ListTasks {
 	var agentStatusMap map[string]int
@@ -274,7 +289,7 @@ func (s *cicdService) GetJobTasks(pipeline_id int, job_id int) []ListTasks {
 	if !s.CheckJobid(pipeline_id, job_id) {
 		return tasks
 	}
-	err := dao.CicdLog.Fields("id,job_id,job_status,ipaddr,updated_at").Order("id desc").Where(g.Map{"job_id": job_id}).Structs(&tasks)
+	err := dao.CicdLog.Fields("id,job_id,task_status,ipaddr,updated_at").Order("id desc").Where(g.Map{"job_id": job_id}).Structs(&tasks)
 	if err != nil {
 		glog.Error(err)
 	}
@@ -301,19 +316,19 @@ func (s *cicdService) GetJobProgress(pipeline_id int, job_id int) (string, strin
 		return "", "", false
 	}
 	job_map := g.Map{"job_id": job_id}
-	err := dao.CicdLog.Fields("id,job_id,job_status,ipaddr,updated_at").Where(job_map).Structs(&tasks)
+	err := dao.CicdLog.Fields("id,job_id,task_status,ipaddr,updated_at").Where(job_map).Structs(&tasks)
 	if err != nil {
 		glog.Error(err)
 	}
 	task_count_pending, task_count_running, task_count_success, task_count_failed := 0, 0, 0, 0
 	for _, task := range tasks {
-		if task.Job_status == "pending" {
+		if task.Task_status == "pending" {
 			task_count_pending = task_count_pending + 1
-		} else if task.Job_status == "running" {
+		} else if task.Task_status == "running" {
 			task_count_running = task_count_running + 1
-		} else if task.Job_status == "success" {
+		} else if task.Task_status == "success" {
 			task_count_success = task_count_success + 1
-		} else if task.Job_status == "failed" {
+		} else if task.Task_status == "failed" {
 			task_count_failed = task_count_failed + 1
 		}
 	}
@@ -341,12 +356,45 @@ func (s *cicdService) GetJobProgress(pipeline_id int, job_id int) (string, strin
 	return task_total, task_value, job_finished
 }
 
-func (s *cicdService) GetOutput(pipeline_id int, log_id int) *model.GetOutput {
-	output := (*model.GetOutput)(nil)
+func (s *cicdService) PostJobConcurrency(pipeline_id int, job_id int, concurrency int) bool {
+	if !s.CheckJobid(pipeline_id, job_id) {
+		return false
+	}
+	job_map := g.Map{"pipeline_id": pipeline_id, "id": job_id}
+	if _, err := dao.CicdJob.Data(g.Map{"concurrency": concurrency}).Where(job_map).Update(); err != nil {
+		glog.Error(err)
+	}
+	return true
+}
+
+func (s *cicdService) PostJobStatus(pipeline_id int, job_id int, job_status string) bool {
+	if !s.CheckJobid(pipeline_id, job_id) {
+		return false
+	}
+	job_map := g.Map{"pipeline_id": pipeline_id, "id": job_id}
+	if _, err := dao.CicdJob.Data(g.Map{"job_status": job_status}).Where(job_map).Update(); err != nil {
+		glog.Error(err)
+	}
+	return true
+}
+
+func (s *cicdService) PostTaskStatus(pipeline_id int, task_id int, task_status string) bool {
+	if !s.CheckTaskid(pipeline_id, task_id) {
+		return false
+	}
+	job_map := g.Map{"id": task_id}
+	if _, err := dao.CicdLog.Data(g.Map{"task_status": task_status}).Where(job_map).Update(); err != nil {
+		glog.Error(err)
+	}
+	return true
+}
+
+func (s *cicdService) GetOutput(pipeline_id int, log_id int) *GetOutput {
+	output := (*GetOutput)(nil)
 	if !s.CheckTaskid(pipeline_id, log_id) {
 		return output
 	}
-	err := dao.CicdLog.Fields("job_status,updated_at,output").Where(g.Map{"id": log_id}).Struct(&output)
+	err := dao.CicdLog.Fields("task_status,updated_at,output").Where(g.Map{"id": log_id}).Struct(&output)
 	if err != nil {
 		glog.Error(err)
 	}

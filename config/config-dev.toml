@@ -52,8 +52,9 @@
     # 自定义DAO生成配置(默认是读取database配置)
     [[gfcli.gen.dao]]
         link   = "mysql:root:@tcp(127.0.0.1:3306)/test"
-        prefix  = "cicd_"
         tables = "cicd_pipeline,cicd_job,cicd_script,cicd_agent,cicd_log,cicd_package,cicd_group,cicd_user"
+        # prefix  = "cicd_"
+        # tables = "pipeline,job,script,agent,log,package,group,user"
 
 # AgentCI.
 [agent]

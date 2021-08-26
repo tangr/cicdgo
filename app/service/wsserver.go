@@ -21,6 +21,11 @@ type JobScript struct {
 	Script model.JobScriptValue `json:"jobScript"`
 }
 
+type TaskStatus struct {
+	TaskStatus string
+	Output     string
+}
+
 type AgentStatusMapV struct {
 	Updated int // Active Timestamp
 	Status  string
@@ -117,19 +122,36 @@ func (s *wsServer) HandleCIJob(ciJob *model.WsAgentSendMap, clientip string) *mo
 			if _, err := dao.CicdLog.Data(newlog).Save(); err != nil {
 				glog.Error(err)
 			}
+		} else {
+			newlog := g.Map{"agent_id": agentId, "job_type": "BUILD", "job_id": jobId, "ipaddr": clientip, "task_status": jobStatus, "updated_at": gtime.Now().Timestamp()}
+			if _, err := dao.CicdLog.Data(newlog).Save(); err != nil {
+				glog.Error(err)
+			}
 		}
 		CiAgentMapActivity[agentId][clientip].Status = ""
 		// CiAgentMapActivity[agentId][clientip].JobId = jobId
 		return s.GetCIJob(agentId, clientip)
 	}
 	if jobStatus == "running" {
-		jobOutput := ciJob.JobOutput
 		if _, err := dao.CicdJob.Data(g.Map{"job_status": jobStatus}).Where("id", jobId).Update(); err != nil {
 			glog.Error(err)
 		}
-		newlog := g.Map{"agent_id": agentId, "job_type": "BUILD", "job_id": jobId, "ipaddr": clientip, "task_status": jobStatus, "output": jobOutput, "updated_at": gtime.Now().Timestamp()}
-		if _, err := dao.CicdLog.Data(newlog).Save(); err != nil {
-			glog.Error(err)
+
+		var lastTaskStatus = &TaskStatus{}
+		if err := dao.CicdLog.Fields("task_status,output").Where(g.Map{"job_id": jobId, "ipaddr": clientip}).Struct(lastTaskStatus); err != nil {
+			glog.Debug(err)
+		}
+		latestTaskStatus := lastTaskStatus.TaskStatus
+		if latestTaskStatus == "aborted" {
+			jobCiData.JobStatus = "aborted"
+		}
+		lastOutput := lastTaskStatus.Output
+		jobOutput := ciJob.JobOutput
+		if jobOutput != lastOutput {
+			newlog := g.Map{"agent_id": agentId, "job_type": "BUILD", "job_id": jobId, "ipaddr": clientip, "task_status": jobStatus, "output": jobOutput, "updated_at": gtime.Now().Timestamp()}
+			if _, err := dao.CicdLog.Data(newlog).Save(); err != nil {
+				glog.Error(err)
+			}
 		}
 		return &jobCiData
 	}
@@ -169,15 +191,31 @@ func (s *wsServer) HandleCDJob(cdJob *model.WsAgentSendMap, clientip string) *mo
 				glog.Error(err)
 			}
 		}
+		if jobStatus == "failed" {
+			if _, err := dao.CicdJob.Data(g.Map{"job_status": jobStatus}).Where("id", jobId).Update(); err != nil {
+				glog.Error(err)
+			}
+		}
 		CdAgentMapPipelineActivity[pipelineId][clientip].Status = ""
 		CdAgentMapPipelineActivity[pipelineId][clientip].JobId = jobId
 		return s.GetCDJob(pipelineId, clientip)
 	}
 	if jobStatus == "running" {
+		var lastTaskStatus = &TaskStatus{}
+		if err := dao.CicdLog.Fields("task_status,output").Where(g.Map{"job_id": jobId, "ipaddr": clientip}).Struct(lastTaskStatus); err != nil {
+			glog.Debug(err)
+		}
+		latestTaskStatus := lastTaskStatus.TaskStatus
+		if latestTaskStatus == "aborted" {
+			jobCdData.JobStatus = "aborted"
+		}
+		lastOutput := lastTaskStatus.Output
 		jobOutput := cdJob.JobOutput
-		newlog := g.Map{"pipeline_id": pipelineId, "job_type": "DEPLOY", "job_id": jobId, "ipaddr": clientip, "task_status": jobStatus, "output": jobOutput, "updated_at": gtime.Now().Timestamp()}
-		if _, err := dao.CicdLog.Data(newlog).Save(); err != nil {
-			glog.Error(err)
+		if jobOutput != lastOutput {
+			newlog := g.Map{"pipeline_id": pipelineId, "job_type": "DEPLOY", "job_id": jobId, "ipaddr": clientip, "task_status": jobStatus, "output": jobOutput, "updated_at": gtime.Now().Timestamp()}
+			if _, err := dao.CicdLog.Data(newlog).Save(); err != nil {
+				glog.Error(err)
+			}
 		}
 		return &jobCdData
 	}
@@ -299,13 +337,37 @@ func (s *wsServer) SyncNewCDJob() {
 	if err := dao.CicdJob.Fields("id,pipeline_id,concurrency").Where("job_type", "DEPLOY").Where("job_status", "running").Structs(newJobs); err != nil {
 		glog.Debug(err)
 	}
+	var JobConcurrency map[int]int = make(map[int]int)
+	for _, newJob := range *newJobs {
+		jobId := newJob.ID
+		JobConcurrency[jobId] = newJob.Concurrency
+	}
+
+	type NewTaskDeploy struct {
+		JobID      int `json:"jobid"`
+		PipelineId int `json:"pipeline_id"`
+	}
+	var newTasks = new([]NewTaskDeploy)
+	if err := dao.CicdLog.Fields("job_id,pipeline_id").Where("job_type", "DEPLOY").WhereIn("task_status", g.Slice{"pending", "running"}).Structs(newTasks); err != nil {
+		glog.Debug(err)
+	}
+
+	for _, newTask := range *newTasks {
+		var newJob = new(NewJobDeploy)
+		newJob.ID = newTask.JobID
+		newJob.PipelineId = newTask.PipelineId
+		*newJobs = append(*newJobs, *newJob)
+	}
+
+	glog.Debugf("newJobs: %+v", newJobs)
 
 	for _, newJob := range *newJobs {
 		pipelineId := newJob.PipelineId
 		jobId := newJob.ID
-		concurrency := newJob.Concurrency
+		// concurrency := newJob.Concurrency
+		concurrency := JobConcurrency[jobId]
 
-		finished_jobnum, err := dao.CicdLog.Where("job_id", jobId).WhereIn("task_status", g.Slice{"success", "failed"}).Count()
+		finished_jobnum, err := dao.CicdLog.Where("job_id", jobId).Where("task_status", "success").Count()
 		if err != nil {
 			glog.Error(err)
 		}

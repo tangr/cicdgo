@@ -26,7 +26,7 @@
     <div class="ui four column centered aligned grid">
       <div class="center aligned column">
         <div class="ui content">
-          {{ if eq .job_status "pending"}}
+          {{ if or (eq .job_status "pending") (eq .job_status "failed")}}
           <button class="ui blue labeled icon button commonbutton" data-url="{{$.apiurl}}/jobstatus" data-status="running"><i class="play icon"></i>Run</button>
           {{ else if eq .job_status "running"}}
           <button class="ui orange labeled icon button commonbutton" data-url="{{$.apiurl}}/jobstatus" data-status="pending"><i class="pause icon"></i>Pause</button>
@@ -42,14 +42,14 @@
       </div>
       <div class="center aligned column">
         <div class="ui content">
-          {{ if or (eq .job_status "pending") (eq .job_status "running")}}
+          {{ if or (eq .job_status "pending") (eq .job_status "running") (eq .job_status "success")}}
           <button class="ui negative icon button modalbutton" data-url="{{$.apiurl}}/jobstatus" data-status="failed" data-tooltip="Mark Discard(failed)"><i class="times icon"></i></button>
           {{ end }}
         </div>
       </div>
       <div class="center aligned column">
         <div class="ui content">
-          {{ if or (eq .job_status "pending") (eq .job_status "running")}}
+          {{ if or (eq .job_status "pending") (eq .job_status "running") (eq .job_status "failed")}}
           <button class="ui positive icon button modalbutton" data-url="{{$.apiurl}}/jobstatus" data-status="success" data-tooltip="Mark Done(success)"><i class="check icon"></i></button>
           {{ end }}
         </div>
@@ -124,7 +124,7 @@
             {{ if or (eq .Task_status "running") (eq .Task_status "pending") }}
             <a class="modalbutton" data-url="{{$.taskurl}}{{$.job_id}}/{{.Id}}/taskstatus" data-status="aborted" data-tooltip="Stop"><i class="ui red stop circle outline icon"></i></a>
             {{ else if or (eq .Task_status "success") (eq .Task_status "failed") }}
-            <a class="modalbutton" data-url="{{$.taskurl}}{{$.job_id}}/{{.Id}}/taskstatus" data-status="pending" data-tooltip="Try Again"><i class="ui purple undo icon"></i></a>
+            <a class="modalbutton" data-url="{{$.taskurl}}{{$.job_id}}/{{.Id}}/taskstatus" data-status="pending" data-tooltip="Run Again"><i class="ui purple undo icon"></i></a>
             {{ end }}
           </td>
         </tr>
@@ -186,8 +186,6 @@
 
     $('#progress_bar').progress({
       label: 'ratio',
-      // value: "40,10,10,30",
-      // total: 100,
       text: {
         ratio: '{bar} {value} / {total}',
         bars: ['Success', 'Failed', 'Running']

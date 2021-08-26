@@ -219,21 +219,12 @@ func (s *agentCICD) GetStatus(jobId int) string {
 }
 
 func (s *agentCICD) KillJob(jobId int) {
-	glog.Error("Begin in KillJob")
 	if runningProcess, ok := runningJobs[jobId]; ok {
-		if runningProcess.ProcessState.Exited() {
-			exitCode := runningProcess.ProcessState.ExitCode()
-			delete(runningJobs, jobId)
-			glog.Debugf("Exit newjob: %d exitcode: %d", jobId, exitCode)
-		} else {
-			if err := runningProcess.Kill(); err != nil {
-				glog.Error(err)
-			}
-			if runningProcess.ProcessState.Exited() {
-				exitCode := runningProcess.ProcessState.ExitCode()
-				delete(runningJobs, jobId)
-				glog.Debugf("Kill job: %d exitcode: %d", jobId, exitCode)
-			}
+		glog.Warningf("kill jobid: %d, pid: %d ", jobId, runningProcess.Cmd.Process.Pid)
+		syscall.Kill(-runningProcess.Cmd.Process.Pid, syscall.SIGKILL)
+
+		if err := s.SetStatus(jobId, "failed"); err != nil {
+			glog.Error(runningProcess.Cmd.Process.Pid, err)
 		}
 	}
 }
@@ -243,6 +234,7 @@ func (s *agentCICD) RunCommand(jobId int, runCommand string, scriptEnvs []string
 	glog.Debugf("recvScriptEnvs: %+v", scriptEnvs)
 	glog.Debugf("recvScriptEnvs: %#v", scriptEnvs)
 	newprocess := gproc.NewProcessCmd(runCommand, scriptEnvs)
+	newprocess.Cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 	newpid, err := newprocess.Start()
 	if err != nil {
 		glog.Error(newpid, err)
@@ -253,14 +245,10 @@ func (s *agentCICD) RunCommand(jobId int, runCommand string, scriptEnvs []string
 	}
 	runningJobs[jobId] = newprocess
 	if err = newprocess.Wait(); err != nil {
-		glog.Errorf("Command finished with error: %v", err)
+		glog.Warningf("Command finished with error: %v", err)
 	}
 	glog.Debugf("Finished Run newjob: %d pid: %d", jobId, newpid)
-	// glog.Debug(newprocess.ProcessState.Exited())
-	// glog.Debug(newprocess.ProcessState.ExitCode())
 
-	newprocess.ProcessState.Exited()
-	newprocess.ProcessState.ExitCode()
 	if newprocess.ProcessState.Exited() {
 		exitCode := newprocess.ProcessState.ExitCode()
 		glog.Debugf("Exit newjob: %d pid: %d exitcode: %d", jobId, newpid, exitCode)
@@ -311,6 +299,10 @@ func (s *agentCICD) HandleJob(jobv *model.WsServerSendMap) *model.WsAgentSendMap
 	if jobStatus == "aborted" {
 		s.KillJob(jobId)
 		sendMap.JobStatus = s.GetStatus(jobId)
+		jobPath := dataPathDir + strconv.Itoa(jobId)
+		jobPathOutput := jobPath + ".output"
+		output := s.ReadFile(jobPathOutput)
+		sendMap.JobOutput = output
 		return sendMap
 	}
 	oldJobStatus := s.GetStatus(jobId)

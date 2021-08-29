@@ -219,9 +219,11 @@ func (s *agentCICD) GetStatus(jobId int) string {
 }
 
 func (s *agentCICD) KillJob(jobId int) {
+	glog.Error("in KillJob")
 	if runningProcess, ok := runningJobs[jobId]; ok {
 		glog.Warningf("kill jobid: %d, pid: %d ", jobId, runningProcess.Cmd.Process.Pid)
 		syscall.Kill(-runningProcess.Cmd.Process.Pid, syscall.SIGKILL)
+		delete(runningJobs, jobId)
 
 		if err := s.SetStatus(jobId, "failed"); err != nil {
 			glog.Error(runningProcess.Cmd.Process.Pid, err)
@@ -268,7 +270,7 @@ func (s *agentCICD) RunCommand(jobId int, runCommand string, scriptEnvs []string
 
 func (s *agentCICD) HandleJob(jobv *model.WsServerSendMap) *model.WsAgentSendMap {
 	var sendMap = &model.WsAgentSendMap{}
-	jobId := jobv.JobID
+	jobId := jobv.JobId
 	jobStatus := jobv.JobStatus
 	sendMap.AgentId = jobv.AgentId
 	sendMap.AgentName = jobv.AgentName
@@ -306,7 +308,7 @@ func (s *agentCICD) HandleJob(jobv *model.WsServerSendMap) *model.WsAgentSendMap
 		return sendMap
 	}
 	oldJobStatus := s.GetStatus(jobId)
-	if oldJobStatus == "" {
+	if oldJobStatus == "" || oldJobStatus == "success" || oldJobStatus == "failed" {
 		if err := s.SetStatus(jobId, "pending"); err != nil {
 			glog.Error(jobId, err)
 		}
@@ -343,15 +345,19 @@ func (s *agentCICD) HandleRecvJson(recvJson *model.WsServerSend) {
 	var sendJson model.WsAgentSend
 	recvData := *recvJson
 	for _, jobv := range recvData {
-		if len(runningJobs) > maxrunningjobs {
-			continue
-		}
 		if jobv.ErrMsg != "" {
-			glog.Errorf("jobId: %d errmsg: %s", jobv.JobID, jobv.ErrMsg)
+			glog.Errorf("jobId: %d errmsg: %s", jobv.JobId, jobv.ErrMsg)
 			continue
 		}
-		if jobv.JobID == 0 || jobv.JobStatus == "" {
+		if jobv.JobId == 0 || jobv.JobStatus == "" {
 			continue
+		}
+		glog.Debugf("len runningJobs: %d %d", len(runningJobs), maxrunningjobs)
+		if len(runningJobs) >= maxrunningjobs {
+			jobId := jobv.JobId
+			if _, ok := runningJobs[jobId]; !ok {
+				continue
+			}
 		}
 		glog.Debugf("recvjson: %+v", jobv)
 		glog.Debugf("recvjson: %#v", jobv)

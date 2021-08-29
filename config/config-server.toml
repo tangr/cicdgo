@@ -1,8 +1,8 @@
 # HTTP Server
 [server]
     [server.wscicd]
-        Address     = ":8070"
-        LogStdout   = true
+        Address          = ":8070"
+        LogStdout        = true
         # clear not activity agents in seconds
         DeprecatedAfter  = 60
 

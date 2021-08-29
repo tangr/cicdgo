@@ -224,7 +224,6 @@ func (s *agentCICD) GetStatus(jobId int) string {
 }
 
 func (s *agentCICD) KillJob(jobId int) {
-	glog.Error("in KillJob")
 	if runningProcess, ok := runningJobs[jobId]; ok {
 		glog.Warningf("kill jobid: %d, pid: %d ", jobId, runningProcess.Cmd.Process.Pid)
 		syscall.Kill(-runningProcess.Cmd.Process.Pid, syscall.SIGKILL)
@@ -424,14 +423,14 @@ func (s *agentCICD) AgentRun() {
 					glog.Error("read:", err)
 					glog.Infof("recv+v: %+v", recvJson)
 					// continue
-					return
+					break
+					// return
 				}
 				// glog.Infof("recv+v: %+v", recvJson)
 
 				newjobs, _ := json.Marshal(recvJson)
 				glog.Infof("recvjson: %s", string(newjobs))
 				s.HandleRecvJson(recvJson)
-
 			}
 		}()
 
@@ -453,7 +452,8 @@ func (s *agentCICD) AgentRun() {
 					glog.Error("write:", err)
 					glog.Infof("send+v: %+v", sendJson)
 					// continue
-					return
+					break
+					// return
 				}
 				// glog.Infof("send+v: %+v", sendJson)
 				// glog.Infof("send#v: %#v", sendJson)
@@ -475,7 +475,6 @@ func (s *agentCICD) AgentRun() {
 			case <-reload:
 				glog.Info("reload")
 				s.GetAgentsList(true)
-
 			}
 		}
 	}

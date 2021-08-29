@@ -257,7 +257,7 @@ func (s *agentCICD) RunCommand(jobId int, runCommand string, scriptEnvs []string
 
 func (s *agentCICD) HandleJob(jobv *model.WsServerSendMap) *model.WsAgentSendMap {
 	var sendMap = &model.WsAgentSendMap{}
-	jobId := jobv.JobID
+	jobId := jobv.JobId
 	jobStatus := jobv.JobStatus
 	sendMap.AgentId = jobv.AgentId
 	sendMap.AgentName = jobv.AgentName
@@ -326,10 +326,10 @@ func (s *agentCICD) HandleRecvJson(recvJson *model.WsServerSend) {
 			continue
 		}
 		if jobv.ErrMsg != "" {
-			glog.Errorf("jobId: %d errmsg: %s", jobv.JobID, jobv.ErrMsg)
+			glog.Errorf("jobId: %d errmsg: %s", jobv.JobId, jobv.ErrMsg)
 			continue
 		}
-		if jobv.JobID == 0 || jobv.JobStatus == "" {
+		if jobv.JobId == 0 || jobv.JobStatus == "" {
 			continue
 		}
 		var sendMap = s.HandleJob(&jobv)

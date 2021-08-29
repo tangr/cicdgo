@@ -13,7 +13,7 @@
     # Options: DEBUG, INFO, WARNING, ERROR, CRITICAL
     LogLevel        = "all"
     EnvPrefix       = "CICD_"
-    MaxRunningJobs  = 10
+    MaxRunningJobs  = 2
     DataPathDir     = "/tmp/cidata/"
     JobFlash        = "jobflash"
     Include         = "config/conf.d/*.toml"

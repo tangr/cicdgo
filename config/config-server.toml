@@ -3,6 +3,8 @@
     [server.wscicd]
         Address     = ":8070"
         LogStdout   = true
+        # clear not activity agents in seconds
+        DeprecatedAfter  = 60
 
 # Logger.
 [logger]

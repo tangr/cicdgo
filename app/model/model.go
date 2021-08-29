@@ -43,6 +43,7 @@ type CicdScript struct {
 type CicdAgent struct {
 	Id        int    `orm:"id,primary"        json:"id"`        //
 	AgentName string `orm:"agent_name,unique" json:"agentName"` //
+	Ipaddr    string `orm:"ipaddr"            json:"ipaddr"`    //
 	UpdatedAt int64  `orm:"updated_at"        json:"updatedAt"` //
 }
 

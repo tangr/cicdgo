@@ -22,6 +22,7 @@ type CicdAgentDao struct {
 type cicdAgentColumns struct {
 	Id        string //
 	AgentName string //
+	Ipaddr    string //
 	UpdatedAt string //
 }
 
@@ -30,6 +31,7 @@ func NewCicdAgentDao() *CicdAgentDao {
 	columns := cicdAgentColumns{
 		Id:        "id",
 		AgentName: "agent_name",
+		Ipaddr:    "ipaddr",
 		UpdatedAt: "updated_at",
 	}
 	return &CicdAgentDao{

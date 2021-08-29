@@ -122,9 +122,9 @@
           <td>{{.Actived|timeDiffNow}}</td>
           <td>
             {{ if or (eq .Task_status "running") (eq .Task_status "pending") }}
-            <a class="modalbutton" data-url="{{$.taskurl}}{{$.job_id}}/{{.Id}}/taskstatus" data-status="aborted" data-tooltip="Stop"><i class="ui red stop circle outline icon"></i></a>
+            <a class="modalbutton" data-url="{{$.taskurl}}{{.Id}}/{{$.job_id}}/{{.Ipaddr}}/abort" data-status="aborted" data-tooltip="Stop"><i class="ui red stop circle outline icon"></i></a>
             {{ else if or (eq .Task_status "success") (eq .Task_status "failed") }}
-            <a class="modalbutton" data-url="{{$.taskurl}}{{$.job_id}}/{{.Id}}/taskstatus" data-status="pending" data-tooltip="Run Again"><i class="ui purple undo icon"></i></a>
+            <a class="modalbutton" data-url="{{$.taskurl}}{{.Id}}/{{$.job_id}}/{{.Ipaddr}}/retry" data-status="pending" data-tooltip="Retry"><i class="ui purple undo icon"></i></a>
             {{ end }}
           </td>
         </tr>
@@ -142,12 +142,12 @@
 
 {{include "base_foot.html" .}}
 
-<form class="ui form" action="" method="POST" id="common_form">
+<form class="ui form" action="" method="POST" id="common_form" style="visibility: hidden">
   <input type="hidden" name="status" value="" id="common_input_job_status">
   <button class="ui button" type="submit">Submit</button>
 </form>
 
-<div class="ui tiny modal">
+<div class="ui tiny confirm modal">
   <i class="close icon"></i>
   <div class="header">
     Confirm!
@@ -219,7 +219,7 @@
       $('#modal_description').text("Current concurrency is: " + concurrency + ". Confirm Change?");
       $('#modal_input_concurrency').val(concurrency);
     }
-    $('.ui.modal').modal({autofocus: false,}).modal('show');
+    $('.ui.confirm.modal').modal({autofocus: false,}).modal('show');
 
   });
 

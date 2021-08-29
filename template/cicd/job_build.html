@@ -40,8 +40,8 @@
         <div class="taskstatus2" id="taskstatusbuttom"></div>
 
         <!-- <i style="color: red;" class="times circle outline icon" id="abort_btn"></i> -->
-        <a class="modalbutton" data-url="{{$.apiurl}}/{{.Id}}/taskstatus" data-status="aborted" data-tooltip="Stop" id="abort_btn"><i class="ui red stop circle outline icon"></i></a>
-
+        <a class="modalbutton" data-url="{{$.taskurl}}/{{.Id}}/{{$.job_id}}/{{.Ipaddr}}/abort" data-status="aborted" data-tooltip="Stop" id="abort_btn"><i class="ui red stop circle outline icon"></i></a>
+        {{$.taskurl}}{{.Id}}/{{$.job_id}}/{{.Ipaddr}}/abort
         <i class="arrow alternate circle up outline icon" id="up_btn" style="visibility: hidden"></i>
       </div>
         <hr>

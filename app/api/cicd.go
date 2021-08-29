@@ -172,18 +172,6 @@ func (a *cicdApi) RetryTask(r *ghttp.Request) {
 	r.Response.RedirectTo(UrlPrefix + "/" + fmt.Sprint(pipeline_id, "/", job_id))
 }
 
-// func (a *cicdApi) PostTaskStatus(r *ghttp.Request) {
-// 	var pipeline_id int = r.GetInt("pipeline_id")
-// 	if !service.CheckAuthor(r.Context(), pipeline_id) {
-// 		r.Response.WriteStatus(http.StatusForbidden)
-// 	}
-// 	var job_id int = r.GetInt("job_id")
-// 	var task_id int = r.GetInt("task_id")
-// 	var task_status string = r.GetString("status")
-// 	service.Cicd.PostTaskStatus(pipeline_id, task_id, task_status)
-// 	r.Response.RedirectTo(UrlPrefix + "/" + fmt.Sprint(pipeline_id, "/", job_id))
-// }
-
 func (a *cicdApi) GetPipelineBody(r *ghttp.Request) {
 	var pipeline_id int = r.GetInt("pipeline_id")
 	if !service.CheckAuthor(r.Context(), pipeline_id) {

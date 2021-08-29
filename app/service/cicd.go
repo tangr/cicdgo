@@ -387,60 +387,6 @@ func (s *cicdService) RetryTask(pipeline_id int, task_id int, job_id int, client
 	return r.ReadAllString()
 }
 
-// func (s *cicdService) PostTaskStatus(pipeline_id int, task_id int, task_status string) bool {
-// 	if !s.CheckTaskid(pipeline_id, task_id) {
-// 		return false
-// 	}
-// 	if task_status != "pending" && task_status != "aborted" {
-// 		return false
-// 	}
-// 	type TaskInfo struct {
-// 		JoyType    string `json:"job_type"`
-// 		JoyId      string `json:"job_id"`
-// 		TaskStatus string `json:"task_status"`
-// 		Ipaddr     string `json:"ipaddr"`
-// 	}
-// 	lastTaskInfo := &TaskInfo{}
-// 	err := dao.CicdLog.Fields("job_type,job_id,task_status,ipaddr").Where(g.Map{"id": task_id}).Struct(&lastTaskInfo)
-// 	if err != nil {
-// 		glog.Error(err)
-// 	}
-// 	lastTaskStatus := lastTaskInfo.TaskStatus
-// 	if task_status == "pending" {
-// 		if lastTaskStatus != "success" && lastTaskStatus != "failed" {
-// 			return false
-// 		}
-// 	}
-// 	if task_status == "aborted" {
-// 		if lastTaskStatus != "running" {
-// 			return false
-// 		}
-// 	}
-// 	job_id := lastTaskInfo.JoyId
-// 	job_type := lastTaskInfo.JoyType
-// 	clientip := lastTaskInfo.Ipaddr
-// 	if lastTaskStatus == "pending" {
-// 		if job_type != "DEPLOY" {
-// 			return false
-// 		}
-// 		status_url := fmt.Sprint(WsServerAPI, pipeline_id, "/", job_id, "/", clientip, "/status")
-// 		r, err := g.Client().Get(status_url)
-// 		if err != nil {
-// 			glog.Error(err)
-// 		} else {
-// 			defer r.Close()
-// 		}
-// 		agentStatus := r.ReadAllString()
-// 		var agentStatusMap map[string]int
-// 		json.Unmarshal([]byte(agentStatus), &agentStatusMap)
-// 	}
-// 	job_map := g.Map{"id": task_id}
-// 	if _, err := dao.CicdLog.Data(g.Map{"task_status": task_status}).Where(job_map).Update(); err != nil {
-// 		glog.Error(err)
-// 	}
-// 	return true
-// }
-
 func (s *cicdService) GetOutput(pipeline_id int, log_id int) *GetOutput {
 	output := (*GetOutput)(nil)
 	if !s.CheckTaskid(pipeline_id, log_id) {

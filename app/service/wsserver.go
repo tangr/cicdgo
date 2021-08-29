@@ -56,6 +56,7 @@ var CiAgentJobs map[int]list.List = make(map[int]list.List)
 
 var CdAgentMapIdName map[int]string = make(map[int]string)
 
+// key: clientip
 type AgentActivity map[string]*AgentStatusMapV
 type CiAgentActivity2 map[int]*CiAgentStatusMapV
 
@@ -71,12 +72,16 @@ type AgentJobRunning map[string]string
 // All Activity Build Agents
 // var CiAgentMapActivity map[int]*AgentStatusMapV = make(map[int]*AgentStatusMapV)
 var CiAgentMapActivity2 map[int]CiAgentActivity2 = make(map[int]CiAgentActivity2)
+
+// key: agentId
 var CiAgentMapActivity map[int]*CiAgentActivity = make(map[int]*CiAgentActivity)
 
 // All Activity Pipeline Agents
+// key: pipelineId
 var CdAgentMapPipelineActivity map[int]AgentActivity = make(map[int]AgentActivity)
 
 // Current Running Pipeline Agents
+// key: pipelineId
 var CdAgentMapPipelineRunning map[int]AgentJobRunning = make(map[int]AgentJobRunning)
 
 // Current Running Pipeline Max Number
@@ -153,10 +158,6 @@ func (s *wsServer) HandleCIJob(ciJob *model.WsAgentSendMap, clientip string) *mo
 	agentName := ciJob.AgentName
 	jobCiData.AgentId = agentId
 	jobCiData.AgentName = agentName
-	// if !s.CheckAgentCI(agentId, agentName) {
-	// 	jobCiData.ErrMsg = "agentId: " + fmt.Sprint(agentId) + " and agentName: " + agentName + " not match."
-	// 	return &jobCiData
-	// }
 
 	jobId := ciJob.JobId
 	jobStatus := ciJob.JobStatus
@@ -166,26 +167,9 @@ func (s *wsServer) HandleCIJob(ciJob *model.WsAgentSendMap, clientip string) *mo
 	if CiAgentMapActivity[agentId] == nil {
 		CiAgentMapActivity[agentId] = &CiAgentActivity{Status: ""}
 	}
-	// if CiAgentMapActivity[agentId][jobId] == nil {
-	// 	var AgentV *CiAgentStatusMapV = &CiAgentStatusMapV{Status: ""}
-	// 	CiAgentMapActivity[agentId][jobId] = AgentV
-	// }
 
-	// if _, ok := CiAgentMapActivity[agentId]; ok {
-	// 	var AgentV *CiAgentActivity = &CiAgentActivity{Status: ""}
-	// 	CiAgentMapActivity[agentId] = AgentV
-	// }
 	CiAgentMapActivity[agentId].Updated = int(gtime.Now().Timestamp())
 	CiAgentMapActivity[agentId].ClientIp = clientip
-
-	// if CiAgentMapActivity[agentId] == nil {
-	// 	CiAgentMapActivity[agentId] = make(map[int]*CiAgentStatusMapV)
-	// }
-	// if CiAgentMapActivity[agentId][jobId] == nil {
-	// 	var AgentV *CiAgentStatusMapV = &CiAgentStatusMapV{Status: ""}
-	// 	CiAgentMapActivity[agentId][jobId] = AgentV
-	// }
-	// CiAgentMapActivity[agentId][jobId].Updated = int(gtime.Now().Timestamp())
 
 	if jobStatus == "success" || jobStatus == "failed" {
 		if _, err := dao.CicdJob.Data(g.Map{"job_status": jobStatus}).Where("id", jobId).Update(); err != nil {
@@ -328,25 +312,11 @@ func (s *wsServer) GetCIJob(agentId int, clientip string) *model.WsServerSendMap
 			break
 		}
 	}
-	// if CiAgentActivity, ok := CiAgentMapActivity[agentId]; ok {
-	// 	for newJobId := range CiAgentActivity {
-	// 		if CiAgentActivity[jobId].Status == "pending" {
-	// 			jobId = newJobId
-	// 			break
-	// 		}
-	// 	}
-	// }
+
 	if jobId == 0 {
 		return newJobCiDataP
 	}
-	// if newJobId == 0 {
-	// 	buildJobMap := g.Map{"agent_id": agentId, "job_type": "BUILD"}
-	// 	job_id, err := dao.CicdJob.Fields("id").Where(buildJobMap).Order("id").Limit(1).Value()
-	// 	if err != nil {
-	// 		glog.Error(err)
-	// 	}
-	// 	newJobId = job_id.Int()
-	// }
+
 	if err := dao.CicdJob.Fields("script").Where(g.Map{"id": jobId}).Struct(newJobScriptP); err != nil {
 		glog.Debug(err)
 	}
@@ -386,14 +356,7 @@ func (s *wsServer) GetCDJob(pipelineId int, clientip string) *model.WsServerSend
 	if jobId == 0 {
 		return newJobCdDataP
 	}
-	// if jobId == 0 {
-	// 	deployJobMap := g.Map{"pipeline_id": pipelineId, "job_type": "DEPLOY"}
-	// 	job_id, err := dao.CicdJob.Fields("id").Where(deployJobMap).OrderDesc("id").Limit(1).Value()
-	// 	if err != nil {
-	// 		glog.Error(err)
-	// 	}
-	// 	jobId = job_id.Int()
-	// }
+
 	deploy_job := g.Map{"id": jobId}
 	if err := dao.CicdJob.Fields("script").Where(deploy_job).Struct(newJobScriptP); err != nil {
 		glog.Debug(err)
@@ -461,19 +424,6 @@ func (s *wsServer) SyncNewCIJob() {
 			break
 		}
 
-		// for newJobId := range CiAgentMapActivity[agentId].RunningJobs {
-		// 	glog.Debugf("agentId %d, jobId: %d", agentId, jobId)
-		// 	CiAgentMapActivity[agentId].RunningJobs[jobId] = "pending"
-		// 	break
-		// }
-
-		// if CiAgentActivity, ok := CiAgentMapActivity[agentId]; ok {
-		// 	glog.Debugf("agentId %d, jobId: %d", agentId, jobId)
-		// 	for jobId := range CiAgentActivity {
-		// 		CiAgentMapActivity[agentId][jobId].Status = "pending"
-		// 	}
-		// 	break
-		// }
 	}
 }
 
@@ -511,7 +461,6 @@ func (s *wsServer) SyncNewCDJob() {
 	}
 
 	glog.Debugf("newJobs: %+v", newJobs)
-	// glog.Error(111111111111111)
 
 	NowTimestamp := int(gtime.Now().Timestamp())
 
@@ -638,12 +587,6 @@ func (s *wsServer) GetAgentStatus(pipeline_id int, job_id int) map[string]int {
 		clientip := deploy_agents.ClientIp
 		mapk := fmt.Sprint(build_agent_id, "-", clientip)
 		newAgentStatus[mapk] = updated
-		// for clientip, agent_map := range deploy_agents {
-		// 	mapk := fmt.Sprint(build_agent_id, "-", clientip)
-		// 	updated := agent_map.Updated
-		// 	newAgentStatus[mapk] = updated
-		// 	// return newAgentStatus
-		// }
 		return newAgentStatus
 	}
 	deploy_agents := CdAgentMapPipelineActivity[pipeline_id]
@@ -736,15 +679,6 @@ func (s *wsServer) AbortTask(task_id int, job_id int, clientip string) bool {
 				CiAgentMapActivity[agentId].RunningJobs[jobId] = "aborted"
 				return true
 			}
-			glog.Error(444444)
-			// newlog := g.Map{"agent_id": agentId, "job_type": "BUILD", "job_id": jobId, "ipaddr": clientip, "task_status": jobStatus, "output": jobOutput, "updated_at": gtime.Now().Timestamp()}
-			// if _, err := dao.CicdLog.Data(newlog).Save(); err != nil {
-			// 	glog.Error(err)
-			// }
-			// err := dao.CicdLog.Fields("pipeline_id,agent_id,job_type,job_id,task_status,ipaddr").Where(g.Map{"id": task_id}).Struct(&lastTaskInfo)
-			// if err != nil {
-			// 	glog.Error(err)
-			// }
 			if _, err := dao.CicdLog.Data(g.Map{"task_status": "failed"}).Where("id", task_id).Update(); err != nil {
 				glog.Error(err)
 			}
@@ -768,19 +702,3 @@ func (s *wsServer) AbortTask(task_id int, job_id int, clientip string) bool {
 	}
 	return false
 }
-
-// func (s *wsServer) GetRunningConcurrency(pipeline_id int, job_id int) int {
-// 	if concurrencyNum, ok := CdAgentMapPipelineRunningConcurrency[pipeline_id]; ok {
-// 		return concurrencyNum
-// 	} else {
-// 		return 1
-// 	}
-// }
-
-// func (s *wsServer) SetRunningConcurrency(pipeline_id int, job_id int) int {
-// 	if concurrencyNum, ok := CdAgentMapPipelineRunningConcurrency[pipeline_id]; ok {
-// 		return concurrencyNum
-// 	} else {
-// 		return 1
-// 	}
-// }

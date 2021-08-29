@@ -65,14 +65,10 @@ func init() {
 			group.GET("/:pipeline_id/pkgs", api.Cicd.GetPipelinePkgs)
 			group.POST("/:pipeline_id/:job_id/concurrency", api.Cicd.PostJobConcurrency)
 			group.POST("/:pipeline_id/:job_id/jobstatus", api.Cicd.PostJobStatus)
-			// group.POST("/:pipeline_id/:task_id/taskstatus", api.Cicd.PostTaskStatus)
 			group.POST("/:pipeline_id/:task_id/:job_id/:clientip/retry", api.Cicd.RetryTask)
 			group.POST("/:pipeline_id/:task_id/:job_id/:clientip/abort", api.Cicd.AbortTask)
-			// group.POST("/:pipeline_id/:job_id/:task_id/taskstatus", api.Cicd.PostTaskStatus)
 
 			group.POST("/:pipeline_id/newjob", api.Cicd.NewJob)
-			// group.POST("/:pipeline_id/:task_id/abort", api.Cicd.AbortJob)
-			// group.POST("/:pipeline_id/:task_id/retry", api.Cicd.RetryJob)
 
 			group.Middleware(
 				service.Middleware.AuthorAdmin,
@@ -111,7 +107,6 @@ func init() {
 			group.GET("/:pipeline_id/:job_id/status", api.WsServer.GetAgentStatus)
 			group.GET("/:task_id/:job_id/:clientip/retry", api.WsServer.RetryTask)
 			group.GET("/:task_id/:job_id/:clientip/abort", api.WsServer.AbortTask)
-			// group.POST("/:pipeline_id/:job_id/concurrency", api.WsServer.GetAgentStatus)
 		})
 	})
 }

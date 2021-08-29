@@ -49,6 +49,9 @@ type CicdAgent struct {
 // CicdLog is the golang structure for table cicd_log.
 type CicdLog struct {
 	Id         int64  `orm:"id,primary"  json:"id"`         //
+	PipelineId int    `orm:"pipeline_id" json:"pipelineId"` //
+	AgentId    int    `orm:"agent_id"    json:"agentId"`    //
+	JobType    string `orm:"job_type"    json:"jobType"`    //
 	JobId      int    `orm:"job_id"      json:"jobId"`      //
 	TaskStatus string `orm:"task_status" json:"taskStatus"` //
 	Ipaddr     string `orm:"ipaddr"      json:"ipaddr"`     //

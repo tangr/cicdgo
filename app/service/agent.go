@@ -30,15 +30,22 @@ func (s *agentService) GetAgentNames() gdb.Result {
 	return result
 }
 
-func (s *agentService) GetAgentName(agent_id string) string {
-	agent_name, err := dao.CicdAgent.Fields("agent_name").Where("id=", agent_id).Value()
+func (s *agentService) GetAgentInfo(agent_id string) (string, string) {
+	type AgentInfo struct {
+		AgentName   string `json:"agent_name"`
+		AgentIpaddr string `json:"ipaddr"`
+	}
+	var newAgentInfo = &AgentInfo{}
+	err := dao.CicdAgent.Fields("agent_name,ipaddr").Where("id=", agent_id).Struct(newAgentInfo)
 	if err != nil {
 		glog.Error(err)
 	}
-	return agent_name.String()
+	agent_name := newAgentInfo.AgentName
+	agent_ipaddr := newAgentInfo.AgentIpaddr
+	return agent_name, agent_ipaddr
 }
 
-func (s *agentService) New(agent_name string) int {
+func (s *agentService) New(agent_name string, ipaddr string) int {
 	len_orig_agent_name := len(agent_name)
 	var hash_code string
 	if len_orig_agent_name <= 50 {
@@ -47,7 +54,7 @@ func (s *agentService) New(agent_name string) int {
 		hash_code = Comm.RandSeq(10)
 	}
 	agent_name = agent_name + ":" + hash_code
-	new_agent := g.Map{"agent_name": agent_name, "updated_at": gtime.Now().Timestamp()}
+	new_agent := g.Map{"agent_name": agent_name, "ipaddr": ipaddr, "updated_at": gtime.Now().Timestamp()}
 	result, err := dao.CicdAgent.Data(new_agent).Save()
 	if err != nil {
 		glog.Error(err)
@@ -67,8 +74,8 @@ func (s *agentService) Show(agent_id int) g.Map {
 	return result.Map()
 }
 
-func (s *agentService) Update(agent_id int, agent_name string) error {
-	new_agent := g.Map{"agent_name": agent_name, "updated_at": gtime.Now().Timestamp()}
+func (s *agentService) Update(agent_id int, agent_name string, ipaddr string) error {
+	new_agent := g.Map{"agent_name": agent_name, "ipaddr": ipaddr, "updated_at": gtime.Now().Timestamp()}
 	_, err := dao.CicdAgent.Data(new_agent).Where(g.Map{"id": agent_id}).Update()
 	if err != nil {
 		glog.Error(err)

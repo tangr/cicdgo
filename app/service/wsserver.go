@@ -45,7 +45,13 @@ type AgentConcurrencyMapV struct {
 	RunningList list.List
 }
 
-var CiAgentMapIdName map[int]string = make(map[int]string)
+type CiAgentNameClient struct {
+	Name   string
+	Ipaddr string
+}
+
+var CiAgentMapIdName2 map[int]string = make(map[int]string)
+var CiAgentMapIdName map[int]*CiAgentNameClient = make(map[int]*CiAgentNameClient)
 var CiAgentJobs map[int]list.List = make(map[int]list.List)
 
 var CdAgentMapIdName map[int]string = make(map[int]string)
@@ -89,8 +95,8 @@ func (s *wsServer) DoAgentCi(agentCiJobs *model.WsAgentSend, clientip string) *m
 	// var jobCiData model.WsServerSendMap
 	jobCiData.AgentId = agentId
 	jobCiData.AgentName = agentName
-	if !s.CheckAgentCI(agentId, agentName) {
-		jobCiData.ErrMsg = "agentId: " + fmt.Sprint(agentId) + " and agentName: " + agentName + " not match."
+	if !s.CheckAgentCI(agentId, agentName, clientip) {
+		jobCiData.ErrMsg = "agentId: " + fmt.Sprint(agentId) + " and agentName: " + agentName + " or ipaddr not match."
 		jobCiDatas = append(jobCiDatas, jobCiData)
 		return &jobCiDatas
 	}
@@ -311,7 +317,7 @@ func (s *wsServer) GetCIJob(agentId int, clientip string) *model.WsServerSendMap
 	var newJobScriptP = new(JobScript)
 	var newJobCiDataP = new(model.WsServerSendMap)
 	newJobCiDataP.AgentId = agentId
-	newJobCiDataP.AgentName = CiAgentMapIdName[agentId]
+	newJobCiDataP.AgentName = CiAgentMapIdName[agentId].Name
 	if len(CiAgentMapActivity[agentId].RunningJobs) == 0 {
 		return newJobCiDataP
 	}
@@ -567,16 +573,22 @@ func (s *wsServer) SyncNewCDJob() {
 	}
 }
 
-func (s *wsServer) CheckAgentCI(agentid int, agentname string) bool {
-	if name, ok := CiAgentMapIdName[agentid]; ok {
-		return name == agentname
+func (s *wsServer) CheckAgentCI(agentid int, agentname string, clientip string) bool {
+	// if name, ok := CiAgentMapIdName[agentid]; ok {
+	// 	return name == agentname
+	// }
+	if CiAgentMapIdName[agentid] != nil {
+		if CiAgentMapIdName[agentid].Name == agentname && CiAgentMapIdName[agentid].Ipaddr == clientip {
+			return true
+		}
 	}
-	if i, err := dao.CicdAgent.Where("id", agentid).Where("agent_name", agentname).Count(); err != nil {
+	if i, err := dao.CicdAgent.Where("id", agentid).Where(g.Map{"agent_name": agentname, "ipaddr": clientip}).Count(); err != nil {
 		glog.Error(err)
 		return false
 	} else {
 		if i != 0 {
-			CiAgentMapIdName[agentid] = agentname
+			CiAgentMapIdName[agentid].Name = agentname
+			CiAgentMapIdName[agentid].Ipaddr = clientip
 			return true
 		}
 		glog.Error(false)

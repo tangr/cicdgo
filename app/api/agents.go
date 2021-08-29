@@ -33,19 +33,21 @@ func (a *agentApi) NewAgent(r *ghttp.Request) {
 
 func (a *agentApi) ShowAgent(r *ghttp.Request) {
 	agent_id := r.GetString("id")
-	agent_name := service.Agent.GetAgentName(agent_id)
-
+	agent_name, agent_ipaddr := service.Agent.GetAgentInfo(agent_id)
 	params := g.Map{
-		"url":        UrlPrefix + "/agents/",
-		"apiurl":     UrlPrefix + "/v1/agents/" + agent_id,
-		"agent_name": agent_name,
+		"url":          UrlPrefix + "/agents/",
+		"apiurl":       UrlPrefix + "/v1/agents/" + agent_id,
+		"agent_name":   agent_name,
+		"agent_ipaddr": agent_ipaddr,
 	}
+	glog.Debug(params)
 	r.Response.WriteTpl("agents/edit.html", params)
 }
 
 func (a *agentApi) New(r *ghttp.Request) {
 	var agent_name string = r.GetString("agent_name")
-	agent_id := service.Agent.New(agent_name)
+	var agent_ipaddr string = r.GetString("agent_ipaddr")
+	agent_id := service.Agent.New(agent_name, agent_ipaddr)
 	r.Response.RedirectTo(UrlPrefix + "/agents/" + fmt.Sprint(agent_id))
 }
 
@@ -58,7 +60,8 @@ func (a *agentApi) Show(r *ghttp.Request) {
 func (a *agentApi) Update(r *ghttp.Request) {
 	agent_id := r.GetInt("id")
 	agent_name := r.GetFormString("agent_name")
-	err := service.Agent.Update(agent_id, agent_name)
+	agent_ipaddr := r.GetString("agent_ipaddr")
+	err := service.Agent.Update(agent_id, agent_name, agent_ipaddr)
 	if err != nil {
 		glog.Error(err)
 	}

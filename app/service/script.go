@@ -5,15 +5,21 @@ import (
 	"github.com/gogf/gf/os/glog"
 	"github.com/gogf/gf/os/gtime"
 	"github.com/tangr/cicdgo/app/dao"
-	"github.com/tangr/cicdgo/app/model"
 )
 
 var Script = scriptService{}
 
 type scriptService struct{}
 
-func (s *scriptService) ListScripts() []model.ListScripts {
-	scripts := ([]model.ListScripts)(nil)
+type ListScripts struct {
+	Id          int    `json:"script_id"`
+	Script_name string `json:"script_name"`
+	Author      string `json:"author"`
+	Updated_at  int    `json:"updated_at"`
+}
+
+func (s *scriptService) ListScripts() []ListScripts {
+	scripts := ([]ListScripts)(nil)
 	err := dao.CicdScript.Fields("id,script_name,author,updated_at").Structs(&scripts)
 	if err != nil {
 		glog.Error(err)

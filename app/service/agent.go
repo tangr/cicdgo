@@ -6,15 +6,20 @@ import (
 	"github.com/gogf/gf/os/glog"
 	"github.com/gogf/gf/os/gtime"
 	"github.com/tangr/cicdgo/app/dao"
-	"github.com/tangr/cicdgo/app/model"
 )
 
 var Agent = agentService{}
 
 type agentService struct{}
 
-func (s *agentService) ListAgents() []model.ListAgents {
-	agents := ([]model.ListAgents)(nil)
+type ListAgents struct {
+	Id         int    `json:"agent_id"`
+	Agent_name string `json:"agent_name"`
+	Updated_at int    `json:"updated_at"`
+}
+
+func (s *agentService) ListAgents() []ListAgents {
+	agents := ([]ListAgents)(nil)
 	err := dao.CicdAgent.Fields("id,agent_name,updated_at").Structs(&agents)
 	if err != nil {
 		glog.Error(err)

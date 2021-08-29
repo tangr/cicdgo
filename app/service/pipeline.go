@@ -12,8 +12,8 @@ var Pipeline = pipelineService{}
 
 type pipelineService struct{}
 
-func (s *pipelineService) ListPipelines() []model.ListPipelines {
-	pipelines := ([]model.ListPipelines)(nil)
+func (s *pipelineService) ListPipelines() []ListPipelines {
+	pipelines := ([]ListPipelines)(nil)
 	err := dao.CicdPipeline.Fields("id,pipeline_name").Structs(&pipelines)
 	if err != nil {
 		glog.Error(err)

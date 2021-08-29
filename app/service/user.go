@@ -18,12 +18,34 @@ var User = userService{}
 
 type userService struct{}
 
+type ListUsers struct {
+	Id         int    `json:"id"`
+	Email      string `json:"email"`
+	Groups     string `json:"groups"`
+	Updated_at int    `json:"updated_at"`
+}
+
+type UserInfo struct {
+	Id       int    `json:"id"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type UserGroupIds struct {
+	GroupId string `json:"group_id"`
+}
+
+type GetUser struct {
+	Email    string `json:"email"`
+	Group_Id string `json:"groups"`
+}
+
 var AuthorEnable = g.Cfg().GetBool("server.console.AuthorEnable")
 var adminGroupName string = g.Cfg().GetString("server.console.AdminGroup")
 var adminGroupId int
 
-func (s *userService) ListUsers() []model.ListUsers {
-	users := ([]model.ListUsers)(nil)
+func (s *userService) ListUsers() []ListUsers {
+	users := ([]ListUsers)(nil)
 	err := dao.CicdUser.Fields("id,email,updated_at").Structs(&users)
 	if err != nil {
 		glog.Error(err)
@@ -131,8 +153,8 @@ func (s *userService) CheckUserAdmin(user_id uint) bool {
 	return stringInSlice(adminGroupIdString, *group_ids)
 }
 
-func (s *userService) GetUser(user_id string) *model.GetUser {
-	var user *model.GetUser
+func (s *userService) GetUser(user_id string) *GetUser {
+	var user *GetUser
 	err := dao.CicdUser.Fields("email,group_id").Where("id=", user_id).Struct(&user)
 	if err != nil {
 		glog.Error(err)
@@ -141,7 +163,7 @@ func (s *userService) GetUser(user_id string) *model.GetUser {
 }
 
 func (s *userService) GetGroupId(user_id int) []string {
-	var group_ids *model.UserGroupIds
+	var group_ids *UserGroupIds
 	err := dao.CicdUser.Fields("group_id").Where("id=", user_id).Struct(&group_ids)
 	if err != nil {
 		glog.Error(err)
@@ -152,7 +174,7 @@ func (s *userService) GetGroupId(user_id int) []string {
 }
 
 func (s *userService) SignIn(ctx context.Context, username, password string) error {
-	var user *model.UserInfo
+	var user *UserInfo
 	var userSession = new(model.UserApiSession)
 	err := dao.CicdUser.Fields("id,email,password").Where("email=?", username).Struct(&user)
 	if err != nil {

@@ -6,32 +6,32 @@ package model
 
 // Fill with you ideas below.
 
-type ListAgents struct {
-	Id         int    `json:"agent_id"`
-	Agent_name string `json:"agent_name"`
-	Updated_at int    `json:"updated_at"`
-}
+// type ListAgents struct {
+// 	Id         int    `json:"agent_id"`
+// 	Agent_name string `json:"agent_name"`
+// 	Updated_at int    `json:"updated_at"`
+// }
 
-type ListGroups struct {
-	Id         int    `json:"id"`
-	Group_name string `json:"groupName"`
-}
+// type ListGroups struct {
+// 	Id         int    `json:"id"`
+// 	Group_name string `json:"groupName"`
+// }
 
-type ListJobs struct {
-	Id          int    `json:"job_id"`
-	Pipeline_id int    `json:"pipeline_id"`
-	Agent_id    int    `json:"agent_id"`
-	Job_type    string `json:"job_type"`
-	Job_status  string `json:"job_status"`
-	Comment     string `json:"comment"`
-	Author      string `json:"author"`
-	Created_at  int    `json:"created_at"`
-}
+// type ListJobs struct {
+// 	Id          int    `json:"job_id"`
+// 	Pipeline_id int    `json:"pipeline_id"`
+// 	Agent_id    int    `json:"agent_id"`
+// 	Job_type    string `json:"job_type"`
+// 	Job_status  string `json:"job_status"`
+// 	Comment     string `json:"comment"`
+// 	Author      string `json:"author"`
+// 	Created_at  int    `json:"created_at"`
+// }
 
-type AgentStatusMapV struct {
-	Updated int
-	Status  string
-}
+// type AgentStatusMapV struct {
+// 	Updated int
+// 	Status  string
+// }
 
 type WsAgentSend []WsAgentSendMap
 
@@ -123,11 +123,11 @@ type WsServerSendMap struct {
 // 	ErrMsg       string            `json:"errmsg"`
 // }
 
-type JobScriptValue struct {
-	Body string            `json:"scriptBody"`
-	Envs map[string]string `json:"scriptEnvs"`
-	Args string            `json:"scriptArgs"`
-}
+// type JobScriptValue struct {
+// 	Body string            `json:"scriptBody"`
+// 	Envs map[string]string `json:"scriptEnvs"`
+// 	Args string            `json:"scriptArgs"`
+// }
 
 // type AgentCIs struct {
 // 	ID   int    `json:"id"`
@@ -139,10 +139,10 @@ type JobScriptValue struct {
 // 	Name string `json:"name"`
 // }
 
-type JobMeta struct {
-	ID        int    `json:"jobid"`
-	JobStatus string `json:"status"`
-}
+// type JobMeta struct {
+// 	ID        int    `json:"jobid"`
+// 	JobStatus string `json:"status"`
+// }
 
 // type JobRunning struct {
 // 	ID        int    `json:"jobid"`
@@ -178,10 +178,10 @@ type JobMeta struct {
 // 	Output     string `json:"output"`
 // }
 
-type ListPipelines struct {
-	Id            int    `json:"pipeline_id"`
-	Pipeline_name string `json:"pipeline_name"`
-}
+// type ListPipelines struct {
+// 	Id            int    `json:"pipeline_id"`
+// 	Pipeline_name string `json:"pipeline_name"`
+// }
 
 type Script struct {
 	Args   string `json:"script_args"`
@@ -193,34 +193,34 @@ type PipelineBody struct {
 	StageCD Script `json:"stageCD"`
 }
 
-type ListScripts struct {
-	Id          int    `json:"script_id"`
-	Script_name string `json:"script_name"`
-	Author      string `json:"author"`
-	Updated_at  int    `json:"updated_at"`
-}
+// type ListScripts struct {
+// 	Id          int    `json:"script_id"`
+// 	Script_name string `json:"script_name"`
+// 	Author      string `json:"author"`
+// 	Updated_at  int    `json:"updated_at"`
+// }
 
-type ListUsers struct {
-	Id         int    `json:"id"`
-	Email      string `json:"email"`
-	Groups     string `json:"groups"`
-	Updated_at int    `json:"updated_at"`
-}
+// type ListUsers struct {
+// 	Id         int    `json:"id"`
+// 	Email      string `json:"email"`
+// 	Groups     string `json:"groups"`
+// 	Updated_at int    `json:"updated_at"`
+// }
 
-type UserInfo struct {
-	Id       int    `json:"id"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
+// type UserInfo struct {
+// 	Id       int    `json:"id"`
+// 	Email    string `json:"email"`
+// 	Password string `json:"password"`
+// }
 
-type UserGroupIds struct {
-	GroupId string `json:"group_id"`
-}
+// type UserGroupIds struct {
+// 	GroupId string `json:"group_id"`
+// }
 
-type GetUser struct {
-	Email    string `json:"email"`
-	Group_Id string `json:"groups"`
-}
+// type GetUser struct {
+// 	Email    string `json:"email"`
+// 	Group_Id string `json:"groups"`
+// }
 
 type UserApiSession struct {
 	Id      int    `json:"id"`
@@ -228,7 +228,7 @@ type UserApiSession struct {
 	IsAdmin bool
 }
 
-type UserApiSignInReq struct {
-	Email    string `v:"required#账号不能为空"`
-	Password string `v:"required#密码不能为空"`
-}
+// type UserApiSignInReq struct {
+// 	Email    string `v:"required#账号不能为空"`
+// 	Password string `v:"required#密码不能为空"`
+// }

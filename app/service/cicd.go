@@ -10,7 +10,6 @@ import (
 	"github.com/gogf/gf/os/glog"
 	"github.com/gogf/gf/os/gtime"
 	"github.com/tangr/cicdgo/app/dao"
-	"github.com/tangr/cicdgo/app/model"
 )
 
 var Cicd = cicdService{}
@@ -26,14 +25,25 @@ type ListTasks struct {
 	Updated_at  int    `json:"updated_at"`
 }
 
+type ListJobs struct {
+	Id          int    `json:"job_id"`
+	Pipeline_id int    `json:"pipeline_id"`
+	Agent_id    int    `json:"agent_id"`
+	Job_type    string `json:"job_type"`
+	Job_status  string `json:"job_status"`
+	Comment     string `json:"comment"`
+	Author      string `json:"author"`
+	Created_at  int    `json:"created_at"`
+}
+
 type GetOutput struct {
 	Task_status string `json:"status"`
 	Updated_at  int    `json:"updated_at"`
 	Output      string `json:"output"`
 }
 
-func (s *cicdService) ListCicd(group_ids []string) []model.ListPipelines {
-	pipelines := ([]model.ListPipelines)(nil)
+func (s *cicdService) ListCicd(group_ids []string) []ListPipelines {
+	pipelines := ([]ListPipelines)(nil)
 	err := dao.CicdPipeline.Fields("id,pipeline_name").WhereIn("group_id", group_ids).Structs(&pipelines)
 	if err != nil {
 		glog.Error(err)
@@ -119,8 +129,8 @@ func (s *cicdService) GetJobInfo(job_id int) (int, string, string) {
 	return concurrency, job_type, job_status
 }
 
-func (s *cicdService) GetJobs(pipeline_id int, pageIndex int, pageSize int) ([]model.ListJobs, int) {
-	jobs := ([]model.ListJobs)(nil)
+func (s *cicdService) GetJobs(pipeline_id int, pageIndex int, pageSize int) ([]ListJobs, int) {
+	jobs := ([]ListJobs)(nil)
 	offSet := pageSize * (pageIndex - 1)
 	err := dao.CicdJob.Fields("id,pipeline_id,agent_id,job_type,job_status,comment,author,created_at").Order("id desc").Where("pipeline_id=", pipeline_id).Limit(offSet, pageSize).Structs(&jobs)
 	if err != nil {
@@ -170,7 +180,7 @@ func (s *cicdService) New(pipeline_id int, envs map[string]interface{}, username
 	job_envs["PIPELINENAME"] = strings.Split(pipeline_name, ":")[0]
 	job_envs["USERNAME"] = username
 	script_body := Script.GetScriptBody(script_name)
-	new_jobscript := new(model.JobScriptValue)
+	new_jobscript := new(JobScriptValue)
 	new_jobscript.Envs = job_envs
 	new_jobscript.Args = script_args
 	new_jobscript.Body = script_body
@@ -219,7 +229,7 @@ func (s *cicdService) ParseEnvs(envs map[string]interface{}) map[string]string {
 }
 
 func (s *cicdService) GetJobEnvs(pipeline_id int, job_id int) string {
-	jobScript := &model.JobScriptValue{}
+	jobScript := &JobScriptValue{}
 	job_map := g.Map{"id": job_id, "pipeline_id": pipeline_id}
 	script, err := dao.CicdJob.Fields("script").Where(job_map).Value()
 	if err != nil {

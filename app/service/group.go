@@ -7,15 +7,19 @@ import (
 	"github.com/gogf/gf/frame/g"
 	"github.com/gogf/gf/os/glog"
 	"github.com/tangr/cicdgo/app/dao"
-	"github.com/tangr/cicdgo/app/model"
 )
 
 var Group = groupService{}
 
 type groupService struct{}
 
-func (s *groupService) ListGroups() []model.ListGroups {
-	groups := ([]model.ListGroups)(nil)
+type ListGroups struct {
+	Id         int    `json:"id"`
+	Group_name string `json:"groupName"`
+}
+
+func (s *groupService) ListGroups() []ListGroups {
+	groups := ([]ListGroups)(nil)
 	err := dao.CicdGroup.Fields("id,group_name").Structs(&groups)
 	if err != nil {
 		glog.Error(err)

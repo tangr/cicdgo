@@ -5,7 +5,6 @@ import (
 
 	"github.com/gogf/gf/frame/g"
 	"github.com/gogf/gf/net/ghttp"
-	"github.com/tangr/cicdgo/app/model"
 	"github.com/tangr/cicdgo/app/service"
 	"github.com/tangr/cicdgo/library/response"
 )
@@ -86,8 +85,13 @@ func (a *userApi) ForbiddenPage(r *ghttp.Request) {
 }
 
 func (a *userApi) SignIn(r *ghttp.Request) {
+	type UserApiSignInReq struct {
+		Email    string `v:"required#账号不能为空"`
+		Password string `v:"required#密码不能为空"`
+	}
+
 	var (
-		data *model.UserApiSignInReq
+		data *UserApiSignInReq
 	)
 
 	if err := r.Parse(&data); err != nil {

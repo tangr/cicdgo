@@ -13,6 +13,17 @@ import (
 
 var WsServerAPI string = g.Cfg().GetString("server.console.WsServerAPI")
 
+type ListPipelines struct {
+	Id            int    `json:"pipeline_id"`
+	Pipeline_name string `json:"pipeline_name"`
+}
+
+type JobScriptValue struct {
+	Body string            `json:"scriptBody"`
+	Envs map[string]string `json:"scriptEnvs"`
+	Args string            `json:"scriptArgs"`
+}
+
 var Comm = commService{}
 
 type commService struct{}

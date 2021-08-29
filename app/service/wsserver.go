@@ -20,7 +20,7 @@ type wsServer struct{}
 type AgentStatus map[string]int
 
 type JobScript struct {
-	Script model.JobScriptValue `json:"jobScript"`
+	Script JobScriptValue `json:"jobScript"`
 }
 
 type TaskStatus struct {
@@ -128,7 +128,7 @@ func (s *wsServer) DoAgentCi(agentCiJobs *model.WsAgentSend, clientip string) *m
 		jobCiDatasNew = append(jobCiDatasNew, ciJob)
 	}
 	if len(jobCiDatasNew) == 0 {
-		glog.Errorf("jobCiDatasjobCiDatas: %+v", jobCiDatas)
+		// glog.Errorf("jobCiDatasjobCiDatas: %+v", jobCiDatas)
 		var jobCiData model.WsServerSendMap
 		var jobCiDatas model.WsServerSend
 		jobCiData.AgentId = agentId
@@ -341,8 +341,8 @@ func (s *wsServer) GetCIJob(agentId int, clientip string) *model.WsServerSendMap
 }
 
 func (s *wsServer) GetCDJob(pipelineId int, clientip string) *model.WsServerSendMap {
-	glog.Debug("in GetCDJob")
-	glog.Debug(CdAgentMapPipelineActivity[pipelineId][clientip].Status)
+	// glog.Debug("in GetCDJob")
+	// glog.Debug(CdAgentMapPipelineActivity[pipelineId][clientip].Status)
 	var newJobScriptP = new(JobScript)
 	var newJobCdDataP = new(model.WsServerSendMap)
 	newJobCdDataP.AgentId = pipelineId
@@ -536,6 +536,9 @@ func (s *wsServer) CheckAgentCI(agentid int, agentname string, clientip string) 
 		return false
 	} else {
 		if i != 0 {
+			if CiAgentMapIdName[agentid] == nil {
+				CiAgentMapIdName[agentid] = &CiAgentNameClient{}
+			}
 			CiAgentMapIdName[agentid].Name = agentname
 			CiAgentMapIdName[agentid].Ipaddr = clientip
 			return true

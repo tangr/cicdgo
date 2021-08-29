@@ -43,6 +43,11 @@ type AgentsMap struct {
 	Name string `json:"name"`
 }
 
+type JobMeta struct {
+	ID        int    `json:"jobid"`
+	JobStatus string `json:"status"`
+}
+
 type AgentsList []AgentsMap
 
 var agents AgentsList = make(AgentsList, 0)
@@ -179,7 +184,7 @@ func (s *agentCICD) SetStatus(jobId int, jobStatus string) error {
 	if jobStatus == oldJobStatus {
 		return nil
 	}
-	var jobMeta = model.JobMeta{}
+	var jobMeta = JobMeta{}
 	jobMeta.ID = jobId
 	jobMeta.JobStatus = jobStatus
 	jobJson, _ := json.Marshal(&jobMeta)
@@ -209,7 +214,7 @@ func (s *agentCICD) GetStatus(jobId int) string {
 		glog.Debugf("fileName %s with content empty!", jobPathscriptJson)
 		return ""
 	}
-	var jobMeta = model.JobMeta{}
+	var jobMeta = JobMeta{}
 	if err := json.Unmarshal([]byte(jobJson), &jobMeta); err != nil {
 		glog.Error(err)
 		glog.Debugf("fileName %s with content: %s !", jobPathscriptJson, jobJson)

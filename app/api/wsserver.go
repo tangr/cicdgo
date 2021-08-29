@@ -116,6 +116,22 @@ func (a *wsServer) GetAgentStatus(r *ghttp.Request) {
 	r.Response.WriteExit(agent_status)
 }
 
+func (a *wsServer) RetryTask(r *ghttp.Request) {
+	var task_id int = r.GetInt("task_id")
+	var job_id int = r.GetInt("job_id")
+	var clientip string = r.GetString("clientip")
+	result := service.WsServer.RetryTask(task_id, job_id, clientip)
+	r.Response.WriteExit(result)
+}
+
+func (a *wsServer) AbortTask(r *ghttp.Request) {
+	var task_id int = r.GetInt("task_id")
+	var job_id int = r.GetInt("job_id")
+	var clientip string = r.GetString("clientip")
+	result := service.WsServer.AbortTask(task_id, job_id, clientip)
+	r.Response.WriteExit(result)
+}
+
 // func (a *wsServer) GetRunningConcurrency(r *ghttp.Request) {
 // 	var pipeline_id int = r.GetInt("pipeline_id")
 // 	var job_id int = r.GetInt("job_id")

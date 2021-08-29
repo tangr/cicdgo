@@ -56,7 +56,7 @@ type WsServerSend []WsServerSendMap
 type WsServerSendMap struct {
 	AgentId   int               `json:"agentId"`
 	AgentName string            `json:"agentName"`
-	JobID     int               `json:"jobId"`
+	JobId     int               `json:"jobId"`
 	JobStatus string            `json:"jobStatus"`
 	Body      string            `json:"scriptBody"`
 	Envs      map[string]string `json:"scriptEnvs"`

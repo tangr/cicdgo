@@ -261,28 +261,6 @@ func (s *cicdService) CheckTaskid(pipeline_id int, task_id int) bool {
 	return s.CheckJobid(pipeline_id, job_id)
 }
 
-func (s *cicdService) AbortJob(pipeline_id int, task_id int) error {
-	if !s.CheckTaskid(pipeline_id, task_id) {
-		return nil
-	}
-	_, err := dao.CicdLog.Data("task_status='aborted'").Where("id", task_id).Update()
-	if err != nil {
-		glog.Error(err)
-	}
-	return nil
-}
-
-// func (s *cicdService) RetryJob(pipeline_id int, task_id int) error {
-// 	if !s.CheckTaskid(pipeline_id, task_id) {
-// 		return nil
-// 	}
-// 	_, err := dao.CicdLog.Data("task_status='pending'").Where("id", task_id).Update()
-// 	if err != nil {
-// 		glog.Error(err)
-// 	}
-// 	return nil
-// }
-
 func (s *cicdService) GetJobTasks(pipeline_id int, job_id int) []ListTasks {
 	var agentStatusMap map[string]int
 	tasks := ([]ListTasks)(nil)
@@ -334,6 +312,7 @@ func (s *cicdService) GetJobProgress(pipeline_id int, job_id int) (string, strin
 	}
 
 	status_url := fmt.Sprint(WsServerAPI, pipeline_id, "/", job_id, "/status")
+	glog.Debug(status_url)
 	r, err := g.Client().Get(status_url)
 	if err != nil {
 		glog.Error(err)
@@ -378,16 +357,89 @@ func (s *cicdService) PostJobStatus(pipeline_id int, job_id int, job_status stri
 	return true
 }
 
-func (s *cicdService) PostTaskStatus(pipeline_id int, task_id int, task_status string) bool {
+func (s *cicdService) AbortTask(pipeline_id int, task_id int, job_id int, clientip string) string {
 	if !s.CheckTaskid(pipeline_id, task_id) {
-		return false
+		return "nil"
 	}
-	job_map := g.Map{"id": task_id}
-	if _, err := dao.CicdLog.Data(g.Map{"task_status": task_status}).Where(job_map).Update(); err != nil {
+	status_url := fmt.Sprint(WsServerAPI, task_id, "/", job_id, "/", clientip, "/abort")
+	glog.Errorf("abort status_url: %s", status_url)
+	r, err := g.Client().Get(status_url)
+	if err != nil {
 		glog.Error(err)
+	} else {
+		defer r.Close()
 	}
-	return true
+	return r.ReadAllString()
 }
+
+func (s *cicdService) RetryTask(pipeline_id int, task_id int, job_id int, clientip string) string {
+	if !s.CheckTaskid(pipeline_id, task_id) {
+		return "nil"
+	}
+	status_url := fmt.Sprint(WsServerAPI, task_id, "/", job_id, "/", clientip, "/retry")
+	glog.Errorf("retry status_url: %s", status_url)
+	r, err := g.Client().Get(status_url)
+	if err != nil {
+		glog.Error(err)
+	} else {
+		defer r.Close()
+	}
+	return r.ReadAllString()
+}
+
+// func (s *cicdService) PostTaskStatus(pipeline_id int, task_id int, task_status string) bool {
+// 	if !s.CheckTaskid(pipeline_id, task_id) {
+// 		return false
+// 	}
+// 	if task_status != "pending" && task_status != "aborted" {
+// 		return false
+// 	}
+// 	type TaskInfo struct {
+// 		JoyType    string `json:"job_type"`
+// 		JoyId      string `json:"job_id"`
+// 		TaskStatus string `json:"task_status"`
+// 		Ipaddr     string `json:"ipaddr"`
+// 	}
+// 	lastTaskInfo := &TaskInfo{}
+// 	err := dao.CicdLog.Fields("job_type,job_id,task_status,ipaddr").Where(g.Map{"id": task_id}).Struct(&lastTaskInfo)
+// 	if err != nil {
+// 		glog.Error(err)
+// 	}
+// 	lastTaskStatus := lastTaskInfo.TaskStatus
+// 	if task_status == "pending" {
+// 		if lastTaskStatus != "success" && lastTaskStatus != "failed" {
+// 			return false
+// 		}
+// 	}
+// 	if task_status == "aborted" {
+// 		if lastTaskStatus != "running" {
+// 			return false
+// 		}
+// 	}
+// 	job_id := lastTaskInfo.JoyId
+// 	job_type := lastTaskInfo.JoyType
+// 	clientip := lastTaskInfo.Ipaddr
+// 	if lastTaskStatus == "pending" {
+// 		if job_type != "DEPLOY" {
+// 			return false
+// 		}
+// 		status_url := fmt.Sprint(WsServerAPI, pipeline_id, "/", job_id, "/", clientip, "/status")
+// 		r, err := g.Client().Get(status_url)
+// 		if err != nil {
+// 			glog.Error(err)
+// 		} else {
+// 			defer r.Close()
+// 		}
+// 		agentStatus := r.ReadAllString()
+// 		var agentStatusMap map[string]int
+// 		json.Unmarshal([]byte(agentStatus), &agentStatusMap)
+// 	}
+// 	job_map := g.Map{"id": task_id}
+// 	if _, err := dao.CicdLog.Data(g.Map{"task_status": task_status}).Where(job_map).Update(); err != nil {
+// 		glog.Error(err)
+// 	}
+// 	return true
+// }
 
 func (s *cicdService) GetOutput(pipeline_id int, log_id int) *GetOutput {
 	output := (*GetOutput)(nil)

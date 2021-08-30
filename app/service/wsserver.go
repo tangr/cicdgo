@@ -501,13 +501,15 @@ func (s *wsServer) SyncNewCDJob() {
 		// clear run finished jobs
 		if AgentJobRunning, ok := CdAgentMapPipelineRunning[pipelineId]; ok {
 			for clientip := range AgentJobRunning {
-				if CdAgentMapPipelineActivity[pipelineId][clientip].Status != "pending" {
-					delete(CdAgentMapPipelineRunning[pipelineId], clientip)
-				}
-				// clear not activity agents
-				if NowTimestamp-CdAgentMapPipelineActivity[pipelineId][clientip].Updated > DeprecatedAfter {
-					delete(CdAgentMapPipelineActivity[pipelineId], clientip)
-					continue
+				if CdAgentMapPipelineActivity[pipelineId][clientip] != nil {
+					if CdAgentMapPipelineActivity[pipelineId][clientip].Status != "pending" {
+						delete(CdAgentMapPipelineRunning[pipelineId], clientip)
+					}
+					// clear not activity agents
+					if NowTimestamp-CdAgentMapPipelineActivity[pipelineId][clientip].Updated > DeprecatedAfter {
+						delete(CdAgentMapPipelineActivity[pipelineId], clientip)
+						continue
+					}
 				}
 			}
 		}

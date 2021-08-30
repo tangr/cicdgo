@@ -311,6 +311,13 @@ func (s *agentCICD) HandleJob(jobv *model.WsServerSendMap) *model.WsAgentSendMap
 		sendMap.JobOutput = output
 		return sendMap
 	}
+	if jobStatus == "init" {
+		oldJobStatus := s.GetStatus(jobId)
+		if oldJobStatus == "success" || oldJobStatus == "failed" {
+			sendMap.JobStatus = oldJobStatus
+			return sendMap
+		}
+	}
 	oldJobStatus := s.GetStatus(jobId)
 	if oldJobStatus == "" || oldJobStatus == "success" || oldJobStatus == "failed" {
 		if err := s.SetStatus(jobId, "pending"); err != nil {

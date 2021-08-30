@@ -51,6 +51,8 @@ type CiAgentNameClient struct {
 }
 
 var CiAgentMapIdName2 map[int]string = make(map[int]string)
+
+// key: agentId
 var CiAgentMapIdName map[int]*CiAgentNameClient = make(map[int]*CiAgentNameClient)
 var CiAgentJobs map[int]list.List = make(map[int]list.List)
 
@@ -239,7 +241,7 @@ func (s *wsServer) HandleCDJob(cdJob *model.WsAgentSendMap, clientip string) *mo
 		CdAgentMapPipelineActivity[pipelineId] = make(map[string]*AgentStatusMapV)
 	}
 	if CdAgentMapPipelineActivity[pipelineId][clientip] == nil {
-		var AgentV *AgentStatusMapV = &AgentStatusMapV{Status: ""}
+		var AgentV *AgentStatusMapV = &AgentStatusMapV{Status: "init"}
 		CdAgentMapPipelineActivity[pipelineId][clientip] = AgentV
 	}
 	CdAgentMapPipelineActivity[pipelineId][clientip].Updated = int(gtime.Now().Timestamp())
@@ -262,7 +264,7 @@ func (s *wsServer) HandleCDJob(cdJob *model.WsAgentSendMap, clientip string) *mo
 				glog.Error(err)
 			}
 		}
-		CdAgentMapPipelineActivity[pipelineId][clientip].Status = ""
+		CdAgentMapPipelineActivity[pipelineId][clientip].Status = jobStatus
 		CdAgentMapPipelineActivity[pipelineId][clientip].JobId = jobId
 		return s.GetCDJob(pipelineId, clientip)
 	}
@@ -341,18 +343,27 @@ func (s *wsServer) GetCIJob(agentId int, clientip string) *model.WsServerSendMap
 }
 
 func (s *wsServer) GetCDJob(pipelineId int, clientip string) *model.WsServerSendMap {
-	// glog.Debug("in GetCDJob")
-	// glog.Debug(CdAgentMapPipelineActivity[pipelineId][clientip].Status)
 	var newJobScriptP = new(JobScript)
 	var newJobCdDataP = new(model.WsServerSendMap)
 	newJobCdDataP.AgentId = pipelineId
 	newJobCdDataP.AgentName = CdAgentMapIdName[pipelineId]
-	if CdAgentMapPipelineActivity[pipelineId][clientip].Status != "pending" {
-		return newJobCdDataP
+	var jobId int
+	if CdAgentMapPipelineActivity[pipelineId][clientip].Status == "init" {
+		deploy_job := g.Map{"pipeline_id": pipelineId, "job_type": "DEPLOY", "job_status": "success"}
+		job_id_var, err := dao.CicdJob.Fields("id").Where(deploy_job).OrderDesc("id").Limit(1).Value()
+		if err != nil {
+			glog.Debug(err)
+		}
+		jobId = job_id_var.Int()
+		newJobCdDataP.JobStatus = "init"
+	} else {
+		if CdAgentMapPipelineActivity[pipelineId][clientip].Status != "pending" {
+			return newJobCdDataP
+		}
+		jobId = CdAgentMapPipelineActivity[pipelineId][clientip].JobId
+		newJobCdDataP.JobStatus = "pending"
 	}
 
-	glog.Debug("in GetCDJob2")
-	jobId := CdAgentMapPipelineActivity[pipelineId][clientip].JobId
 	if jobId == 0 {
 		return newJobCdDataP
 	}
@@ -363,7 +374,6 @@ func (s *wsServer) GetCDJob(pipelineId int, clientip string) *model.WsServerSend
 	}
 	newJobScript := *newJobScriptP
 	newJobCdDataP.JobId = jobId
-	newJobCdDataP.JobStatus = "pending"
 	newJobCdDataP.Body = newJobScript.Script.Body
 	newJobCdDataP.Args = newJobScript.Script.Args
 	newJobCdDataP.Envs = newJobScript.Script.Envs

@@ -1,4 +1,5 @@
 -- Create DATABASE cicd CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+-- ./gf gen dao --gf.gcfg.file=config/config-dev.toml
 
 CREATE TABLE IF NOT EXISTS `cicd_pipeline` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -38,7 +39,7 @@ CREATE TABLE IF NOT EXISTS `cicd_log` (
   `task_status` varchar(255) NOT NULL,
   `ipaddr` varchar(255) NOT NULL,
   `updated_at` bigint(10) NOT NULL,
-  `output` longtext DEFAULT "",
+  `output` longtext DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `log_id` (`job_id`, `ipaddr`)
 ) ENGINE=InnoDB AUTO_INCREMENT=10000 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

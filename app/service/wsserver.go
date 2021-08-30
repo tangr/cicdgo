@@ -1,7 +1,6 @@
 package service
 
 import (
-	"container/list"
 	"fmt"
 
 	"github.com/gogf/gf/frame/g"
@@ -17,7 +16,7 @@ var WsServer = wsServer{}
 
 type wsServer struct{}
 
-type AgentStatus map[string]int
+// type AgentStatus map[string]int
 
 type JobScript struct {
 	Script JobScriptValue `json:"jobScript"`
@@ -28,39 +27,47 @@ type TaskStatus struct {
 	Output     string
 }
 
-type AgentStatusMapV struct {
+// type AgentStatusMapV struct {
+// 	Updated int // Active Timestamp
+// 	Status  string
+// 	JobId   int
+// }
+
+type CdAgentStatusMapV struct {
 	Updated int // Active Timestamp
 	Status  string
 	JobId   int
 }
 
-type CiAgentStatusMapV struct {
-	Updated int // Active Timestamp
-	Status  string
-	JobId   []int
-}
+// type CiAgentStatusMapV struct {
+// 	Updated int // Active Timestamp
+// 	Status  string
+// 	JobId   []int
+// }
 
-type AgentConcurrencyMapV struct {
-	Number      int
-	RunningList list.List
-}
+// type AgentConcurrencyMapV struct {
+// 	Number      int
+// 	RunningList list.List
+// }
 
 type CiAgentNameClient struct {
 	Name   string
 	Ipaddr string
 }
 
-var CiAgentMapIdName2 map[int]string = make(map[int]string)
+// var CiAgentMapIdName2 map[int]string = make(map[int]string)
 
 // key: agentId
 var CiAgentMapIdName map[int]*CiAgentNameClient = make(map[int]*CiAgentNameClient)
-var CiAgentJobs map[int]list.List = make(map[int]list.List)
+
+// var CiAgentJobs map[int]list.List = make(map[int]list.List)
 
 var CdAgentMapIdName map[int]string = make(map[int]string)
 
 // key: clientip
-type AgentActivity map[string]*AgentStatusMapV
-type CiAgentActivity2 map[int]*CiAgentStatusMapV
+type CdAgentActivity map[string]*CdAgentStatusMapV
+
+// type CiAgentActivity2 map[int]*CiAgentStatusMapV
 
 type CiAgentActivity struct {
 	Updated     int // Active Timestamp
@@ -73,14 +80,14 @@ type AgentJobRunning map[string]string
 
 // All Activity Build Agents
 // var CiAgentMapActivity map[int]*AgentStatusMapV = make(map[int]*AgentStatusMapV)
-var CiAgentMapActivity2 map[int]CiAgentActivity2 = make(map[int]CiAgentActivity2)
+// var CiAgentMapActivity2 map[int]CiAgentActivity2 = make(map[int]CiAgentActivity2)
 
 // key: agentId
 var CiAgentMapActivity map[int]*CiAgentActivity = make(map[int]*CiAgentActivity)
 
 // All Activity Pipeline Agents
 // key: pipelineId
-var CdAgentMapPipelineActivity map[int]AgentActivity = make(map[int]AgentActivity)
+var CdAgentMapPipelineActivity map[int]CdAgentActivity = make(map[int]CdAgentActivity)
 
 // Current Running Pipeline Agents
 // key: pipelineId
@@ -238,10 +245,10 @@ func (s *wsServer) HandleCDJob(cdJob *model.WsAgentSendMap, clientip string) *mo
 	}
 
 	if CdAgentMapPipelineActivity[pipelineId] == nil {
-		CdAgentMapPipelineActivity[pipelineId] = make(map[string]*AgentStatusMapV)
+		CdAgentMapPipelineActivity[pipelineId] = make(map[string]*CdAgentStatusMapV)
 	}
 	if CdAgentMapPipelineActivity[pipelineId][clientip] == nil {
-		var AgentV *AgentStatusMapV = &AgentStatusMapV{Status: "init"}
+		var AgentV *CdAgentStatusMapV = &CdAgentStatusMapV{Status: "init"}
 		CdAgentMapPipelineActivity[pipelineId][clientip] = AgentV
 	}
 	CdAgentMapPipelineActivity[pipelineId][clientip].Updated = int(gtime.Now().Timestamp())
@@ -518,8 +525,8 @@ func (s *wsServer) SyncNewCDJob() {
 		newJobRunningCapacity := concurrency - len(CdAgentMapPipelineRunning[pipelineId])
 		if newJobRunningCapacity > 0 {
 			for i := 0; i < newJobRunningCapacity; i++ {
-				if AgentActivity, ok := CdAgentMapPipelineActivity[pipelineId]; ok {
-					for clientip := range AgentActivity {
+				if CdAgentActivity, ok := CdAgentMapPipelineActivity[pipelineId]; ok {
+					for clientip := range CdAgentActivity {
 						if jobId > CdAgentMapPipelineActivity[pipelineId][clientip].JobId {
 							CdAgentMapPipelineActivity[pipelineId][clientip].Status = "pending"
 							CdAgentMapPipelineActivity[pipelineId][clientip].JobId = jobId

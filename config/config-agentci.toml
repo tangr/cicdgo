@@ -14,7 +14,7 @@
     LogLevel        = "all"
     EnvPrefix       = "CICD_"
     MaxRunningJobs  = 2
-    DataPathDir     = "/tmp/cidata/"
+    DataPathDir     = "/tmp/cicddata/"
     JobFlash        = "jobflash"
     Include         = "config/conf.d/*.toml"
 [[agents]]

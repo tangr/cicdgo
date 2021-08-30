@@ -2,7 +2,6 @@ package service
 
 import (
 	"github.com/gogf/gf/frame/g"
-	"github.com/gogf/gf/os/glog"
 	"github.com/gogf/gf/os/gtime"
 	"github.com/tangr/cicdgo/app/dao"
 	"github.com/tangr/cicdgo/app/model"
@@ -16,7 +15,7 @@ func (s *pipelineService) ListPipelines() []ListPipelines {
 	pipelines := ([]ListPipelines)(nil)
 	err := dao.CicdPipeline.Fields("id,pipeline_name").Structs(&pipelines)
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 	}
 	return pipelines
 }
@@ -24,7 +23,7 @@ func (s *pipelineService) ListPipelines() []ListPipelines {
 func (s *pipelineService) GetPipelineName(pipeline_id int) string {
 	pipeline_name, err := dao.CicdPipeline.Fields("pipeline_name").Where("id=", pipeline_id).Value()
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 	}
 	return pipeline_name.String()
 }
@@ -32,7 +31,7 @@ func (s *pipelineService) GetPipelineName(pipeline_id int) string {
 func (s *pipelineService) GetGroupId(pipeline_id int) int {
 	group_id, err := dao.CicdPipeline.Fields("group_id").Where("id=", pipeline_id).Value()
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 	}
 	return group_id.Int()
 }
@@ -40,7 +39,7 @@ func (s *pipelineService) GetGroupId(pipeline_id int) int {
 func (s *pipelineService) GetPipelineBodyString(pipeline_id int) string {
 	pipeline_body, err := dao.CicdPipeline.Fields("body").Where("id=", pipeline_id).Value()
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 	}
 	return pipeline_body.String()
 }
@@ -55,7 +54,7 @@ func (s *pipelineService) GetPipelineBody(pipeline_id int) (string, int, int, mo
 	var pipeline Pipeline
 	err := dao.CicdPipeline.Fields("pipeline_name,agent_id,concurrency,body").Where("id=", pipeline_id).Struct(&pipeline)
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 	}
 	pipeline_name := pipeline.Pipeline_Name
 	agent_id := pipeline.Agent_id
@@ -78,12 +77,12 @@ func (s *pipelineService) New(pipeline_name string, group_id int, agent_id int, 
 
 	result, err := dao.CicdPipeline.Data(new_pipeline).Save()
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 	}
 
 	pipeline_id, err := result.LastInsertId()
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 	}
 
 	return int(pipeline_id)
@@ -92,7 +91,7 @@ func (s *pipelineService) New(pipeline_name string, group_id int, agent_id int, 
 func (s *pipelineService) Show(pipeline_id int) g.Map {
 	result, err := dao.CicdPipeline.Where("id=", pipeline_id).One()
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 	}
 	return result.Map()
 }
@@ -101,7 +100,7 @@ func (s *pipelineService) Update(pipeline_id int, group_id int, agent_id int, co
 	new_pipeline := g.Map{"pipeline_name": pipeline_name, "group_id": group_id, "agent_id": agent_id, "concurrency": concurrency, "body": pipeline_body, "updated_at": gtime.Now().Timestamp()}
 	_, err := dao.CicdPipeline.Data(new_pipeline).Where(g.Map{"id": pipeline_id}).Update()
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 	}
 	return nil
 }

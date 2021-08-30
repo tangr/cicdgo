@@ -5,7 +5,6 @@ import (
 
 	"github.com/gogf/gf/database/gdb"
 	"github.com/gogf/gf/frame/g"
-	"github.com/gogf/gf/os/glog"
 	"github.com/tangr/cicdgo/app/dao"
 )
 
@@ -22,7 +21,7 @@ func (s *groupService) ListGroups() []ListGroups {
 	groups := ([]ListGroups)(nil)
 	err := dao.CicdGroup.Fields("id,group_name").Structs(&groups)
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 	}
 	return groups
 }
@@ -30,7 +29,7 @@ func (s *groupService) ListGroups() []ListGroups {
 func (s *groupService) GetGroupNames() gdb.Result {
 	result, err := dao.CicdGroup.Fields("id,group_name").All()
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 	}
 	return result
 }
@@ -42,11 +41,11 @@ func (s *groupService) New(groupname string) int64 {
 	}
 	result, err := dao.CicdGroup.Data(newgroup).Save()
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 	}
 	groupid, err := result.LastInsertId()
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 	}
 	return groupid
 }
@@ -55,10 +54,10 @@ func (s *groupService) Update(groupid string, groupname string) string {
 	newgroup := g.Map{
 		"group_name": groupname,
 	}
-	glog.Debug(newgroup)
+	g.Log().Debug(newgroup)
 	_, err := dao.CicdGroup.Data(newgroup).Where("id=", groupid).Update()
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 	}
 	return groupid
 }
@@ -66,7 +65,7 @@ func (s *groupService) Update(groupid string, groupname string) string {
 func (s *groupService) GetGroupName(group_id string) string {
 	group_name, err := dao.CicdGroup.Fields("group_name").Where("id=", group_id).Value()
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 	}
 	return group_name.String()
 }
@@ -74,9 +73,9 @@ func (s *groupService) GetGroupName(group_id string) string {
 func (s *groupService) GetScriptBody(script_name string) string {
 	script_body, err := dao.CicdScript.Fields("script_body").Where("script_name=", script_name).Value()
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 	}
-	glog.Error(script_body)
+	g.Log().Error(script_body)
 	return script_body.String()
 }
 

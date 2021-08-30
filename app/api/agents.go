@@ -5,7 +5,6 @@ import (
 
 	"github.com/gogf/gf/frame/g"
 	"github.com/gogf/gf/net/ghttp"
-	"github.com/gogf/gf/os/glog"
 	"github.com/tangr/cicdgo/app/service"
 )
 
@@ -40,7 +39,7 @@ func (a *agentApi) ShowAgent(r *ghttp.Request) {
 		"agent_name":   agent_name,
 		"agent_ipaddr": agent_ipaddr,
 	}
-	glog.Debug(params)
+	g.Log().Debug(params)
 	r.Response.WriteTpl("agents/edit.html", params)
 }
 
@@ -63,7 +62,7 @@ func (a *agentApi) Update(r *ghttp.Request) {
 	agent_ipaddr := r.GetString("agent_ipaddr")
 	err := service.Agent.Update(agent_id, agent_name, agent_ipaddr)
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 	}
 	r.Response.RedirectTo(UrlPrefix+"/agents/"+fmt.Sprint(agent_id), 303)
 }

@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/gogf/gf/frame/g"
-	"github.com/gogf/gf/os/glog"
 	"github.com/gogf/gf/os/gtime"
 	"github.com/tangr/cicdgo/app/dao"
 )
@@ -46,7 +45,7 @@ func (s *cicdService) ListCicd(group_ids []string) []ListPipelines {
 	pipelines := ([]ListPipelines)(nil)
 	err := dao.CicdPipeline.Fields("id,pipeline_name").WhereIn("group_id", group_ids).Structs(&pipelines)
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 	}
 	return pipelines
 }
@@ -59,7 +58,7 @@ func (s *cicdService) GetPkgJobInfo(job_id int) string {
 	jobInfo := &JobInfo{}
 	err := dao.CicdJob.Fields("comment,author").Where("id=", job_id).Struct(jobInfo)
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 	}
 	comment := jobInfo.Comment
 	author := jobInfo.Author
@@ -86,7 +85,7 @@ func timeDiffNow(timestamp_int int) string {
 func (s *cicdService) GetPipelinePkgs(pipeline_id int) string {
 	pipeline_pkgs, err := dao.CicdPackage.Where("pipeline_id=", pipeline_id).OrderDesc("job_id").Limit(30).All()
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 	}
 	type Pkg struct {
 		Name  string `json:"name"`
@@ -98,7 +97,7 @@ func (s *cicdService) GetPipelinePkgs(pipeline_id int) string {
 		job_info := s.GetPkgJobInfo(job_id)
 		created_at := pkg["created_at"].Int()
 		timediff := timeDiffNow(created_at)
-		// glog.Debug(fmt.Sprint(job_id) + " " + job_info + " at " + timediff)
+		// g.Log().Debug(fmt.Sprint(job_id) + " " + job_info + " at " + timediff)
 		pkgName := fmt.Sprint(job_id) + " " + job_info + " at " + timediff
 		pkgValue := pkg["package_name"].String()
 		newpkg := Pkg{Name: pkgName, Value: pkgValue}
@@ -121,7 +120,7 @@ func (s *cicdService) GetJobInfo(job_id int) (int, string, string) {
 	new_jobinfo := &JobInfo{}
 	err := dao.CicdJob.Fields("concurrency,job_type,job_status").Where("id=", job_id).Struct(new_jobinfo)
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 	}
 	concurrency := new_jobinfo.Concurrency
 	job_type := new_jobinfo.JobType
@@ -134,11 +133,11 @@ func (s *cicdService) GetJobs(pipeline_id int, pageIndex int, pageSize int) ([]L
 	offSet := pageSize * (pageIndex - 1)
 	err := dao.CicdJob.Fields("id,pipeline_id,agent_id,job_type,job_status,comment,author,created_at").Order("id desc").Where("pipeline_id=", pipeline_id).Limit(offSet, pageSize).Structs(&jobs)
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 	}
 	totalSize, err := dao.CicdJob.Fields("id").Where("pipeline_id=", pipeline_id).Count()
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 	}
 	return jobs, totalSize
 }
@@ -165,7 +164,7 @@ func (s *cicdService) New(pipeline_id int, envs map[string]interface{}, username
 		last_job := g.Map{"pipeline_id": pipeline_id, "job_type": "DEPLOY"}
 		err := dao.CicdJob.Fields("id,job_status").Where(last_job).OrderDesc("id").Limit(1).Struct(&last_job_status)
 		if err != nil {
-			glog.Error(err)
+			g.Log().Error(err)
 		}
 		if last_job_status.JobStatus != "success" && last_job_status.JobStatus != "failed" {
 			return last_job_status.Id
@@ -174,7 +173,7 @@ func (s *cicdService) New(pipeline_id int, envs map[string]interface{}, username
 		script_name = pipeline_body.StageCI.Script
 		script_args = pipeline_body.StageCI.Args
 	} else {
-		glog.Errorf("unsupported job_type: %s", job_type)
+		g.Log().Errorf("unsupported job_type: %s", job_type)
 	}
 	job_envs["PIPELINEID"] = fmt.Sprint(pipeline_id)
 	job_envs["PIPELINENAME"] = strings.Split(pipeline_name, ":")[0]
@@ -198,11 +197,11 @@ func (s *cicdService) New(pipeline_id int, envs map[string]interface{}, username
 	}
 	result, err := dao.CicdJob.Data(new_job).Save()
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 	}
 	job_id, err := result.LastInsertId()
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 	}
 	return job_id
 }
@@ -233,17 +232,17 @@ func (s *cicdService) GetJobEnvs(pipeline_id int, job_id int) string {
 	job_map := g.Map{"id": job_id, "pipeline_id": pipeline_id}
 	script, err := dao.CicdJob.Fields("script").Where(job_map).Value()
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 	}
 	script_byte := script.Bytes()
 	err = json.Unmarshal(script_byte, jobScript)
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 	}
 	jobEnvs := jobScript.Envs
 	jobEnvs_byte, err := json.Marshal(jobEnvs)
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 	}
 	jobEnvs_json := string(jobEnvs_byte)
 	return jobEnvs_json
@@ -252,7 +251,7 @@ func (s *cicdService) GetJobEnvs(pipeline_id int, job_id int) string {
 func (s *cicdService) CheckJobid(pipeline_id int, job_id int) bool {
 	num, err := dao.CicdJob.Where(g.Map{"pipeline_id": pipeline_id, "id": job_id}).Count()
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 		return false
 	}
 	if num < 1 {
@@ -264,7 +263,7 @@ func (s *cicdService) CheckJobid(pipeline_id int, job_id int) bool {
 func (s *cicdService) CheckTaskid(pipeline_id int, task_id int) bool {
 	r, err := dao.CicdLog.Fields("job_id").Where("id = ?", task_id).Value()
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 		return false
 	}
 	job_id := r.Int()
@@ -279,13 +278,13 @@ func (s *cicdService) GetJobTasks(pipeline_id int, job_id int) []ListTasks {
 	}
 	err := dao.CicdLog.Fields("id,job_id,task_status,ipaddr,updated_at").Order("id desc").Where(g.Map{"job_id": job_id}).Structs(&tasks)
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 	}
 	// var agentStatus string
 	status_url := fmt.Sprint(WsServerAPI, pipeline_id, "/", job_id, "/status")
 	r, err := g.Client().Get(status_url)
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 	} else {
 		defer r.Close()
 	}
@@ -306,7 +305,7 @@ func (s *cicdService) GetJobProgress(pipeline_id int, job_id int) (string, strin
 	job_map := g.Map{"job_id": job_id}
 	err := dao.CicdLog.Fields("id,job_id,task_status,ipaddr,updated_at").Where(job_map).Structs(&tasks)
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 	}
 	task_count_pending, task_count_running, task_count_success, task_count_failed := 0, 0, 0, 0
 	for _, task := range tasks {
@@ -322,10 +321,10 @@ func (s *cicdService) GetJobProgress(pipeline_id int, job_id int) (string, strin
 	}
 
 	status_url := fmt.Sprint(WsServerAPI, pipeline_id, "/", job_id, "/status")
-	glog.Debug(status_url)
+	g.Log().Debug(status_url)
 	r, err := g.Client().Get(status_url)
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 	} else {
 		defer r.Close()
 	}
@@ -351,7 +350,7 @@ func (s *cicdService) PostJobConcurrency(pipeline_id int, job_id int, concurrenc
 	}
 	job_map := g.Map{"pipeline_id": pipeline_id, "id": job_id}
 	if _, err := dao.CicdJob.Data(g.Map{"concurrency": concurrency}).Where(job_map).Update(); err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 	}
 	return true
 }
@@ -362,7 +361,7 @@ func (s *cicdService) PostJobStatus(pipeline_id int, job_id int, job_status stri
 	}
 	job_map := g.Map{"pipeline_id": pipeline_id, "id": job_id}
 	if _, err := dao.CicdJob.Data(g.Map{"job_status": job_status}).Where(job_map).Update(); err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 	}
 	return true
 }
@@ -372,10 +371,10 @@ func (s *cicdService) AbortTask(pipeline_id int, task_id int, job_id int, client
 		return "nil"
 	}
 	status_url := fmt.Sprint(WsServerAPI, task_id, "/", job_id, "/", clientip, "/abort")
-	glog.Errorf("abort status_url: %s", status_url)
+	g.Log().Errorf("abort status_url: %s", status_url)
 	r, err := g.Client().Get(status_url)
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 	} else {
 		defer r.Close()
 	}
@@ -387,10 +386,10 @@ func (s *cicdService) RetryTask(pipeline_id int, task_id int, job_id int, client
 		return "nil"
 	}
 	status_url := fmt.Sprint(WsServerAPI, task_id, "/", job_id, "/", clientip, "/retry")
-	glog.Errorf("retry status_url: %s", status_url)
+	g.Log().Errorf("retry status_url: %s", status_url)
 	r, err := g.Client().Get(status_url)
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 	} else {
 		defer r.Close()
 	}
@@ -404,7 +403,7 @@ func (s *cicdService) GetOutput(pipeline_id int, log_id int) *GetOutput {
 	}
 	err := dao.CicdLog.Fields("task_status,updated_at,output").Where(g.Map{"id": log_id}).Struct(&output)
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 	}
 	return output
 }

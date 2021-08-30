@@ -16,7 +16,6 @@ import (
 	"github.com/gogf/gf/frame/g"
 	"github.com/gogf/gf/net/ghttp"
 	"github.com/gogf/gf/os/gfile"
-	"github.com/gogf/gf/os/glog"
 	"github.com/gogf/gf/os/gproc"
 
 	"github.com/gorilla/websocket"
@@ -67,7 +66,7 @@ func (s *agentCICD) GetAgentsList(isreload bool) AgentsList {
 
 	if agentsStr != "" {
 		if err := gjson.DecodeTo(agentsStr, &agentsList); err != nil {
-			glog.Errorf("%s decode failed. %s", g.Cfg().GetFileName(), err)
+			g.Log().Errorf("%s decode failed. %s", g.Cfg().GetFileName(), err)
 		}
 		newagents = append(newagents, agentsList...)
 	}
@@ -82,7 +81,7 @@ func (s *agentCICD) GetAgentsList(isreload bool) AgentsList {
 					continue
 				}
 				if err := gjson.DecodeTo(agentsStr, &agentsList); err != nil {
-					glog.Errorf("%s decode failed. %s", f, err)
+					g.Log().Errorf("%s decode failed. %s", f, err)
 					continue
 				}
 				newagents = append(newagents, agentsList...)
@@ -94,9 +93,9 @@ func (s *agentCICD) GetAgentsList(isreload bool) AgentsList {
 		agents = newagents
 		jobFlashStatus, err := json.Marshal(agents)
 		if err != nil {
-			glog.Error(err)
+			g.Log().Error(err)
 		}
-		glog.Info(jobFlashStatus)
+		g.Log().Info(jobFlashStatus)
 		jobFlashPath := dataPathDir + jobFlash
 		s.WriteFile(jobFlashPath, string(jobFlashStatus))
 	}
@@ -107,7 +106,7 @@ func (s *agentCICD) HanleIncludeConfig(pattern string) []string {
 	var filenames []string
 	files, err := filepath.Glob(pattern)
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 		panic(err)
 	}
 	filenames = append(filenames, files...)
@@ -137,7 +136,7 @@ func (s *agentCICD) SendJson() model.WsAgentSend {
 
 func (s *agentCICD) GetExecutable(scriptbody string) string {
 	if len(scriptbody) < 3 {
-		glog.Error("scriptbody is empty")
+		g.Log().Error("scriptbody is empty")
 		return ""
 	}
 	if scriptbody[0:2] == "#!" {
@@ -148,9 +147,9 @@ func (s *agentCICD) GetExecutable(scriptbody string) string {
 }
 
 func (s *agentCICD) WriteFile(path string, content string) error {
-	glog.Debug("Write file: ", path)
+	g.Log().Debug("Write file: ", path)
 	if err := gfile.PutContents(path, content); err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 		return err
 	}
 	return nil
@@ -166,9 +165,9 @@ func FileExists(name string) bool {
 }
 
 func (s *agentCICD) ReadFile(path string) string {
-	glog.Debug("Read file: ", path)
+	g.Log().Debug("Read file: ", path)
 	if !FileExists(path) {
-		glog.Debug("file not exist: ", path)
+		g.Log().Debug("file not exist: ", path)
 		return ""
 	}
 	// if _, err := os.Stat(path); os.IsNotExist(err) {
@@ -191,10 +190,10 @@ func (s *agentCICD) SetStatus(jobId int, jobStatus string) error {
 	fileLock := flock.New(jobPathscriptJson)
 	err := fileLock.Lock()
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 	}
 	if err := s.WriteFile(jobPathscriptJson, string(jobJson)); err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 		return err
 	}
 	fileLock.Unlock()
@@ -206,18 +205,18 @@ func (s *agentCICD) GetStatus(jobId int) string {
 	fileLock := flock.New(jobPathscriptJson)
 	err := fileLock.RLock()
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 	}
 	jobJson := s.ReadFile(jobPathscriptJson)
 	fileLock.Unlock()
 	if jobJson == "" {
-		glog.Debugf("fileName %s with content empty!", jobPathscriptJson)
+		g.Log().Debugf("fileName %s with content empty!", jobPathscriptJson)
 		return ""
 	}
 	var jobMeta = JobMeta{}
 	if err := json.Unmarshal([]byte(jobJson), &jobMeta); err != nil {
-		glog.Error(err)
-		glog.Debugf("fileName %s with content: %s !", jobPathscriptJson, jobJson)
+		g.Log().Error(err)
+		g.Log().Debugf("fileName %s with content: %s !", jobPathscriptJson, jobJson)
 		return ""
 	}
 	return jobMeta.JobStatus
@@ -225,46 +224,46 @@ func (s *agentCICD) GetStatus(jobId int) string {
 
 func (s *agentCICD) KillJob(jobId int) {
 	if runningProcess, ok := runningJobs[jobId]; ok {
-		glog.Warningf("kill jobid: %d, pid: %d ", jobId, runningProcess.Cmd.Process.Pid)
+		g.Log().Warningf("kill jobid: %d, pid: %d ", jobId, runningProcess.Cmd.Process.Pid)
 		syscall.Kill(-runningProcess.Cmd.Process.Pid, syscall.SIGKILL)
 		delete(runningJobs, jobId)
 
 		if err := s.SetStatus(jobId, "failed"); err != nil {
-			glog.Error(runningProcess.Cmd.Process.Pid, err)
+			g.Log().Error(runningProcess.Cmd.Process.Pid, err)
 		}
 	}
 }
 
 func (s *agentCICD) RunCommand(jobId int, runCommand string, scriptEnvs []string) {
 	// defer delete(runningJobs, jobId)
-	glog.Debugf("recvScriptEnvs: %+v", scriptEnvs)
-	glog.Debugf("recvScriptEnvs: %#v", scriptEnvs)
+	g.Log().Debugf("recvScriptEnvs: %+v", scriptEnvs)
+	g.Log().Debugf("recvScriptEnvs: %#v", scriptEnvs)
 	newprocess := gproc.NewProcessCmd(runCommand, scriptEnvs)
 	newprocess.Cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 	newpid, err := newprocess.Start()
 	if err != nil {
-		glog.Error(newpid, err)
+		g.Log().Error(newpid, err)
 	}
-	glog.Debugf("Run newjob: %d pid: %d", jobId, newpid)
+	g.Log().Debugf("Run newjob: %d pid: %d", jobId, newpid)
 	if err := s.SetStatus(jobId, "running"); err != nil {
-		glog.Error(newpid, err)
+		g.Log().Error(newpid, err)
 	}
 	runningJobs[jobId] = newprocess
 	if err = newprocess.Wait(); err != nil {
-		glog.Warningf("Command finished with error: %v", err)
+		g.Log().Warningf("Command finished with error: %v", err)
 	}
-	glog.Debugf("Finished Run newjob: %d pid: %d", jobId, newpid)
+	g.Log().Debugf("Finished Run newjob: %d pid: %d", jobId, newpid)
 
 	if newprocess.ProcessState.Exited() {
 		exitCode := newprocess.ProcessState.ExitCode()
-		glog.Debugf("Exit newjob: %d pid: %d exitcode: %d", jobId, newpid, exitCode)
+		g.Log().Debugf("Exit newjob: %d pid: %d exitcode: %d", jobId, newpid, exitCode)
 		if exitCode == 0 {
 			if err := s.SetStatus(jobId, "success"); err != nil {
-				glog.Error(newpid, err)
+				g.Log().Error(newpid, err)
 			}
 		} else {
 			if err := s.SetStatus(jobId, "failed"); err != nil {
-				glog.Error(newpid, err)
+				g.Log().Error(newpid, err)
 			}
 		}
 		delete(runningJobs, jobId)
@@ -321,7 +320,7 @@ func (s *agentCICD) HandleJob(jobv *model.WsServerSendMap) *model.WsAgentSendMap
 	oldJobStatus := s.GetStatus(jobId)
 	if oldJobStatus == "" || oldJobStatus == "success" || oldJobStatus == "failed" {
 		if err := s.SetStatus(jobId, "pending"); err != nil {
-			glog.Error(jobId, err)
+			g.Log().Error(jobId, err)
 		}
 	}
 	jobPath := dataPathDir + strconv.Itoa(jobId)
@@ -343,7 +342,7 @@ func (s *agentCICD) HandleJob(jobv *model.WsServerSendMap) *model.WsAgentSendMap
 		}
 		execommand := s.GetExecutable(scriptBody)
 		runcommand := execommand + " " + jobPathscriptBody + " " + jobPathscriptArgs + " >>" + jobPathOutput + " 2>&1"
-		glog.Debugf("Run jobId: %d with Command: %s and scriptEnvs: %s", jobId, runcommand, scriptEnvs)
+		g.Log().Debugf("Run jobId: %d with Command: %s and scriptEnvs: %s", jobId, runcommand, scriptEnvs)
 		go s.RunCommand(jobId, runcommand, scriptEnvs)
 	}
 	sendMap.JobStatus = s.GetStatus(jobId)
@@ -357,21 +356,21 @@ func (s *agentCICD) HandleRecvJson(recvJson *model.WsServerSend) {
 	recvData := *recvJson
 	for _, jobv := range recvData {
 		if jobv.ErrMsg != "" {
-			glog.Errorf("jobId: %d errmsg: %s", jobv.JobId, jobv.ErrMsg)
+			g.Log().Errorf("jobId: %d errmsg: %s", jobv.JobId, jobv.ErrMsg)
 			continue
 		}
 		if jobv.JobId == 0 || jobv.JobStatus == "" {
 			continue
 		}
-		glog.Debugf("len runningJobs: %d %d", len(runningJobs), maxrunningjobs)
+		g.Log().Debugf("len runningJobs: %d %d", len(runningJobs), maxrunningjobs)
 		if len(runningJobs) >= maxrunningjobs {
 			jobId := jobv.JobId
 			if _, ok := runningJobs[jobId]; !ok {
 				continue
 			}
 		}
-		glog.Debugf("recvjson: %+v", jobv)
-		glog.Debugf("recvjson: %#v", jobv)
+		g.Log().Debugf("recvjson: %+v", jobv)
+		g.Log().Debugf("recvjson: %#v", jobv)
 		var sendMap = s.HandleJob(&jobv)
 		sendJson = append(sendJson, *sendMap)
 	}
@@ -383,7 +382,7 @@ func (s *agentCICD) HandleRecvJson(recvJson *model.WsServerSend) {
 
 func (s *agentCICD) AgentRun() {
 	if err := gfile.Mkdir(dataPathDir); err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 		panic(err)
 		// os.Exit(1)
 	}
@@ -406,7 +405,7 @@ func (s *agentCICD) AgentRun() {
 		// time.Sleep(time.Second)
 		select {
 		case <-interrupt:
-			glog.Info("interrupt2")
+			g.Log().Info("interrupt2")
 			os.Exit(1)
 		case <-time.After(time.Second):
 		}
@@ -415,7 +414,7 @@ func (s *agentCICD) AgentRun() {
 		conn, _, err := client.Dial(wsUrl, nil)
 		if err != nil {
 			// panic(err)
-			glog.Error("dial:", err)
+			g.Log().Error("dial:", err)
 			continue
 		}
 		defer conn.Close()
@@ -428,16 +427,16 @@ func (s *agentCICD) AgentRun() {
 				err := conn.ReadJSON(&recvJson)
 				if err != nil {
 					time.Sleep(time.Second)
-					glog.Error("read:", err)
-					glog.Infof("recv+v: %+v", recvJson)
+					g.Log().Error("read:", err)
+					g.Log().Infof("recv+v: %+v", recvJson)
 					// continue
 					break
 					// return
 				}
-				// glog.Infof("recv+v: %+v", recvJson)
+				// g.Log().Infof("recv+v: %+v", recvJson)
 
 				newjobs, _ := json.Marshal(recvJson)
-				glog.Infof("recvjson: %s", string(newjobs))
+				g.Log().Infof("recvjson: %s", string(newjobs))
 				s.HandleRecvJson(recvJson)
 			}
 		}()
@@ -452,27 +451,27 @@ func (s *agentCICD) AgentRun() {
 			case <-done:
 				break L
 			case <-ticker.C:
-				// glog.Info("*********************************")
+				// g.Log().Info("*********************************")
 				sendJson := s.SendJson()
 				err := conn.WriteJSON(sendJson)
 				if err != nil {
 					time.Sleep(time.Second)
-					glog.Error("write:", err)
-					glog.Infof("send+v: %+v", sendJson)
+					g.Log().Error("write:", err)
+					g.Log().Infof("send+v: %+v", sendJson)
 					// continue
 					break
 					// return
 				}
-				// glog.Infof("send+v: %+v", sendJson)
-				// glog.Infof("send#v: %#v", sendJson)
+				// g.Log().Infof("send+v: %+v", sendJson)
+				// g.Log().Infof("send#v: %#v", sendJson)
 				newjobs, _ := json.Marshal(sendJson)
-				glog.Infof("sendjson: %s", string(newjobs))
-				// glog.Info("###################################")
+				g.Log().Infof("sendjson: %s", string(newjobs))
+				// g.Log().Info("###################################")
 			case <-interrupt:
-				glog.Info("interrupt1")
+				g.Log().Info("interrupt1")
 				err := conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
 				if err != nil {
-					glog.Warningf("write close:", err)
+					g.Log().Warningf("write close:", err)
 					return
 				}
 				select {
@@ -481,7 +480,7 @@ func (s *agentCICD) AgentRun() {
 				}
 				return
 			case <-reload:
-				glog.Info("reload")
+				g.Log().Info("reload")
 				s.GetAgentsList(true)
 			}
 		}

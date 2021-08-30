@@ -3,7 +3,6 @@ package service
 import (
 	"github.com/gogf/gf/database/gdb"
 	"github.com/gogf/gf/frame/g"
-	"github.com/gogf/gf/os/glog"
 	"github.com/gogf/gf/os/gtime"
 	"github.com/tangr/cicdgo/app/dao"
 )
@@ -22,7 +21,7 @@ func (s *agentService) ListAgents() []ListAgents {
 	agents := ([]ListAgents)(nil)
 	err := dao.CicdAgent.Fields("id,agent_name,updated_at").Structs(&agents)
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 	}
 	return agents
 }
@@ -30,7 +29,7 @@ func (s *agentService) ListAgents() []ListAgents {
 func (s *agentService) GetAgentNames() gdb.Result {
 	result, err := dao.CicdAgent.Fields("id,agent_name").All()
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 	}
 	return result
 }
@@ -43,7 +42,7 @@ func (s *agentService) GetAgentInfo(agent_id string) (string, string) {
 	var newAgentInfo = &AgentInfo{}
 	err := dao.CicdAgent.Fields("agent_name,ipaddr").Where("id=", agent_id).Struct(newAgentInfo)
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 	}
 	agent_name := newAgentInfo.AgentName
 	agent_ipaddr := newAgentInfo.AgentIpaddr
@@ -62,11 +61,11 @@ func (s *agentService) New(agent_name string, ipaddr string) int {
 	new_agent := g.Map{"agent_name": agent_name, "ipaddr": ipaddr, "updated_at": gtime.Now().Timestamp()}
 	result, err := dao.CicdAgent.Data(new_agent).Save()
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 	}
 	agent_id, err := result.LastInsertId()
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 	}
 	return int(agent_id)
 }
@@ -74,7 +73,7 @@ func (s *agentService) New(agent_name string, ipaddr string) int {
 func (s *agentService) Show(agent_id int) g.Map {
 	result, err := dao.CicdAgent.Where("id=", agent_id).One()
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 	}
 	return result.Map()
 }
@@ -83,7 +82,7 @@ func (s *agentService) Update(agent_id int, agent_name string, ipaddr string) er
 	new_agent := g.Map{"agent_name": agent_name, "ipaddr": ipaddr, "updated_at": gtime.Now().Timestamp()}
 	_, err := dao.CicdAgent.Data(new_agent).Where(g.Map{"id": agent_id}).Update()
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 	}
 	return nil
 }

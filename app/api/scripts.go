@@ -6,7 +6,6 @@ import (
 
 	"github.com/gogf/gf/frame/g"
 	"github.com/gogf/gf/net/ghttp"
-	"github.com/gogf/gf/os/glog"
 	"github.com/tangr/cicdgo/app/service"
 )
 
@@ -70,7 +69,7 @@ func (a *scriptApi) Update(r *ghttp.Request) {
 
 	err := service.Script.Update(script_id, script_name, script_body)
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 	}
 
 	r.Response.RedirectTo(UrlPrefix+"/scripts/"+fmt.Sprint(script_id), 303)

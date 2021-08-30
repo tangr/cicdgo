@@ -5,7 +5,6 @@ import (
 
 	"github.com/gogf/gf/frame/g"
 	"github.com/gogf/gf/net/ghttp"
-	"github.com/gogf/gf/os/glog"
 	"github.com/tangr/cicdgo/app/service"
 )
 
@@ -81,7 +80,7 @@ func (a *pipelineApi) Update(r *ghttp.Request) {
 	pipeline_body := r.GetFormString("pipeline_body")
 	err := service.Pipeline.Update(pipeline_id, group_id, agent_id, concurrency, pipeline_name, pipeline_body)
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 	}
 	r.Response.RedirectTo(UrlPrefix+"/pipelines/"+fmt.Sprint(pipeline_id), 303)
 }

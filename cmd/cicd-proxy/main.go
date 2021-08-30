@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/gogf/gf/os/glog"
+	"github.com/gogf/gf/frame/g"
 	"github.com/koding/websocketproxy"
 )
 
@@ -18,8 +18,8 @@ var (
 func main() {
 	flag.Parse()
 	log.SetFlags(0)
-	glog.Info(*flagBackend)
-	glog.Info(*flagListenPort)
+	g.Log().Info(*flagBackend)
+	g.Log().Info(*flagListenPort)
 
 	u, err := url.Parse(*flagBackend)
 	if err != nil {

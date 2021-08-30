@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/gogf/gf/frame/g"
-	"github.com/gogf/gf/os/glog"
 )
 
 var WsServerAPI string = g.Cfg().GetString("server.console.WsServerAPI")
@@ -42,7 +41,7 @@ func stringToSlice(str string) []string {
 	var newslice []string = make([]string, 0)
 	err := json.Unmarshal([]byte(str), &newslice)
 	if err != nil {
-		glog.Error(err)
+		g.Log().Error(err)
 	}
 	return newslice
 }

@@ -717,8 +717,16 @@ func (s *wsServer) AbortTask(task_id int, job_id int, clientip string) bool {
 			return false
 		}
 		if _, ok := CdAgentMapPipelineActivity[pipelineId]; ok {
-			CdAgentMapPipelineActivity[pipelineId][clientip].Status = "aborted"
-			return true
+			if CdAgentMapPipelineActivity[pipelineId][clientip].Status == "running" {
+				CdAgentMapPipelineActivity[pipelineId][clientip].Status = "aborted"
+				return true
+			}
+			if _, err := dao.CicdLog.Data(g.Map{"task_status": "failed"}).Where("id", task_id).Update(); err != nil {
+				glog.Error(err)
+			}
+			if _, err := dao.CicdJob.Data(g.Map{"job_status": "failed"}).Where("id", job_id).Update(); err != nil {
+				glog.Error(err)
+			}
 		}
 		return false
 	}

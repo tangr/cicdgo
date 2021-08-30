@@ -401,7 +401,8 @@ func (s *agentCICD) AgentRun() {
 	client.HandshakeTimeout = time.Second    // 设置超时时间
 	client.Proxy = http.ProxyFromEnvironment // 设置代理
 
-	for i := 0; i < 10; i++ {
+	// for i := 0; i < 10; i++ {
+	for {
 		// time.Sleep(time.Second)
 		select {
 		case <-interrupt:

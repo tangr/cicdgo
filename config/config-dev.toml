@@ -6,6 +6,8 @@
         ServerAgent   = "gf-app"
         LogPath       = "/tmp/log/gf-app/server"
         UrlPrefix     = "/console"
+        # SessionMaxAge expired in mins
+        SessionMaxAge = 10080
         SessionPath   = "/tmp/cicd/sessions"
         AuthorEnable  = false
         AdminGroup    = "ops"
@@ -13,10 +15,9 @@
         LogStdout     = false
         ErrorStack    = true
         AccessLogEnabled = true
-        # RepoAPI     = "https://api.semantic-ui.com/tags/"
+        WsServerAPI   = "http://127.0.0.1:8070/wsv1/"
         # RepoAPI     = "/console/v1/repoinfo"
         RepoAPI     = "http://127.0.0.1:5000/console/v1/repoinfo?key="
-        # PkgsAPI     = "https://api.semantic-ui.com/tags/"
 
     [server.wscicd]
         Address     = ":8070"

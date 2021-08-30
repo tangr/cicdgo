@@ -16,10 +16,8 @@
         ErrorStack    = true
         AccessLogEnabled = true
         WsServerAPI   = "http://127.0.0.1:8070/wsv1/"
-        # RepoAPI     = "https://api.semantic-ui.com/tags/"
         # RepoAPI     = "/console/v1/repoinfo"
         RepoAPI     = "http://127.0.0.1:5000/console/v1/repoinfo?key="
-        # PkgsAPI     = "https://api.semantic-ui.com/tags/"
 
 # Logger.
 [logger]

@@ -6,8 +6,8 @@
         ServerAgent   = "gf-app"
         LogPath       = "/tmp/log/gf-app/server"
         UrlPrefix     = "/console"
-        # SessionMaxAge expired in mins
-        SessionMaxAge = 10080
+        # SessionMaxAge expired in hours
+        SessionMaxAge = 168
         SessionPath   = "/tmp/cicd/sessions"
         AuthorEnable  = false
         AdminGroup    = "ops"

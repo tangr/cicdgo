@@ -15,7 +15,7 @@ func main() {
 
 	s.SetConfigWithMap(g.Map{
 		// "SessionMaxAge":  time.Minute * 60 * 24 * 7,
-		"SessionMaxAge":  time.Duration(1000000000 * 60 * g.Cfg().GetInt64("server.console.SessionMaxAge")),
+		"SessionMaxAge":  time.Duration(1000000000 * 3600 * g.Cfg().GetInt64("server.console.SessionMaxAge")),
 		"SessionStorage": gsession.NewStorageFile(g.Cfg().GetString("server.console.SessionPath")),
 	})
 

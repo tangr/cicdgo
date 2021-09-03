@@ -16,7 +16,7 @@
         ErrorStack    = true
         AccessLogEnabled = true
         WsServerAPI   = "http://127.0.0.1:8070/wsv1/"
-        # RepoAPI     = "/console/v1/repoinfo"
+        # RepoAPI     = "/console/v1/repoinfo?key="
         RepoAPI     = "http://127.0.0.1:5000/console/v1/repoinfo?key="
 
 # Logger.

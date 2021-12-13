@@ -38,3 +38,35 @@
                                                                                          +------------------+
                                                                                          
 ```
+
+## Pipeline config sample
+```json
+{
+    "stageCI":{
+        "envs":{
+            "scmrepo_name1": "git|github|tangr/webconsole",
+            "scmrepo_name2": "git|github|tangr/webconsole2",
+            "aaa":[
+                "a",
+                "b",
+                "c"
+            ],
+            "bbb":[
+                "a",
+                "b",
+                "c"
+            ]
+        },
+        "script":"ci_script_name1",
+        "args":""
+    },
+    "stageCD":{
+        "script":"cd_script_name1",
+        "envs":{
+            "env1":"env1",
+            "env2":"env2"
+        },
+        "args":""
+    }
+}
+```

@@ -1,5 +1,15 @@
 # cicdgo
 
+## Build
+```
+go1.15.15 mod tidy
+
+go1.15.15 build cmd/cicd-server/main.go -o bin/cicd-server
+go1.15.15 build cmd/cicd-console/main.go -o bin/cicd-console
+go1.15.15 build cmd/cicd-agent/main.go -o bin/cicd-agent
+go1.15.15 build cmd/cicd-proxy/main.go -o bin/cicd-proxy
+```
+
 ## Architecture flow
 ```
                                                                               ws         +----------------+  ftp/s3/http..

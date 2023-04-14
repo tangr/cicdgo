@@ -1,13 +1,16 @@
 # cicdgo
 
 ## Build
+
 ```
+# https://go.dev/doc/install
+
 go1.15.15 mod tidy
 
-go1.15.15 build -o bin/cicd-server  cmd/cicd-server/main.go
-go1.15.15 build -o bin/cicd-console cmd/cicd-console/main.go
-go1.15.15 build -o bin/cicd-agent   cmd/cicd-agent/main.go
-go1.15.15 build -o bin/cicd-proxy   cmd/cicd-proxy/main.go
+go build -o bin/cicd-server  cmd/cicd-server/main.go
+go build -o bin/cicd-console cmd/cicd-console/main.go
+go build -o bin/cicd-agent   cmd/cicd-agent/main.go
+go build -o bin/cicd-proxy   cmd/cicd-proxy/main.go
 ```
 
 ## Architecture flow

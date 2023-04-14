@@ -4,10 +4,10 @@
 ```
 go1.15.15 mod tidy
 
-go1.15.15 build cmd/cicd-server/main.go -o bin/cicd-server
-go1.15.15 build cmd/cicd-console/main.go -o bin/cicd-console
-go1.15.15 build cmd/cicd-agent/main.go -o bin/cicd-agent
-go1.15.15 build cmd/cicd-proxy/main.go -o bin/cicd-proxy
+go1.15.15 build -o bin/cicd-server  cmd/cicd-server/main.go
+go1.15.15 build -o bin/cicd-console cmd/cicd-console/main.go
+go1.15.15 build -o bin/cicd-agent   cmd/cicd-agent/main.go
+go1.15.15 build -o bin/cicd-proxy   cmd/cicd-proxy/main.go
 ```
 
 ## Architecture flow

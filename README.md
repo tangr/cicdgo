@@ -13,6 +13,8 @@ go build -o bin/cicd-agent   cmd/cicd-agent/main.go
 go build -o bin/cicd-proxy   cmd/cicd-proxy/main.go
 ```
 
+
+
 ## Architecture flow
 ```
                                                                               ws         +----------------+  ftp/s3/http..
@@ -57,8 +59,9 @@ go build -o bin/cicd-proxy   cmd/cicd-proxy/main.go
 {
     "stageCI":{
         "envs":{
-            "scmrepo_name1": "git|github|tangr/webconsole",
-            "scmrepo_name2": "git|github|tangr/webconsole2",
+            "REPO_name1": "git|bitbucket|tangr/webconsole",
+            "scmrepo_name2": "git|bitbucket|tangr/webconsole2",
+            "REPO_name1": "git|gitlab|repoidnum",
             "aaa":[
                 "a",
                 "b",

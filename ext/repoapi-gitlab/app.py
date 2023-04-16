@@ -85,7 +85,7 @@ def get_branches(repo):
     new_branches =  []
     for branch in branches:
         new_branch = {}
-        new_branch['name'] = branch['name'] + " " + branch['commit']['short_id'] + " " + branch['commit']['committer_name'] + " " + branch['commit']['committed_date'] + " " + branch['commit']['title']
+        new_branch['name'] = "branch: " + branch['name'] + " " + branch['commit']['short_id'] + " " + branch['commit']['committed_date'] + " " + branch['commit']['committer_name'] + " " + branch['commit']['title']
         new_branch['value'] = 'branch/' + branch['name']
         new_branches.append(new_branch)
     return new_branches
@@ -110,7 +110,7 @@ def get_tags(repo):
     new_tags =  []
     for tag in tags:
         new_tag = {}
-        new_tag['name'] = tag['name'] + " " + tag['commit']['short_id'] + " " + tag['commit']['committer_name'] + " " + tag['commit']['committed_date'] + " " + tag['commit']['title']
+        new_tag['name'] = "tag: " + tag['name'] + " " + tag['commit']['short_id'] + " " + tag['commit']['committed_date'] + " " + tag['commit']['committer_name'] + " " + tag['commit']['title']
         new_tag['value'] = 'tag/' + tag['name']
         new_tags.append(new_tag)
     return new_tags

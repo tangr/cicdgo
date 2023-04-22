@@ -341,9 +341,11 @@ func (s *agentCICD) HandleJob(jobv *model.WsServerSendMap) *model.WsAgentSendMap
 			scriptEnvs = append(scriptEnvs, envPrefix+k+"="+v)
 		}
 		execommand := s.GetExecutable(scriptBody)
-		runcommand := execommand + " " + jobPathscriptBody + " " + jobPathscriptArgs + " >>" + jobPathOutput + " 2>&1"
-		g.Log().Debugf("Run jobId: %d with Command: %s and scriptEnvs: %s", jobId, runcommand, scriptEnvs)
-		go s.RunCommand(jobId, runcommand, scriptEnvs)
+		if execommand != "" {
+			runcommand := execommand + " " + jobPathscriptBody + " " + jobPathscriptArgs + " >>" + jobPathOutput + " 2>&1"
+			g.Log().Debugf("Run jobId: %d with Command: %s and scriptEnvs: %s", jobId, runcommand, scriptEnvs)
+			go s.RunCommand(jobId, runcommand, scriptEnvs)
+		}
 	}
 	sendMap.JobStatus = s.GetStatus(jobId)
 	output := s.ReadFile(jobPathOutput)
@@ -369,9 +371,10 @@ func (s *agentCICD) HandleRecvJson(recvJson *model.WsServerSend) {
 				continue
 			}
 		}
-		g.Log().Debugf("recvjson: %+v", jobv)
+		// g.Log().Debugf("recvjson: %+v", jobv)
 		g.Log().Debugf("recvjson: %#v", jobv)
 		var sendMap = s.HandleJob(&jobv)
+		g.Log().Debugf("sendjson: %#v", sendJson)
 		sendJson = append(sendJson, *sendMap)
 	}
 

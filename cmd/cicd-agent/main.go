@@ -325,26 +325,28 @@ func (s *agentCICD) HandleJob(jobv *model.WsServerSendMap) *model.WsAgentSendMap
 	}
 	jobPath := dataPathDir + strconv.Itoa(jobId)
 	jobPathOutput := jobPath + ".output"
-	if _, ok := runningJobs[jobId]; !ok {
-		scriptBody := jobv.Body + "\n"
-		scriptBody = strings.Replace(scriptBody, "\r\n", "\n", -1)
-		jobPathscriptBody := jobPath + ".scriptbody"
-		s.WriteFile(jobPathscriptBody, scriptBody)
-		scriptArgs := jobv.Args + "\n"
-		scriptArgs = strings.Replace(scriptArgs, "\r\n", "\n", -1)
-		jobPathscriptArgs := jobPath + ".scriptargs"
-		s.WriteFile(jobPathscriptArgs, scriptArgs)
-		var scriptEnvs []string
-		envAgentName := strings.Split(jobv.AgentName, ":")[0]
-		scriptEnvs = append(scriptEnvs, envPrefix+"AGENTNAME"+"="+envAgentName)
-		for k, v := range jobv.Envs {
-			scriptEnvs = append(scriptEnvs, envPrefix+k+"="+v)
-		}
-		execommand := s.GetExecutable(scriptBody)
-		if execommand != "" {
-			runcommand := execommand + " " + jobPathscriptBody + " " + jobPathscriptArgs + " >>" + jobPathOutput + " 2>&1"
-			g.Log().Debugf("Run jobId: %d with Command: %s and scriptEnvs: %s", jobId, runcommand, scriptEnvs)
-			go s.RunCommand(jobId, runcommand, scriptEnvs)
+	if jobv.Body != "" {
+		if _, ok := runningJobs[jobId]; !ok {
+			scriptBody := jobv.Body + "\n"
+			scriptBody = strings.Replace(scriptBody, "\r\n", "\n", -1)
+			jobPathscriptBody := jobPath + ".scriptbody"
+			s.WriteFile(jobPathscriptBody, scriptBody)
+			scriptArgs := jobv.Args + "\n"
+			scriptArgs = strings.Replace(scriptArgs, "\r\n", "\n", -1)
+			jobPathscriptArgs := jobPath + ".scriptargs"
+			s.WriteFile(jobPathscriptArgs, scriptArgs)
+			var scriptEnvs []string
+			envAgentName := strings.Split(jobv.AgentName, ":")[0]
+			scriptEnvs = append(scriptEnvs, envPrefix+"AGENTNAME"+"="+envAgentName)
+			for k, v := range jobv.Envs {
+				scriptEnvs = append(scriptEnvs, envPrefix+k+"="+v)
+			}
+			execommand := s.GetExecutable(scriptBody)
+			if execommand != "" {
+				runcommand := execommand + " " + jobPathscriptBody + " " + jobPathscriptArgs + " >>" + jobPathOutput + " 2>&1"
+				g.Log().Debugf("Run jobId: %d with Command: %s and scriptEnvs: %s", jobId, runcommand, scriptEnvs)
+				go s.RunCommand(jobId, runcommand, scriptEnvs)
+			}
 		}
 	}
 	sendMap.JobStatus = s.GetStatus(jobId)

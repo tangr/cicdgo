@@ -118,8 +118,10 @@ func (s *wsServer) DoAgentCi(agentCiJobs *model.WsAgentSend, clientip string) *m
 		jobCiDatas = append(jobCiDatas, jobCiData)
 	}
 	jobCiDataNew := *s.GetCIJob(agentId, clientip)
+	g.Log().Error(jobCiDataNew)
 	jobCiDatas = append(jobCiDatas, jobCiDataNew)
-	var CiJobsMap map[int]int = make(map[int]int)
+	// var CiJobsMap map[int]int = make(map[int]int)
+	g.Log().Error(jobCiDatas)
 	for _, ciJob := range jobCiDatas {
 		jobId := ciJob.JobId
 		if jobId == 0 {
@@ -129,12 +131,18 @@ func (s *wsServer) DoAgentCi(agentCiJobs *model.WsAgentSend, clientip string) *m
 		if jobStatus == "success" || jobStatus == "failed" {
 			continue
 		}
-		if CiJobsMap[jobId] != 0 {
+		// if CiJobsMap[jobId] != 0 {
+		// 	continue
+		// }
+		scriptBody := ciJob.Body
+		if jobStatus == "pending" && scriptBody == "" {
 			continue
 		}
-		CiJobsMap[jobId] = jobId
+		// CiJobsMap[jobId] = jobId
 		jobCiDatasNew = append(jobCiDatasNew, ciJob)
 	}
+	g.Log().Error(jobCiDatasNew)
+
 	if len(jobCiDatasNew) == 0 {
 		// g.Log().Errorf("jobCiDatasjobCiDatas: %+v", jobCiDatas)
 		var jobCiData model.WsServerSendMap
@@ -144,6 +152,7 @@ func (s *wsServer) DoAgentCi(agentCiJobs *model.WsAgentSend, clientip string) *m
 		jobCiDatas = append(jobCiDatas, jobCiData)
 		return &jobCiDatas
 	}
+	g.Log().Error(jobCiDatasNew)
 	return &jobCiDatasNew
 }
 
@@ -178,6 +187,8 @@ func (s *wsServer) HandleCIJob(ciJob *model.WsAgentSendMap, clientip string) *mo
 
 	CiAgentMapActivity[agentId].Updated = int(gtime.Now().Timestamp())
 	CiAgentMapActivity[agentId].ClientIp = clientip
+
+	g.Log().Error(ciJob)
 
 	if jobStatus == "success" || jobStatus == "failed" {
 		if _, err := dao.CicdJob.Data(g.Map{"job_status": jobStatus}).Where("id", jobId).Update(); err != nil {
@@ -335,6 +346,7 @@ func (s *wsServer) GetCIJob(agentId int, clientip string) *model.WsServerSendMap
 	newJobCiDataP.Body = newJobScript.Script.Body
 	newJobCiDataP.Args = newJobScript.Script.Args
 	newJobCiDataP.Envs = newJobScript.Script.Envs
+	g.Log().Error(newJobCiDataP)
 	if len(newJobScript.Script.Envs) != 0 {
 		package_name := fmt.Sprint(jobId) + "_" + newJobScript.Script.Envs["PKGRDM"]
 		newJobCiDataP.Envs["PKGRDM"] = package_name
@@ -398,9 +410,11 @@ func (s *wsServer) SyncNewCIJob() {
 	var newJobs = new([]NewJobBuild)
 
 	// if err := dao.CicdJob.Fields("id,agent_id").Where("job_type", "BUILD").WhereIn("job_status", g.Slice{"pending", "running"}).Structs(newJobs); err != nil {
+	g.Log().Error("SyncNewCIJob1")
 	if err := dao.CicdJob.Fields("id,agent_id").Where("job_type", "BUILD").WhereIn("job_status", g.Slice{"pending"}).Structs(newJobs); err != nil {
 		g.Log().Debug(err)
 	}
+	g.Log().Error("SyncNewCIJob2")
 
 	NowTimestamp := int(gtime.Now().Timestamp())
 

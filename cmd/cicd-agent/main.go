@@ -165,7 +165,7 @@ func FileExists(name string) bool {
 }
 
 func (s *agentCICD) ReadFile(path string) string {
-	g.Log().Debug("Read file: ", path)
+	g.Log().Error("Read file: ", path)
 	if !FileExists(path) {
 		g.Log().Debug("file not exist: ", path)
 		return ""

@@ -118,10 +118,10 @@ func (s *wsServer) DoAgentCi(agentCiJobs *model.WsAgentSend, clientip string) *m
 		jobCiDatas = append(jobCiDatas, jobCiData)
 	}
 	jobCiDataNew := *s.GetCIJob(agentId, clientip)
-	g.Log().Error(jobCiDataNew)
+	// g.Log().Error(jobCiDataNew)
 	jobCiDatas = append(jobCiDatas, jobCiDataNew)
 	// var CiJobsMap map[int]int = make(map[int]int)
-	g.Log().Error(jobCiDatas)
+	// g.Log().Error(jobCiDatas)
 	for _, ciJob := range jobCiDatas {
 		jobId := ciJob.JobId
 		if jobId == 0 {
@@ -188,7 +188,7 @@ func (s *wsServer) HandleCIJob(ciJob *model.WsAgentSendMap, clientip string) *mo
 	CiAgentMapActivity[agentId].Updated = int(gtime.Now().Timestamp())
 	CiAgentMapActivity[agentId].ClientIp = clientip
 
-	g.Log().Error(ciJob)
+	// g.Log().Error(ciJob)
 
 	if jobStatus == "success" || jobStatus == "failed" {
 		if _, err := dao.CicdJob.Data(g.Map{"job_status": jobStatus}).Where("id", jobId).Update(); err != nil {

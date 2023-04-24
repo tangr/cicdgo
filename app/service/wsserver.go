@@ -441,17 +441,26 @@ func (s *wsServer) SyncNewCIJob() {
 			}
 			g.Log().Debugf("1CiAgentActivity.RunningJobs[jobId] %s, %d", CiAgentActivity.RunningJobs[jobId], jobId)
 
-			if CiAgentActivity.RunningJobs[jobId] == "" {
-				delete(CiAgentMapActivity[agentId].RunningJobs, jobId)
-				// continue
+			if CiAgentMapActivity[agentId].RunningJobs == nil {
+				CiAgentMapActivity[agentId].RunningJobs = make(map[int]string)
 			}
+
+			if _, ok := CiAgentActivity.RunningJobs[jobId]; ok {
+				if CiAgentActivity.RunningJobs[jobId] != "pending" {
+					g.Log().Error(CiAgentActivity.RunningJobs[jobId])
+					delete(CiAgentMapActivity[agentId].RunningJobs, jobId)
+					// continue
+				}
+			} else {
+				CiAgentMapActivity[agentId].RunningJobs[jobId] = "pending"
+				// break
+			}
+
 			g.Log().Debugf("2CiAgentActivity.RunningJobs[jobId] %s, %d", CiAgentActivity.RunningJobs[jobId], jobId)
 
 			g.Log().Debugf("agentId %d, jobId: %d", agentId, jobId)
 			g.Log().Debugf("CiAgentActivity %v, CiAgentActivity.RunningJobs: %v", CiAgentActivity, CiAgentActivity.RunningJobs)
-			CiAgentMapActivity[agentId].RunningJobs = make(map[int]string)
-			CiAgentMapActivity[agentId].RunningJobs[jobId] = "pending"
-			break
+
 		}
 
 	}

@@ -322,7 +322,7 @@ func (s *wsServer) GetCIJob(agentId int, clientip string) *model.WsServerSendMap
 	newJobCiDataP.AgentId = agentId
 	newJobCiDataP.AgentName = CiAgentMapIdName[agentId].Name
 
-	g.Log().Error(111)
+	g.Log().Error(1111)
 	g.Log().Error(CiAgentMapActivity)
 	g.Log().Error(CiAgentMapActivity[agentId])
 	g.Log().Error(CiAgentMapActivity[agentId].RunningJobs)
@@ -440,7 +440,7 @@ func (s *wsServer) SyncNewCIJob() {
 			}
 		}
 
-		g.Log().Error(222)
+		g.Log().Error(2222)
 		g.Log().Error(agentId)
 		g.Log().Debug(CiAgentMapActivity)
 		g.Log().Error(CiAgentMapActivity[agentId])
@@ -451,7 +451,7 @@ func (s *wsServer) SyncNewCIJob() {
 				delete(CiAgentMapActivity, agentId)
 				continue
 			}
-			g.Log().Error(333)
+			g.Log().Error(3333)
 			g.Log().Debugf("1CiAgentActivity.RunningJobs[jobId] %s, %d", CiAgentActivity.RunningJobs[jobId], jobId)
 
 			if CiAgentMapActivity[agentId].RunningJobs == nil {
@@ -462,6 +462,7 @@ func (s *wsServer) SyncNewCIJob() {
 				if CiAgentActivity.RunningJobs[jobId] != "pending" {
 					g.Log().Error(CiAgentActivity.RunningJobs[jobId])
 					delete(CiAgentMapActivity[agentId].RunningJobs, jobId)
+					g.Log().Debug(4444)
 					// continue
 				}
 			} else {

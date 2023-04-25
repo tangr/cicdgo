@@ -191,6 +191,7 @@ func (s *wsServer) HandleCIJob(ciJob *model.WsAgentSendMap, clientip string) *mo
 	CiAgentMapActivity[agentId].Updated = int(gtime.Now().Timestamp())
 	CiAgentMapActivity[agentId].ClientIp = clientip
 
+	g.Log().Debug("HandleCIJob jobCiData")
 	g.Log().Error(jobCiData)
 
 	if jobStatus == "success" || jobStatus == "failed" {

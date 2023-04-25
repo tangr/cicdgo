@@ -18,6 +18,7 @@ type cicdService struct{}
 type ListTasks struct {
 	Id          int    `json:"log_id"`
 	Job_id      int    `json:"job_id"`
+	Agent_id    int    `json:"agent_id"`
 	Task_status string `json:"task_status"`
 	Ipaddr      string `json:"ipaddr"`
 	Actived     int    `json:"Actived"`
@@ -276,7 +277,7 @@ func (s *cicdService) GetJobTasks(pipeline_id int, job_id int) []ListTasks {
 	if !s.CheckJobid(pipeline_id, job_id) {
 		return tasks
 	}
-	err := dao.CicdLog.Fields("id,job_id,task_status,ipaddr,updated_at").Order("id desc").Where(g.Map{"job_id": job_id}).Structs(&tasks)
+	err := dao.CicdLog.Fields("id,job_id,agent_id,task_status,ipaddr,updated_at").Order("id desc").Where(g.Map{"job_id": job_id}).Structs(&tasks)
 	if err != nil {
 		g.Log().Error(err)
 	}
@@ -293,7 +294,7 @@ func (s *cicdService) GetJobTasks(pipeline_id int, job_id int) []ListTasks {
 	g.Log().Error(agentStatus)
 	json.Unmarshal([]byte(agentStatus), &agentStatusMap)
 	for idx, v := range tasks {
-		mapk := fmt.Sprint(pipeline_id, "-", v.Ipaddr)
+		mapk := fmt.Sprint(v.Agent_id, "-", v.Ipaddr)
 		tasks[idx].Actived = agentStatusMap[mapk]
 	}
 	return tasks

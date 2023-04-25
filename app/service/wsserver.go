@@ -326,14 +326,15 @@ func (s *wsServer) GetCIJob(agentId int, clientip string) *model.WsServerSendMap
 	newJobCiDataP.AgentName = CiAgentMapIdName[agentId].Name
 
 	g.Log().Error(111100)
-	g.Log().Error(CiAgentMapActivity)
-	g.Log().Error(CiAgentMapActivity[agentId])
-	g.Log().Error(CiAgentMapActivity[agentId].RunningJobs)
-	g.Log().Error(111101)
+	g.Log().Debug(CiAgentMapActivity)
+	g.Log().Debug(CiAgentMapActivity[agentId])
+	g.Log().Debug(CiAgentMapActivity[agentId].RunningJobs)
+	g.Log().Debug(111101)
 
 	if len(CiAgentMapActivity[agentId].RunningJobs) == 0 {
 		return newJobCiDataP
 	}
+	g.Log().Error(222200)
 
 	var jobId int
 	for newJobId, status := range CiAgentMapActivity[agentId].RunningJobs {
@@ -346,6 +347,7 @@ func (s *wsServer) GetCIJob(agentId int, clientip string) *model.WsServerSendMap
 	if jobId == 0 {
 		return newJobCiDataP
 	}
+	g.Log().Error(333300)
 
 	if err := dao.CicdJob.Fields("script").Where(g.Map{"id": jobId}).Struct(newJobScriptP); err != nil {
 		g.Log().Debug(err)

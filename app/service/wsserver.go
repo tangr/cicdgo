@@ -113,6 +113,8 @@ func (s *wsServer) DoAgentCi(agentCiJobs *model.WsAgentSend, clientip string) *m
 		jobCiDatas = append(jobCiDatas, jobCiData)
 		return &jobCiDatas
 	}
+	g.Log().Error("DoAgentCi agentCiJobs")
+	g.Log().Error(*agentCiJobs)
 	for _, ciJob := range *agentCiJobs {
 		jobCiData = *s.HandleCIJob(&ciJob, clientip)
 		jobCiDatas = append(jobCiDatas, jobCiData)

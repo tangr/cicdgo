@@ -203,12 +203,12 @@ func (s *wsServer) HandleCIJob(ciJob *model.WsAgentSendMap, clientip string) *mo
 		}
 		jobOutput := ciJob.JobOutput
 		if jobOutput != "" {
-			newlog := g.Map{"agent_id": agentId, "job_type": "BUILD", "job_id": jobId, "ipaddr": clientip, "task_status": jobStatus, "output": jobOutput, "updated_at": gtime.Now().Timestamp()}
+			newlog := g.Map{"agent_id": agentId, "pipeline_id": 0, "job_type": "BUILD", "job_id": jobId, "ipaddr": clientip, "task_status": jobStatus, "output": jobOutput, "updated_at": gtime.Now().Timestamp()}
 			if _, err := dao.CicdLog.Data(newlog).Save(); err != nil {
 				g.Log().Error(err)
 			}
 		} else {
-			newlog := g.Map{"agent_id": agentId, "job_type": "BUILD", "job_id": jobId, "ipaddr": clientip, "task_status": jobStatus, "updated_at": gtime.Now().Timestamp()}
+			newlog := g.Map{"agent_id": agentId, "pipeline_id": 0, "job_type": "BUILD", "job_id": jobId, "ipaddr": clientip, "task_status": jobStatus, "updated_at": gtime.Now().Timestamp()}
 			if _, err := dao.CicdLog.Data(newlog).Save(); err != nil {
 				g.Log().Error(err)
 			}
@@ -235,7 +235,7 @@ func (s *wsServer) HandleCIJob(ciJob *model.WsAgentSendMap, clientip string) *mo
 		lastOutput := lastTaskStatus.Output
 		jobOutput := ciJob.JobOutput
 		if jobOutput != lastOutput {
-			newlog := g.Map{"agent_id": agentId, "job_type": "BUILD", "job_id": jobId, "ipaddr": clientip, "task_status": jobStatus, "output": jobOutput, "updated_at": gtime.Now().Timestamp()}
+			newlog := g.Map{"agent_id": agentId, "pipeline_id": 0, "job_type": "BUILD", "job_id": jobId, "ipaddr": clientip, "task_status": jobStatus, "output": jobOutput, "updated_at": gtime.Now().Timestamp()}
 			if _, err := dao.CicdLog.Data(newlog).Save(); err != nil {
 				g.Log().Error(err)
 			}

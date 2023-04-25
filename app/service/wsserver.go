@@ -421,7 +421,7 @@ func (s *wsServer) SyncNewCIJob() {
 	if err := dao.CicdJob.Fields("id,agent_id").Where("job_type", "BUILD").WhereIn("job_status", g.Slice{"pending"}).Structs(newJobs); err != nil {
 		g.Log().Debug(err)
 	}
-	// g.Log().Error("SyncNewCIJob2")
+	g.Log().Error("SyncNewCIJob2")
 
 	NowTimestamp := int(gtime.Now().Timestamp())
 

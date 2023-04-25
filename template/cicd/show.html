@@ -218,14 +218,14 @@
             $('.field.newjob form').form('set value', 'JOBTYPE', 'BUILD');
           } else if (jobtype == "DEPLOY") {
             console.log("jobtype: " + jobtype);
-            job_envs = pipeline_body.stageCI.envs
-            for (envk in job_envs) {
-              if (!/^[a-zA-Z0-9_]{2,100}$/.test(envk)) continue;
-              if (envk.startsWith("REPO_") && isString(job_envs[envk])) {
-                form_validation[envk] = 'empty';
-                pipeline_body.stageCD.envs["PKGRDM"] = "";
-              }
-            }
+            // job_envs = pipeline_body.stageCI.envs
+            // for (envk in job_envs) {
+            //   if (!/^[a-zA-Z0-9_]{2,100}$/.test(envk)) continue;
+            //   if (envk.startsWith("REPO_") && isString(job_envs[envk])) {
+            //     form_validation[envk] = 'empty';
+            //     pipeline_body.stageCD.envs["PKGRDM"] = "";
+            //   }
+            // }
             console.log(pipeline_body.stageCD.envs);
             make_newjob_view(pipeline_body.stageCD.envs, form_validation);
             $('.field.newjob form').form('set value', 'JOBTYPE', 'DEPLOY');
@@ -245,9 +245,13 @@
 
   function make_newjob_view(job_body, form_validation) {
     var job_envs = job_body;
+    console.log('make_newjob_view: ' + job_envs);
     for (envk in job_envs) {
+      console.log('envk: ' + envk);
       if (!/^[a-zA-Z0-9_]{2,100}$/.test(envk)) continue;
+      console.log('job_envs envk: ' + job_envs[envk]);
       if (envk.startsWith("REPO_") && isString(job_envs[envk])) {
+        console.log('REPO_envk: ' + envk);
         form_validation[envk] = 'empty';
         new_option = '';
         new_option = new_option+ '<div class="field" id="'+ envk +'">';

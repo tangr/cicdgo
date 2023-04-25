@@ -323,6 +323,10 @@ func (s *agentCICD) HandleJob(jobv *model.WsServerSendMap) *model.WsAgentSendMap
 	g.Log().Errorf(oldJobStatus)
 	if oldJobStatus == "success" || oldJobStatus == "failed" {
 		sendMap.JobStatus = oldJobStatus
+		jobPath := dataPathDir + strconv.Itoa(jobId)
+		jobPathOutput := jobPath + ".output"
+		output := s.ReadFile(jobPathOutput)
+		sendMap.JobOutput = output
 		return sendMap
 	}
 	if oldJobStatus == "" {

@@ -278,6 +278,7 @@ func (s *agentCICD) HandleJob(jobv *model.WsServerSendMap) *model.WsAgentSendMap
 	sendMap.AgentId = jobv.AgentId
 	sendMap.AgentName = jobv.AgentName
 	sendMap.JobId = jobId
+	g.Log().Error(jobStatus)
 	if jobStatus == "success" || jobStatus == "failed" {
 		sendMap.JobStatus = jobStatus
 		jobPath := dataPathDir + strconv.Itoa(jobId)

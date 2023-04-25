@@ -258,7 +258,7 @@ func (s *wsServer) HandleCDJob(cdJob *model.WsAgentSendMap, clientip string) *mo
 		CdAgentMapPipelineActivity[pipelineId] = make(map[string]*CdAgentStatusMapV)
 	}
 	if CdAgentMapPipelineActivity[pipelineId][clientip] == nil {
-		var AgentV *CdAgentStatusMapV = &CdAgentStatusMapV{Status: "init"}
+		var AgentV *CdAgentStatusMapV = &CdAgentStatusMapV{Status: "rerun"}
 		CdAgentMapPipelineActivity[pipelineId][clientip] = AgentV
 	}
 	CdAgentMapPipelineActivity[pipelineId][clientip].Updated = int(gtime.Now().Timestamp())
@@ -373,14 +373,14 @@ func (s *wsServer) GetCDJob(pipelineId int, clientip string) *model.WsServerSend
 	newJobCdDataP.AgentId = pipelineId
 	newJobCdDataP.AgentName = CdAgentMapIdName[pipelineId]
 	var jobId int
-	if CdAgentMapPipelineActivity[pipelineId][clientip].Status == "init" {
+	if CdAgentMapPipelineActivity[pipelineId][clientip].Status == "rerun" {
 		deploy_job := g.Map{"pipeline_id": pipelineId, "job_type": "DEPLOY", "job_status": "success"}
 		job_id_var, err := dao.CicdJob.Fields("id").Where(deploy_job).OrderDesc("id").Limit(1).Value()
 		if err != nil {
 			g.Log().Debug(err)
 		}
 		jobId = job_id_var.Int()
-		newJobCdDataP.JobStatus = "init"
+		newJobCdDataP.JobStatus = "rerun"
 	} else {
 		if CdAgentMapPipelineActivity[pipelineId][clientip].Status != "pending" {
 			return newJobCdDataP

@@ -81,6 +81,7 @@ func (a *cicdApi) ShowJob(r *ghttp.Request) {
 		"taskurl":       UrlPrefix + "/v1/" + fmt.Sprint(pipeline_id) + "/",
 	}
 	if job_type == "BUILD" {
+		r.Response.WriteExit(params)
 		r.Response.WriteTpl("cicd/job_build.html", params)
 	} else {
 		params["progressurl"] = UrlPrefix + "/v1/" + fmt.Sprint(pipeline_id, "/", job_id) + "/progress"

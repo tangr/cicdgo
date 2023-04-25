@@ -440,6 +440,10 @@ func (s *wsServer) SyncNewCIJob() {
 			}
 		}
 
+		g.Log().Error(222)
+		g.Log().Error(agentId)
+		g.Log().Error(CiAgentMapActivity[agentId])
+
 		if CiAgentActivity, ok := CiAgentMapActivity[agentId]; ok {
 			// clear not activity agents
 			if NowTimestamp-CiAgentMapActivity[agentId].Updated > DeprecatedAfter {

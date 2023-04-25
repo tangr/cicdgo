@@ -319,6 +319,8 @@ func (s *agentCICD) HandleJob(jobv *model.WsServerSendMap) *model.WsAgentSendMap
 		}
 	}
 	oldJobStatus := s.GetStatus(jobId)
+	g.Log().Error(3333)
+	g.Log().Errorf(oldJobStatus)
 	if oldJobStatus == "success" || oldJobStatus == "failed" {
 		sendMap.JobStatus = oldJobStatus
 		return sendMap

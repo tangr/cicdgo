@@ -450,6 +450,7 @@ func (s *wsServer) SyncNewCIJob() {
 				delete(CiAgentMapActivity, agentId)
 				continue
 			}
+			g.Log().Error(333)
 			g.Log().Debugf("1CiAgentActivity.RunningJobs[jobId] %s, %d", CiAgentActivity.RunningJobs[jobId], jobId)
 
 			if CiAgentMapActivity[agentId].RunningJobs == nil {

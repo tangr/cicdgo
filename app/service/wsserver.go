@@ -141,7 +141,7 @@ func (s *wsServer) DoAgentCi(agentCiJobs *model.WsAgentSend, clientip string) *m
 		// CiJobsMap[jobId] = jobId
 		jobCiDatasNew = append(jobCiDatasNew, ciJob)
 	}
-	g.Log().Error(jobCiDatasNew)
+	// g.Log().Error(jobCiDatasNew)
 
 	if len(jobCiDatasNew) == 0 {
 		// g.Log().Errorf("jobCiDatasjobCiDatas: %+v", jobCiDatas)
@@ -324,6 +324,9 @@ func (s *wsServer) GetCIJob(agentId int, clientip string) *model.WsServerSendMap
 	if len(CiAgentMapActivity[agentId].RunningJobs) == 0 {
 		return newJobCiDataP
 	}
+
+	g.Log().Error(CiAgentMapActivity[agentId].RunningJobs)
+
 	var jobId int
 	for newJobId, status := range CiAgentMapActivity[agentId].RunningJobs {
 		if status == "pending" {

@@ -38,7 +38,7 @@ func shortName(fullname string) string {
 func timeDiffNow(timestamp_int int) string {
 	timestamp := int64(timestamp_int)
 	if timestamp < 1 {
-		return "-"
+		return "None"
 	}
 	timeNow := time.Now().Unix()
 	timediff := timeNow - timestamp

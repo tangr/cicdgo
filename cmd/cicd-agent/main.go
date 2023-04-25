@@ -323,6 +323,8 @@ func (s *agentCICD) HandleJob(jobv *model.WsServerSendMap) *model.WsAgentSendMap
 			g.Log().Error(jobId, err)
 		}
 	}
+	g.Log().Error(oldJobStatus)
+	g.Log().Error(jobStatus)
 	jobPath := dataPathDir + strconv.Itoa(jobId)
 	jobPathOutput := jobPath + ".output"
 	if jobv.Body != "" {

@@ -322,6 +322,9 @@ func (s *wsServer) GetCIJob(agentId int, clientip string) *model.WsServerSendMap
 	newJobCiDataP.AgentId = agentId
 	newJobCiDataP.AgentName = CiAgentMapIdName[agentId].Name
 
+	g.Log().Error(111)
+	g.Log().Error(CiAgentMapActivity)
+	g.Log().Error(CiAgentMapActivity[agentId])
 	g.Log().Error(CiAgentMapActivity[agentId].RunningJobs)
 
 	if len(CiAgentMapActivity[agentId].RunningJobs) == 0 {

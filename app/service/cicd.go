@@ -282,6 +282,7 @@ func (s *cicdService) GetJobTasks(pipeline_id int, job_id int) []ListTasks {
 	}
 	// var agentStatus string
 	status_url := fmt.Sprint(WsServerAPI, pipeline_id, "/", job_id, "/status")
+	g.Log().Error(status_url)
 	r, err := g.Client().Get(status_url)
 	if err != nil {
 		g.Log().Error(err)
@@ -289,6 +290,7 @@ func (s *cicdService) GetJobTasks(pipeline_id int, job_id int) []ListTasks {
 		defer r.Close()
 	}
 	agentStatus := r.ReadAllString()
+	g.Log().Error(agentStatus)
 	json.Unmarshal([]byte(agentStatus), &agentStatusMap)
 	for idx, v := range tasks {
 		mapk := fmt.Sprint(pipeline_id, "-", v.Ipaddr)

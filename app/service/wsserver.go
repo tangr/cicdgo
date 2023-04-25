@@ -113,9 +113,10 @@ func (s *wsServer) DoAgentCi(agentCiJobs *model.WsAgentSend, clientip string) *m
 		jobCiDatas = append(jobCiDatas, jobCiData)
 		return &jobCiDatas
 	}
-	g.Log().Error("DoAgentCi agentCiJobs")
-	g.Log().Error(*agentCiJobs)
+	g.Log().Debug("DoAgentCi agentCiJobs")
+	g.Log().Debug(*agentCiJobs)
 	for _, ciJob := range *agentCiJobs {
+		g.Log().Debug(5555)
 		jobCiData = *s.HandleCIJob(&ciJob, clientip)
 		jobCiDatas = append(jobCiDatas, jobCiData)
 	}
@@ -324,10 +325,11 @@ func (s *wsServer) GetCIJob(agentId int, clientip string) *model.WsServerSendMap
 	newJobCiDataP.AgentId = agentId
 	newJobCiDataP.AgentName = CiAgentMapIdName[agentId].Name
 
-	g.Log().Error(1111)
+	g.Log().Error(111100)
 	g.Log().Error(CiAgentMapActivity)
 	g.Log().Error(CiAgentMapActivity[agentId])
 	g.Log().Error(CiAgentMapActivity[agentId].RunningJobs)
+	g.Log().Error(111101)
 
 	if len(CiAgentMapActivity[agentId].RunningJobs) == 0 {
 		return newJobCiDataP

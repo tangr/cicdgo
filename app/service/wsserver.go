@@ -191,7 +191,7 @@ func (s *wsServer) HandleCIJob(ciJob *model.WsAgentSendMap, clientip string) *mo
 	CiAgentMapActivity[agentId].Updated = int(gtime.Now().Timestamp())
 	CiAgentMapActivity[agentId].ClientIp = clientip
 
-	// g.Log().Error(ciJob)
+	g.Log().Error(jobCiData)
 
 	if jobStatus == "success" || jobStatus == "failed" {
 		if _, err := dao.CicdJob.Data(g.Map{"job_status": jobStatus}).Where("id", jobId).Update(); err != nil {

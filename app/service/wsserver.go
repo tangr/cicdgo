@@ -442,6 +442,7 @@ func (s *wsServer) SyncNewCIJob() {
 
 		g.Log().Error(222)
 		g.Log().Error(agentId)
+		g.Log().Debug(CiAgentMapActivity)
 		g.Log().Error(CiAgentMapActivity[agentId])
 
 		if CiAgentActivity, ok := CiAgentMapActivity[agentId]; ok {

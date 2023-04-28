@@ -218,17 +218,6 @@
             $('.field.newjob form').form('set value', 'JOBTYPE', 'BUILD');
           } else if (jobtype == "DEPLOY") {
             console.log("jobtype: " + jobtype);
-            // job_envs = pipeline_body.stageCI.envs
-            // for (envk in job_envs) {
-            //   if (!/^[a-zA-Z0-9_]{2,100}$/.test(envk)) continue;
-            //   if (envk.startsWith("REPO_") && isString(job_envs[envk])) {
-            //     form_validation[envk] = 'empty';
-            //     pipeline_body.stageCD.envs["PKGRDM"] = "";
-            //   }
-            // }
-            pipeline_body.stageCD.envs["PKGRDM"] = "";
-
-            console.log(pipeline_body.stageCD.envs);
             make_newjob_view(pipeline_body.stageCD.envs, form_validation);
             $('.field.newjob form').form('set value', 'JOBTYPE', 'DEPLOY');
           } else {

@@ -95,11 +95,12 @@ func (s *cicdService) GetPipelinePkgs(pipeline_id int) string {
 	var pkgs []Pkg = make([]Pkg, 0)
 	for _, pkg := range pipeline_pkgs {
 		job_id := pkg["job_id"].Int()
+		job_status := pkg["job_status"].String()
 		job_info := s.GetPkgJobInfo(job_id)
 		created_at := pkg["created_at"].Int()
 		timediff := timeDiffNow(created_at)
 		// g.Log().Debug(fmt.Sprint(job_id) + " " + job_info + " at " + timediff)
-		pkgName := fmt.Sprint(job_id) + " " + job_info + " at " + timediff
+		pkgName := fmt.Sprint(job_id) + "(" + job_status + ")" + " " + job_info + " at " + timediff
 		pkgValue := pkg["package_name"].String()
 		newpkg := Pkg{Name: pkgName, Value: pkgValue}
 		pkgs = append(pkgs, newpkg)

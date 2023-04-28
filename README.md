@@ -58,10 +58,8 @@ go build -o bin/cicd-proxy   cmd/cicd-proxy/main.go
 ```json
 {
     "stageCI": {
+        "args": "1111args",
         "envs": {
-            "REPO_name1": "git|bitbucket|tangr/webconsole",
-            "scmrepo_name2": "git|bitbucket|tangr/webconsole2",
-            "REPO_name2": "git|gitlab|repoidnum",
             "aaa": [
                 "a",
                 "b",
@@ -71,18 +69,24 @@ go build -o bin/cicd-proxy   cmd/cicd-proxy/main.go
                 "a",
                 "b",
                 "c"
-            ]
+            ],
+            "REPO_nginx_conf": "git|gitlab|144",
+            "REPO_nginx_conf_ssl": "git|gitlab|144"
         },
-        "script": "ci_script_name1",
-        "args": ""
+        "script": "nginx-conf-ci"
     },
     "stageCD": {
-        "script": "cd_script_name1",
+        "args": "",
         "envs": {
-            "env1": "env1",
-            "env2": "env2"
+            "env1": [
+                "env1"
+            ],
+            "env2": [
+                "env2"
+            ],
+            "PKGRDM": ""
         },
-        "args": ""
+        "script": "nginx-conf-cd"
     }
 }
 ```

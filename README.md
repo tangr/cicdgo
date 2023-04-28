@@ -57,32 +57,32 @@ go build -o bin/cicd-proxy   cmd/cicd-proxy/main.go
 ## Pipeline config sample
 ```json
 {
-    "stageCI":{
-        "envs":{
+    "stageCI": {
+        "envs": {
             "REPO_name1": "git|bitbucket|tangr/webconsole",
             "scmrepo_name2": "git|bitbucket|tangr/webconsole2",
-            "REPO_name1": "git|gitlab|repoidnum",
-            "aaa":[
+            "REPO_name2": "git|gitlab|repoidnum",
+            "aaa": [
                 "a",
                 "b",
                 "c"
             ],
-            "bbb":[
+            "bbb": [
                 "a",
                 "b",
                 "c"
             ]
         },
-        "script":"ci_script_name1",
-        "args":""
+        "script": "ci_script_name1",
+        "args": ""
     },
-    "stageCD":{
-        "script":"cd_script_name1",
-        "envs":{
-            "env1":"env1",
-            "env2":"env2"
+    "stageCD": {
+        "script": "cd_script_name1",
+        "envs": {
+            "env1": "env1",
+            "env2": "env2"
         },
-        "args":""
+        "args": ""
     }
 }
 ```

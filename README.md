@@ -57,6 +57,19 @@ go build -o bin/cicd-proxy   cmd/cicd-proxy/main.go
 ## Pipeline config sample
 ```json
 {
+    "stageCD": {
+        "args": "",
+        "envs": {
+            "env1": [
+                "env1"
+            ],
+            "env2": [
+                "env2"
+            ],
+            "PKGRDM": ""
+        },
+        "script": "nginx-conf-cd"
+    },
     "stageCI": {
         "args": "1111args",
         "envs": {
@@ -74,19 +87,6 @@ go build -o bin/cicd-proxy   cmd/cicd-proxy/main.go
             "REPO_nginx_conf_ssl": "git|gitlab|144"
         },
         "script": "nginx-conf-ci"
-    },
-    "stageCD": {
-        "args": "",
-        "envs": {
-            "env1": [
-                "env1"
-            ],
-            "env2": [
-                "env2"
-            ],
-            "PKGRDM": ""
-        },
-        "script": "nginx-conf-cd"
     }
 }
 ```

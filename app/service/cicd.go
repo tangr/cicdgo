@@ -168,7 +168,7 @@ func (s *cicdService) New(pipeline_id int, envs map[string]interface{}, username
 		if err != nil {
 			g.Log().Error(err)
 		}
-		if last_job_status.JobStatus != "success" && last_job_status.JobStatus != "failed" {
+		if last_job_status.JobStatus != "success" && last_job_status.JobStatus != "failed" && last_job_status.Id != 0 {
 			return last_job_status.Id
 		}
 		jobtype = job_type

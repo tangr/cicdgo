@@ -652,13 +652,13 @@ func (s *wsServer) GetAgentStatus(pipeline_id int, job_id int) map[string]int {
 		deploy_agents := CiAgentMapActivity[build_agent_id]
 		updated := deploy_agents.Updated
 		clientip := deploy_agents.ClientIp
-		mapk := fmt.Sprint(build_agent_id, "-", clientip)
+		mapk := fmt.Sprint("CI-", build_agent_id, "-", clientip)
 		newAgentStatus[mapk] = updated
 		return newAgentStatus
 	}
 	deploy_agents := CdAgentMapPipelineActivity[pipeline_id]
 	for clientip, pipeline_agent_map := range deploy_agents {
-		mapk := fmt.Sprint(pipeline_id, "-", clientip)
+		mapk := fmt.Sprint("CD-", pipeline_id, "-", clientip)
 		updated := pipeline_agent_map.Updated
 		newAgentStatus[mapk] = updated
 		// return newAgentStatus

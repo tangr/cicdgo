@@ -495,6 +495,8 @@ func (s *wsServer) SyncNewCDJob() {
 	}
 	var newJobs = new([]NewJobDeploy)
 
+	g.Log().Error("SyncNewCDJob1")
+
 	if err := dao.CicdJob.Fields("id,pipeline_id,concurrency").Where("job_type", "DEPLOY").Where("job_status", "running").Structs(newJobs); err != nil {
 		g.Log().Debug(err)
 	}
@@ -520,7 +522,7 @@ func (s *wsServer) SyncNewCDJob() {
 		*newJobs = append(*newJobs, *newJob)
 	}
 
-	g.Log().Debugf("newJobs: %+v", newJobs)
+	g.Log().Debugf("SyncNewCDJob newJobs: %+v", newJobs)
 
 	NowTimestamp := int(gtime.Now().Timestamp())
 

@@ -42,7 +42,7 @@ func (a *wsServer) Wsci(r *ghttp.Request) {
 			time.Sleep(time.Second)
 			continue
 		}
-		g.Log().Debug("CI************************")
+		g.Log().Debug("CI1************************")
 		clientip := r.GetClientIp()
 		recvJson, _ := json.Marshal(*recvMsg)
 		g.Log().Debugf("recvJson: %s", recvJson)
@@ -89,7 +89,7 @@ func (a *wsServer) Wscd(r *ghttp.Request) {
 			time.Sleep(time.Second)
 			continue
 		}
-		g.Log().Debug("CD************************")
+		g.Log().Debug("CD1************************")
 		// log.Printf("GetClientIp: %s", r.GetClientIp())
 		clientip := r.GetClientIp()
 		recvJson, _ := json.Marshal(*recvMsg)

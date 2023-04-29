@@ -296,12 +296,15 @@ func (s *cicdService) GetJobTasks(pipeline_id int, job_id int) []ListTasks {
 	agentStatus := r.ReadAllString()
 	g.Log().Error(agentStatus)
 	json.Unmarshal([]byte(agentStatus), &agentStatusMap)
+	g.Log().Error(agentStatusMap)
 	for idx, v := range tasks {
 		if v.Job_type == "BUILD" {
 			mapk := fmt.Sprint("CI-", v.Pipeline_id, "-", v.Ipaddr)
 			tasks[idx].Actived = agentStatusMap[mapk]
 		} else {
 			mapk := fmt.Sprint("CD-", v.Agent_id, "-", v.Ipaddr)
+			g.Log().Error(agentStatusMap)
+			g.Log().Error(agentStatusMap[mapk])
 			tasks[idx].Actived = agentStatusMap[mapk]
 		}
 	}

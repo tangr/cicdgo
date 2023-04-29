@@ -305,6 +305,7 @@ func (s *cicdService) GetJobTasks(pipeline_id int, job_id int) []ListTasks {
 			tasks[idx].Actived = agentStatusMap[mapk]
 		}
 	}
+	g.Log().Error(tasks)
 	return tasks
 }
 

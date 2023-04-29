@@ -172,8 +172,8 @@ func (s *cicdService) New(pipeline_id int, envs map[string]interface{}, username
 			return last_job_status.Id
 		}
 		jobtype = job_type
-		script_name = pipeline_body.StageCI.Script
-		script_args = pipeline_body.StageCI.Args
+		script_name = pipeline_body.StageCD.Script
+		script_args = pipeline_body.StageCD.Args
 	} else {
 		g.Log().Errorf("unsupported job_type: %s", job_type)
 	}

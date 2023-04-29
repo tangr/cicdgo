@@ -275,7 +275,7 @@ func (s *wsServer) HandleCDJob(cdJob *model.WsAgentSendMap, clientip string) *mo
 	if jobStatus == "success" || jobStatus == "failed" {
 		jobOutput := cdJob.JobOutput
 		if jobOutput != "" {
-			newlog := g.Map{"pipeline_id": pipelineId, "job_type": "DEPLOY", "job_id": jobId, "ipaddr": clientip, "task_status": jobStatus, "output": jobOutput, "updated_at": gtime.Now().Timestamp()}
+			newlog := g.Map{"agent_id": 0, "pipeline_id": pipelineId, "job_type": "DEPLOY", "job_id": jobId, "ipaddr": clientip, "task_status": jobStatus, "output": jobOutput, "updated_at": gtime.Now().Timestamp()}
 			if _, err := dao.CicdLog.Data(newlog).Save(); err != nil {
 				g.Log().Error(err)
 			}
@@ -302,7 +302,7 @@ func (s *wsServer) HandleCDJob(cdJob *model.WsAgentSendMap, clientip string) *mo
 		lastOutput := lastTaskStatus.Output
 		jobOutput := cdJob.JobOutput
 		if jobOutput != lastOutput {
-			newlog := g.Map{"pipeline_id": pipelineId, "job_type": "DEPLOY", "job_id": jobId, "ipaddr": clientip, "task_status": jobStatus, "output": jobOutput, "updated_at": gtime.Now().Timestamp()}
+			newlog := g.Map{"agent_id": 0, "pipeline_id": pipelineId, "job_type": "DEPLOY", "job_id": jobId, "ipaddr": clientip, "task_status": jobStatus, "output": jobOutput, "updated_at": gtime.Now().Timestamp()}
 			if _, err := dao.CicdLog.Data(newlog).Save(); err != nil {
 				g.Log().Error(err)
 			}

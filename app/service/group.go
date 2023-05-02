@@ -75,7 +75,6 @@ func (s *groupService) GetScriptBody(script_name string) string {
 	if err != nil {
 		g.Log().Error(err)
 	}
-	g.Log().Error(script_body)
 	return script_body.String()
 }
 

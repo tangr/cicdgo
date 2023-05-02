@@ -85,7 +85,6 @@ func (a *wsServer) Wscd(r *ghttp.Request) {
 	for {
 		err := ws.ReadJSON(&recvMsg)
 		if recvMsg == nil {
-			g.Log().Error(recvMsg)
 			time.Sleep(time.Second)
 			continue
 		}

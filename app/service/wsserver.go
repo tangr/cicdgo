@@ -121,10 +121,8 @@ func (s *wsServer) DoAgentCi(agentCiJobs *model.WsAgentSend, clientip string) *m
 		jobCiDatas = append(jobCiDatas, jobCiData)
 	}
 	jobCiDataNew := *s.GetCIJob(agentId, clientip)
-	// g.Log().Error(jobCiDataNew)
 	jobCiDatas = append(jobCiDatas, jobCiDataNew)
 	// var CiJobsMap map[int]int = make(map[int]int)
-	// g.Log().Error(jobCiDatas)
 	for _, ciJob := range jobCiDatas {
 		jobId := ciJob.JobId
 		if jobId == 0 {
@@ -144,7 +142,6 @@ func (s *wsServer) DoAgentCi(agentCiJobs *model.WsAgentSend, clientip string) *m
 		// CiJobsMap[jobId] = jobId
 		jobCiDatasNew = append(jobCiDatasNew, ciJob)
 	}
-	// g.Log().Error(jobCiDatasNew)
 
 	if len(jobCiDatasNew) == 0 {
 		// g.Log().Errorf("jobCiDatasjobCiDatas: %+v", jobCiDatas)
@@ -155,7 +152,6 @@ func (s *wsServer) DoAgentCi(agentCiJobs *model.WsAgentSend, clientip string) *m
 		jobCiDatas = append(jobCiDatas, jobCiData)
 		return &jobCiDatas
 	}
-	g.Log().Error(jobCiDatasNew)
 	return &jobCiDatasNew
 }
 
@@ -192,7 +188,6 @@ func (s *wsServer) HandleCIJob(ciJob *model.WsAgentSendMap, clientip string) *mo
 	CiAgentMapActivity[agentId].ClientIp = clientip
 
 	g.Log().Debug("HandleCIJob jobCiData")
-	g.Log().Error(jobCiData)
 
 	if jobStatus == "success" || jobStatus == "failed" {
 		if _, err := dao.CicdJob.Data(g.Map{"job_status": jobStatus}).Where("id", jobId).Update(); err != nil {
@@ -326,16 +321,9 @@ func (s *wsServer) GetCIJob(agentId int, clientip string) *model.WsServerSendMap
 	newJobCiDataP.AgentId = agentId
 	newJobCiDataP.AgentName = CiAgentMapIdName[agentId].Name
 
-	g.Log().Error(111100)
-	g.Log().Debug(CiAgentMapActivity)
-	g.Log().Debug(CiAgentMapActivity[agentId])
-	g.Log().Debug(CiAgentMapActivity[agentId].RunningJobs)
-	g.Log().Debug(111101)
-
 	if len(CiAgentMapActivity[agentId].RunningJobs) == 0 {
 		return newJobCiDataP
 	}
-	g.Log().Error(222200)
 
 	var jobId int
 	for newJobId, status := range CiAgentMapActivity[agentId].RunningJobs {
@@ -348,7 +336,6 @@ func (s *wsServer) GetCIJob(agentId int, clientip string) *model.WsServerSendMap
 	if jobId == 0 {
 		return newJobCiDataP
 	}
-	g.Log().Error(333300)
 
 	if err := dao.CicdJob.Fields("script").Where(g.Map{"id": jobId}).Struct(newJobScriptP); err != nil {
 		g.Log().Debug(err)
@@ -360,7 +347,6 @@ func (s *wsServer) GetCIJob(agentId int, clientip string) *model.WsServerSendMap
 	newJobCiDataP.Body = newJobScript.Script.Body
 	newJobCiDataP.Args = newJobScript.Script.Args
 	newJobCiDataP.Envs = newJobScript.Script.Envs
-	g.Log().Error(newJobCiDataP)
 	if len(newJobScript.Script.Envs) != 0 {
 		package_name := fmt.Sprint(jobId) + "_" + newJobScript.Script.Envs["PKGRDM"]
 		newJobCiDataP.Envs["PKGRDM"] = package_name
@@ -424,11 +410,9 @@ func (s *wsServer) SyncNewCIJob() {
 	var newJobs = new([]NewJobBuild)
 
 	// if err := dao.CicdJob.Fields("id,agent_id").Where("job_type", "BUILD").WhereIn("job_status", g.Slice{"pending", "running"}).Structs(newJobs); err != nil {
-	// g.Log().Error("SyncNewCIJob1")
 	if err := dao.CicdJob.Fields("id,agent_id").Where("job_type", "BUILD").WhereIn("job_status", g.Slice{"pending"}).Structs(newJobs); err != nil {
 		g.Log().Debug(err)
 	}
-	g.Log().Error("SyncNewCIJob2")
 
 	NowTimestamp := int(gtime.Now().Timestamp())
 
@@ -447,18 +431,13 @@ func (s *wsServer) SyncNewCIJob() {
 			}
 		}
 
-		g.Log().Error(2222)
-		g.Log().Error(agentId)
-		g.Log().Debug(CiAgentMapActivity)
-		g.Log().Error(CiAgentMapActivity[agentId])
-
 		if CiAgentActivity, ok := CiAgentMapActivity[agentId]; ok {
 			// clear not activity agents
 			if NowTimestamp-CiAgentMapActivity[agentId].Updated > DeprecatedAfter {
 				delete(CiAgentMapActivity, agentId)
 				continue
 			}
-			g.Log().Error(3333)
+
 			g.Log().Debugf("1CiAgentActivity.RunningJobs[jobId] %s, %d", CiAgentActivity.RunningJobs[jobId], jobId)
 
 			if CiAgentMapActivity[agentId].RunningJobs == nil {
@@ -467,9 +446,7 @@ func (s *wsServer) SyncNewCIJob() {
 
 			if _, ok := CiAgentActivity.RunningJobs[jobId]; ok {
 				if CiAgentActivity.RunningJobs[jobId] != "pending" {
-					g.Log().Error(CiAgentActivity.RunningJobs[jobId])
 					delete(CiAgentMapActivity[agentId].RunningJobs, jobId)
-					g.Log().Debug(4444)
 					// continue
 				}
 			} else {
@@ -494,8 +471,6 @@ func (s *wsServer) SyncNewCDJob() {
 		Concurrency int `json:"concurrency"`
 	}
 	var newJobs = new([]NewJobDeploy)
-
-	g.Log().Error("SyncNewCDJob1")
 
 	if err := dao.CicdJob.Fields("id,pipeline_id,concurrency").Where("job_type", "DEPLOY").Where("job_status", "running").Structs(newJobs); err != nil {
 		g.Log().Debug(err)
@@ -607,7 +582,6 @@ func (s *wsServer) CheckAgentCI(agentid int, agentname string, clientip string) 
 			CiAgentMapIdName[agentid].Ipaddr = clientip
 			return true
 		}
-		g.Log().Error(false)
 		return false
 	}
 }

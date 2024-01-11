@@ -19,6 +19,9 @@ func urlParentPath(url string) string {
 }
 
 func emailPrefix(email interface{}) string {
+	if email == nil {
+		return ""
+	}
 	if reflect.TypeOf(email).Kind() != reflect.String {
 		return ""
 	}

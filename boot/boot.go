@@ -29,14 +29,16 @@ func emailPrefix(email interface{}) string {
 	}
 
 	if emailStr == "" {
-		return emailStr
+		return ""
 	}
 
 	subemail := strings.Split(emailStr, "@")
-	emailPrefix := subemail[0]
-	return emailPrefix
-}
+	if len(subemail) > 0 {
+		return subemail[0]
+	}
 
+	return ""
+}
 
 func shortName(fullname string) string {
 	if fullname == "" {

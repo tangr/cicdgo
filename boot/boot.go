@@ -2,6 +2,7 @@ package boot
 
 import (
 	"fmt"
+	"reflect"
 	"strings"
 	"time"
 
@@ -17,14 +18,25 @@ func urlParentPath(url string) string {
 	return newurl
 }
 
-func emailPrefix(email string) string {
-	if email == "" {
-		return email
+func emailPrefix(email interface{}) string {
+	if reflect.TypeOf(email).Kind() != reflect.String {
+		return ""
 	}
-	subemail := strings.Split(email, "@")
-	email_prefix := subemail[0]
-	return email_prefix
+
+	emailStr, ok := email.(string)
+	if !ok {
+		return ""
+	}
+
+	if emailStr == "" {
+		return emailStr
+	}
+
+	subemail := strings.Split(emailStr, "@")
+	emailPrefix := subemail[0]
+	return emailPrefix
 }
+
 
 func shortName(fullname string) string {
 	if fullname == "" {

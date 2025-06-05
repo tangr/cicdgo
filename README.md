@@ -12,8 +12,7 @@ go build -o bin/cicd-console cmd/cicd-console/main.go
 go build -o bin/cicd-agent   cmd/cicd-agent/main.go
 go build -o bin/cicd-proxy   cmd/cicd-proxy/main.go
 
-cicd-console --gf.gcfg.file=config-console.toml
-cicd-server --gf.gcfg.file=config-server.toml
+./bin/cicd-console --gf.gcfg.file=config/config-console.toml
 ```
 
 

@@ -13,6 +13,7 @@ go build -o bin/cicd-agent   cmd/cicd-agent/main.go
 go build -o bin/cicd-proxy   cmd/cicd-proxy/main.go
 
 ./bin/cicd-console --gf.gcfg.file=config/config-console.toml
+./bin/cicd-console --gf.gcfg.file config/config-console.toml
 ```
 
 

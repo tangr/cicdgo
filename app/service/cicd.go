@@ -135,7 +135,8 @@ func (s *cicdService) GetJobInfo(job_id int) (int, string, string) {
 func (s *cicdService) GetJobs(pipeline_id int, pageIndex int, pageSize int) ([]ListJobs, int) {
 	jobs := ([]ListJobs)(nil)
 	offSet := pageSize * (pageIndex - 1)
-	err := dao.CicdJob.Fields("id,pipeline_id,agent_id,job_type,job_status,comment,author,created_at").Order("id desc").Where("pipeline_id=", pipeline_id).Limit(offSet, pageSize).Structs(&jobs)
+	err := dao.CicdJob.Fields("id,pipeline_id,agent_id,job_type,job_status,comment,author,created_at").
+		Order("id desc").Where("pipeline_id=", pipeline_id).Limit(offSet, pageSize).Structs(&jobs)
 	if err != nil {
 		g.Log().Error(err)
 	}
